@@ -9,13 +9,13 @@ metadata:
   namespace: frame
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
-    nginx.ingress.kubernetes.io/cors-allow-origin: "https://app.ojfbot.dev"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://app.jim.software"
     nginx.ingress.kubernetes.io/enable-cors: "true"
 spec:
   ingressClassName: nginx
   rules:
-    # Shell host — everything goes through here for users
-    - host: app.ojfbot.dev
+    # Shell host — the Frame UI, primary user entry point
+    - host: app.jim.software
       http:
         paths:
           - path: /
@@ -31,9 +31,9 @@ spec:
                 name: shell-agent
                 port: { number: 4001 }
 
-    # Sub-app static assets (remoteEntry.js for Module Federation)
-    # These must be reachable from the shell's browser context
-    - host: cv.ojfbot.dev
+    # Sub-app static assets + APIs
+    # remoteEntry.js must be reachable from app.jim.software (CORS headers set above)
+    - host: cv.jim.software
       http:
         paths:
           - path: /
@@ -45,20 +45,44 @@ spec:
             backend:
               service: { name: cv-builder-api, port: { number: 3001 } }
 
-    - host: blog.ojfbot.dev
+    - host: blog.jim.software
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service: { name: blogengine, port: { number: 3005 } }
-    - host: trips.ojfbot.dev
+
+    - host: trips.jim.software
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service: { name: tripplanner, port: { number: 3010 } }
+
+    # Unified API — single Railway/fly.io backend serves all sub-apps
+    - host: api.jim.software
+      http:
+        paths:
+          - path: /cv
+            pathType: Prefix
+            backend:
+              service: { name: cv-builder-api, port: { number: 3001 } }
+          - path: /blog
+            pathType: Prefix
+            backend:
+              service: { name: blogengine-api, port: { number: 3006 } }
+          - path: /trips
+            pathType: Prefix
+            backend:
+              service: { name: tripplanner-api, port: { number: 3011 } }
+
   tls:
-    - hosts: [app.ojfbot.dev, cv.ojfbot.dev, blog.ojfbot.dev, trips.ojfbot.dev]
-      secretName: ojfbot-tls
+    - hosts:
+        - app.jim.software
+        - cv.jim.software
+        - blog.jim.software
+        - trips.jim.software
+        - api.jim.software
+      secretName: jim-software-tls

@@ -12,6 +12,11 @@ import federation from '@originjs/vite-plugin-federation'
 //     exposes: { './Dashboard': './src/components/Dashboard' },
 //     shared: ['react','react-dom','@reduxjs/toolkit','react-redux'] })
 
+// Local dev defaults. Production overrides via VITE_REMOTE_* env vars:
+//   VITE_REMOTE_CV_BUILDER=https://cv.jim.software
+//   VITE_REMOTE_BLOGENGINE=https://blog.jim.software
+//   VITE_REMOTE_TRIPPLANNER=https://trips.jim.software
+//   VITE_REMOTE_PUREFOY=https://purefoy.jim.software
 const remoteBase = {
   cv_builder:   process.env.VITE_REMOTE_CV_BUILDER   ?? 'http://localhost:3000',
   blogengine:   process.env.VITE_REMOTE_BLOGENGINE   ?? 'http://localhost:3005',
