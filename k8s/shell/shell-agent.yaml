@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shell-agent
+  namespace: frame
+  labels:
+    app: shell-agent
+    app.kubernetes.io/part-of: frame
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shell-agent
+  template:
+    metadata:
+      labels:
+        app: shell-agent
+    spec:
+      containers:
+        - name: shell-agent
+          image: ghcr.io/ojfbot/shell-agent:latest
+          ports:
+            - containerPort: 4001
+          env:
+            - name: ANTHROPIC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ojfbot-secrets
+                  key: anthropic-api-key
+            - name: CV_BUILDER_API_URL
+              value: "http://cv-builder-api.frame.svc.cluster.local:3001"
+            - name: BLOGENGINE_API_URL
+              value: "http://blogengine-api.frame.svc.cluster.local:3006"
+            - name: TRIPPLANNER_API_URL
+              value: "http://tripplanner-api.frame.svc.cluster.local:3011"
+          readinessProbe:
+            httpGet: { path: /health, port: 4001 }
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            requests: { cpu: 100m, memory: 256Mi }
+            limits:   { cpu: 1000m, memory: 512Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shell-agent
+  namespace: frame
+spec:
+  selector:
+    app: shell-agent
+  ports:
+    - port: 4001
+      targetPort: 4001

@@ -1,0 +1,102 @@
+/**
+ * Carbon is a style layer.
+ * These CSS custom properties override Carbon's token system.
+ * Skins (ojfbot.css, material.css, arc.css) override THIS file.
+ *
+ * Applied via: <html data-theme="ojfbot|material|arc">
+ */
+
+/* ── ojfbot default (dark, purple accent) ── */
+:root,
+[data-theme="ojfbot"] {
+  /* Brand */
+  --ojf-accent:        #7c6af7;
+  --ojf-accent-hover:  #6b59e8;
+  --ojf-accent-subtle: rgba(124, 106, 247, 0.12);
+
+  /* Surface scale */
+  --ojf-bg:            #0a0a0a;
+  --ojf-surface-1:     #111111;
+  --ojf-surface-2:     #181818;
+  --ojf-surface-3:     #222222;
+
+  /* Border */
+  --ojf-border:        #2a2a2a;
+  --ojf-border-subtle: #1e1e1e;
+
+  /* Text */
+  --ojf-text-primary:  #e8e8e8;
+  --ojf-text-secondary:#a0a0a0;
+  --ojf-text-muted:    #555555;
+
+  /* Typography */
+  --ojf-font-sans:     'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --ojf-font-mono:     'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Motion */
+  --ojf-ease:          cubic-bezier(0.16, 1, 0.3, 1);
+  --ojf-duration-fast: 120ms;
+  --ojf-duration-base: 200ms;
+
+  /* ── Carbon token overrides ── */
+  --cds-background:              var(--ojf-bg);
+  --cds-background-hover:        var(--ojf-surface-2);
+  --cds-layer-01:                var(--ojf-surface-1);
+  --cds-layer-02:                var(--ojf-surface-2);
+  --cds-layer-03:                var(--ojf-surface-3);
+  --cds-layer-hover-01:          var(--ojf-surface-2);
+  --cds-border-subtle-01:        var(--ojf-border-subtle);
+  --cds-border-strong-01:        var(--ojf-border);
+  --cds-text-primary:            var(--ojf-text-primary);
+  --cds-text-secondary:          var(--ojf-text-secondary);
+  --cds-text-placeholder:        var(--ojf-text-muted);
+  --cds-interactive:             var(--ojf-accent);
+  --cds-focus:                   var(--ojf-accent);
+  --cds-link-primary:            var(--ojf-accent);
+  --cds-link-primary-hover:      var(--ojf-accent-hover);
+  --cds-button-primary:          var(--ojf-accent);
+  --cds-button-primary-hover:    var(--ojf-accent-hover);
+  --cds-button-primary-active:   var(--ojf-accent-hover);
+  --cds-icon-primary:            var(--ojf-text-primary);
+  --cds-icon-secondary:          var(--ojf-text-secondary);
+  --cds-header-background:       var(--ojf-surface-1);
+  --cds-header-border:           var(--ojf-border);
+  --cds-side-nav-background:     var(--ojf-surface-1);
+}
+
+/* ── Material skin ── */
+[data-theme="material"] {
+  --ojf-accent:        #6750a4;
+  --ojf-accent-hover:  #7965af;
+  --ojf-accent-subtle: rgba(103, 80, 164, 0.12);
+  --ojf-bg:            #1c1b1f;
+  --ojf-surface-1:     #2b2930;
+  --ojf-surface-2:     #322f37;
+  --ojf-surface-3:     #3b383e;
+  --ojf-border:        #49454f;
+  --ojf-border-subtle: #38343c;
+  --ojf-text-primary:  #e6e1e5;
+  --ojf-text-secondary:#cac4d0;
+  --ojf-text-muted:    #938f99;
+  --ojf-font-sans:     'Roboto', 'Google Sans', sans-serif;
+
+  /* Material uses a slightly elevated surface for header */
+  --cds-header-background: #2b2930;
+}
+
+/* ── Arc / TBC skin (inspired by Arc browser's visual language) ── */
+[data-theme="arc"] {
+  --ojf-accent:        #ff6b6b;
+  --ojf-accent-hover:  #ff5252;
+  --ojf-accent-subtle: rgba(255, 107, 107, 0.1);
+  --ojf-bg:            #1a1a2e;
+  --ojf-surface-1:     #16213e;
+  --ojf-surface-2:     #1e2a4a;
+  --ojf-surface-3:     #253358;
+  --ojf-border:        #2d3f6e;
+  --ojf-border-subtle: #243059;
+  --ojf-text-primary:  #eef2ff;
+  --ojf-text-secondary:#a8b4e0;
+  --ojf-text-muted:    #5a6fa8;
+  --ojf-font-sans:     'SF Pro Display', -apple-system, sans-serif;
+}

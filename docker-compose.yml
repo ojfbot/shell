@@ -1,0 +1,69 @@
+# Local cluster simulation for Frame.
+# Mirrors the K8s topology: each app runs as an independent service.
+# The shell-app is the only thing users open (port 4000).
+#
+# Sub-app source is expected at sibling paths:
+#   ../cv-builder, ../BlogEngine, ../TripPlanner
+# Each must have been built with Module Federation remote config
+# (see k8s/README.md for the vite.config.ts patch required per app).
+#
+# Usage:
+#   docker compose up           # start all services
+#   docker compose up shell     # start shell only (sub-apps via localhost ports)
+
+networks:
+  frame-net:
+    driver: bridge
+
+services:
+  # ── Shell (Module Federation host) ─────────────────────────────────────────
+  shell:
+    build:
+      context: .
+      dockerfile: packages/shell-app/Dockerfile
+    ports:
+      - "4000:4000"
+    environment:
+      VITE_REMOTE_CV_BUILDER:  http://cv-builder:3000
+      VITE_REMOTE_BLOGENGINE:  http://blogengine:3005
+      VITE_REMOTE_TRIPPLANNER: http://tripplanner:3010
+      VITE_REMOTE_PUREFOY:     http://purefoy:3020
+      VITE_SHELL_AGENT_URL:    http://shell-agent:4001
+    depends_on:
+      - shell-agent
+    networks: [frame-net]
+
+  # ── Shell Agent API ─────────────────────────────────────────────────────────
+  shell-agent:
+    build:
+      context: .
+      dockerfile: packages/shell-agent/Dockerfile
+    ports:
+      - "4001:4001"
+    environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      CV_BUILDER_API_URL:  http://cv-builder-api:3001
+      BLOGENGINE_API_URL:  http://blogengine-api:3006
+      TRIPPLANNER_API_URL: http://tripplanner-api:3011
+    networks: [frame-net]
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:4001/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  # ── Sub-apps (browser apps + APIs) ─────────────────────────────────────────
+  # In local dev these typically run outside Docker via `pnpm dev`.
+  # Uncomment to run them fully containerised.
+  #
+  # cv-builder:
+  #   build: { context: ../cv-builder, dockerfile: packages/browser-app/Dockerfile }
+  #   ports: ["3000:3000"]
+  #   networks: [frame-net]
+  #
+  # cv-builder-api:
+  #   build: { context: ../cv-builder, dockerfile: packages/api/Dockerfile }
+  #   ports: ["3001:3001"]
+  #   environment: { ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY}" }
+  #   networks: [frame-net]

@@ -1,0 +1,64 @@
+# Nginx Ingress — routes external traffic into the frame namespace.
+# The shell is the only public entry point for users.
+# Sub-app remoteEntry.js files are served via their own paths
+# so the shell can load Module Federation modules across origins.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: frame-ingress
+  namespace: frame
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://app.ojfbot.dev"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+    # Shell host — everything goes through here for users
+    - host: app.ojfbot.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: shell
+                port: { number: 4000 }
+          - path: /shell-api
+            pathType: Prefix
+            backend:
+              service:
+                name: shell-agent
+                port: { number: 4001 }
+
+    # Sub-app static assets (remoteEntry.js for Module Federation)
+    # These must be reachable from the shell's browser context
+    - host: cv.ojfbot.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service: { name: cv-builder, port: { number: 3000 } }
+          - path: /api
+            pathType: Prefix
+            backend:
+              service: { name: cv-builder-api, port: { number: 3001 } }
+
+    - host: blog.ojfbot.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service: { name: blogengine, port: { number: 3005 } }
+    - host: trips.ojfbot.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service: { name: tripplanner, port: { number: 3010 } }
+  tls:
+    - hosts: [app.ojfbot.dev, cv.ojfbot.dev, blog.ojfbot.dev, trips.ojfbot.dev]
+      secretName: ojfbot-tls

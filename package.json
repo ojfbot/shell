@@ -1,0 +1,16 @@
+{
+  "name": "@ojfbot/shell-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@9.15.4",
+  "engines": { "node": ">=24.0.0" },
+  "scripts": {
+    "dev": "concurrently \"pnpm --filter @ojfbot/shell-app dev\" \"pnpm --filter @ojfbot/shell-agent dev\"",
+    "build": "pnpm --recursive --if-present build",
+    "type-check": "pnpm --recursive --if-present type-check"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}

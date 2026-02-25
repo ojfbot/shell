@@ -1,0 +1,91 @@
+# Template — copy and adapt for blogengine, tripplanner, purefoy
+# Each sub-app is a pod pair: browser-app (static SPA) + api (Express)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cv-builder
+  namespace: frame
+  labels:
+    app: cv-builder
+    app.kubernetes.io/part-of: frame
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cv-builder
+  template:
+    metadata:
+      labels:
+        app: cv-builder
+    spec:
+      containers:
+        - name: browser-app
+          image: ghcr.io/ojfbot/cv-builder-app:latest
+          ports:
+            - containerPort: 3000
+          # VITE_API_URL is baked at build time — points to the API service
+          readinessProbe:
+            httpGet: { path: /, port: 3000 }
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            requests: { cpu: 50m, memory: 64Mi }
+            limits:   { cpu: 200m, memory: 128Mi }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cv-builder-api
+  namespace: frame
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cv-builder-api
+  template:
+    metadata:
+      labels:
+        app: cv-builder-api
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/ojfbot/cv-builder-api:latest
+          ports:
+            - containerPort: 3001
+          env:
+            - name: ANTHROPIC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ojfbot-secrets
+                  key: anthropic-api-key
+          readinessProbe:
+            httpGet: { path: /health, port: 3001 }
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          resources:
+            requests: { cpu: 100m, memory: 256Mi }
+            limits:   { cpu: 500m, memory: 512Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cv-builder
+  namespace: frame
+spec:
+  selector:
+    app: cv-builder
+  ports:
+    - port: 3000
+      targetPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cv-builder-api
+  namespace: frame
+spec:
+  selector:
+    app: cv-builder-api
+  ports:
+    - port: 3001
+      targetPort: 3001

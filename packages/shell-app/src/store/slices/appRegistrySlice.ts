@@ -1,0 +1,201 @@
+/**
+ * App → Instance → Thread hierarchy.
+ *
+ * AppType      — the kind of application (cv-builder, tripplanner, etc.)
+ * AppInstance  — a named running instance of an AppType
+ *                e.g. two TripPlanner instances: "Tokyo Trip" and "Berlin Trip"
+ * AppThread    — a named conversation within an instance
+ *                e.g. "Flights", "Hotels", "Itinerary" inside "Tokyo Trip"
+ *
+ * This mirrors how a browser thinks about apps:
+ *   App type  ≈ website
+ *   Instance  ≈ window / tab group
+ *   Thread    ≈ tab
+ */
+
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
+
+// ── Types ────────────────────────────────────────────────────────────────────
+
+export type AppType = 'cv-builder' | 'tripplanner' | 'blogengine' | 'purefoy'
+
+export interface AppThread {
+  id: string
+  name: string           // "Flights", "Hotel search", "Itinerary v2"
+  createdAt: string
+  lastActivity: string
+  messageCount: number
+}
+
+export interface AppInstance {
+  id: string
+  appType: AppType
+  name: string           // "Tokyo Trip", "Berlin Trip", "My CV"
+  remoteUrl: string      // resolved at spawn time from env/registry
+  threads: AppThread[]
+  activeThreadId: string | null
+  createdAt: string
+  lastActivity: string
+}
+
+interface AppRegistryState {
+  instances: AppInstance[]
+  activeInstanceId: string | null
+  // Convenience: which appType is currently foregrounded (for ShellAgent routing)
+  activeAppType: AppType | null
+}
+
+// ── Default instances (one per app type, created on first load) ───────────────
+
+const DEFAULT_INSTANCES: AppInstance[] = [
+  {
+    id: 'default-cv-builder',
+    appType: 'cv-builder',
+    name: 'My CV',
+    remoteUrl: import.meta.env.VITE_REMOTE_CV_BUILDER ?? 'http://localhost:3000',
+    threads: [{ id: 'default', name: 'Main', createdAt: new Date().toISOString(), lastActivity: new Date().toISOString(), messageCount: 0 }],
+    activeThreadId: 'default',
+    createdAt: new Date().toISOString(),
+    lastActivity: new Date().toISOString(),
+  },
+  {
+    id: 'default-blogengine',
+    appType: 'blogengine',
+    name: 'Blog',
+    remoteUrl: import.meta.env.VITE_REMOTE_BLOGENGINE ?? 'http://localhost:3005',
+    threads: [{ id: 'default', name: 'Main', createdAt: new Date().toISOString(), lastActivity: new Date().toISOString(), messageCount: 0 }],
+    activeThreadId: 'default',
+    createdAt: new Date().toISOString(),
+    lastActivity: new Date().toISOString(),
+  },
+]
+
+const initialState: AppRegistryState = {
+  instances: DEFAULT_INSTANCES,
+  activeInstanceId: 'default-cv-builder',
+  activeAppType: 'cv-builder',
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function now() { return new Date().toISOString() }
+function uid() { return crypto.randomUUID() }
+
+// ── Slice ─────────────────────────────────────────────────────────────────────
+
+export const appRegistrySlice = createSlice({
+  name: 'appRegistry',
+  initialState,
+  reducers: {
+    // Activate an existing instance (foreground it)
+    activateInstance(state, action: PayloadAction<string>) {
+      const inst = state.instances.find(i => i.id === action.payload)
+      if (inst) {
+        state.activeInstanceId = inst.id
+        state.activeAppType = inst.appType
+        inst.lastActivity = now()
+      }
+    },
+
+    // Spawn a new named instance of an app type
+    spawnInstance(state, action: PayloadAction<{
+      appType: AppType
+      name: string
+      remoteUrl: string
+    }>) {
+      const { appType, name, remoteUrl } = action.payload
+      const instance: AppInstance = {
+        id: uid(),
+        appType,
+        name,
+        remoteUrl,
+        threads: [{ id: uid(), name: 'Main', createdAt: now(), lastActivity: now(), messageCount: 0 }],
+        activeThreadId: null,
+        createdAt: now(),
+        lastActivity: now(),
+      }
+      instance.activeThreadId = instance.threads[0].id
+      state.instances.push(instance)
+      state.activeInstanceId = instance.id
+      state.activeAppType = appType
+    },
+
+    // Close an instance (cannot close the last instance of an app type)
+    closeInstance(state, action: PayloadAction<string>) {
+      const idx = state.instances.findIndex(i => i.id === action.payload)
+      if (idx === -1) return
+      const { appType } = state.instances[idx]
+      const remaining = state.instances.filter(i => i.appType === appType)
+      if (remaining.length <= 1) return  // never close the last one
+      state.instances.splice(idx, 1)
+      if (state.activeInstanceId === action.payload) {
+        const fallback = state.instances.findLast(i => i.appType === appType)
+        state.activeInstanceId = fallback?.id ?? state.instances[0]?.id ?? null
+        state.activeAppType = fallback?.appType ?? state.instances[0]?.appType ?? null
+      }
+    },
+
+    // ── Thread management within an instance ──────────────────────────────────
+
+    addThread(state, action: PayloadAction<{ instanceId: string; name: string }>) {
+      const inst = state.instances.find(i => i.id === action.payload.instanceId)
+      if (!inst) return
+      const thread: AppThread = {
+        id: uid(),
+        name: action.payload.name,
+        createdAt: now(),
+        lastActivity: now(),
+        messageCount: 0,
+      }
+      inst.threads.push(thread)
+      inst.activeThreadId = thread.id
+      inst.lastActivity = now()
+    },
+
+    activateThread(state, action: PayloadAction<{ instanceId: string; threadId: string }>) {
+      const inst = state.instances.find(i => i.id === action.payload.instanceId)
+      if (inst) {
+        inst.activeThreadId = action.payload.threadId
+        inst.lastActivity = now()
+      }
+    },
+
+    renameThread(state, action: PayloadAction<{ instanceId: string; threadId: string; name: string }>) {
+      const inst = state.instances.find(i => i.id === action.payload.instanceId)
+      const thread = inst?.threads.find(t => t.id === action.payload.threadId)
+      if (thread) thread.name = action.payload.name
+    },
+
+    removeThread(state, action: PayloadAction<{ instanceId: string; threadId: string }>) {
+      const inst = state.instances.find(i => i.id === action.payload.instanceId)
+      if (!inst || inst.threads.length <= 1) return
+      inst.threads = inst.threads.filter(t => t.id !== action.payload.threadId)
+      if (inst.activeThreadId === action.payload.threadId) {
+        inst.activeThreadId = inst.threads[inst.threads.length - 1].id
+      }
+    },
+
+    bumpThreadActivity(state, action: PayloadAction<{ instanceId: string; threadId: string }>) {
+      const inst = state.instances.find(i => i.id === action.payload.instanceId)
+      const thread = inst?.threads.find(t => t.id === action.payload.threadId)
+      if (thread) {
+        thread.lastActivity = now()
+        thread.messageCount += 1
+      }
+      if (inst) inst.lastActivity = now()
+    },
+  },
+})
+
+export const {
+  activateInstance,
+  spawnInstance,
+  closeInstance,
+  addThread,
+  activateThread,
+  renameThread,
+  removeThread,
+  bumpThreadActivity,
+} = appRegistrySlice.actions
+
+export default appRegistrySlice.reducer
