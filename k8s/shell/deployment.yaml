@@ -31,8 +31,8 @@ spec:
               value: "http://tripplanner.frame.svc.cluster.local:3010"
             - name: VITE_REMOTE_PUREFOY
               value: "http://purefoy.frame.svc.cluster.local:3020"
-            - name: VITE_SHELL_AGENT_URL
-              value: "http://shell-agent.frame.svc.cluster.local:4001"
+            - name: VITE_FRAME_AGENT_URL
+              value: "http://frame-agent.frame.svc.cluster.local:4001"
           readinessProbe:
             httpGet: { path: /, port: 4000 }
             initialDelaySeconds: 5

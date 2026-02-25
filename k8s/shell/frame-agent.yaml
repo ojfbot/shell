@@ -1,24 +1,29 @@
+# frame-agent — the single LLM gateway + meta-orchestrator for the Frame OS cluster.
+# Holds the one ANTHROPIC_API_KEY. Routes NL commands to domain agents for each sub-app.
+# Sub-app APIs are pure domain/CRUD services; all AI calls go through this pod.
+#
+# Renamed from shell-agent.yaml — shell-agent → frame-agent throughout.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: shell-agent
+  name: frame-agent
   namespace: frame
   labels:
-    app: shell-agent
+    app: frame-agent
     app.kubernetes.io/part-of: frame
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: shell-agent
+      app: frame-agent
   template:
     metadata:
       labels:
-        app: shell-agent
+        app: frame-agent
     spec:
       containers:
-        - name: shell-agent
-          image: ghcr.io/ojfbot/shell-agent:latest
+        - name: frame-agent
+          image: ghcr.io/ojfbot/frame-agent:latest
           ports:
             - containerPort: 4001
           env:
@@ -33,22 +38,31 @@ spec:
               value: "http://blogengine-api.frame.svc.cluster.local:3006"
             - name: TRIPPLANNER_API_URL
               value: "http://tripplanner-api.frame.svc.cluster.local:3011"
+            - name: PUREFOY_API_URL
+              value: "http://purefoy-api.frame.svc.cluster.local:3021"
+            - name: CORS_ORIGIN
+              value: "https://app.jim.software"
+            - name: PORT
+              value: "4001"
+            - name: NODE_ENV
+              value: "production"
           readinessProbe:
             httpGet: { path: /health, port: 4001 }
             initialDelaySeconds: 5
             periodSeconds: 5
           resources:
-            requests: { cpu: 100m, memory: 256Mi }
-            limits:   { cpu: 1000m, memory: 512Mi }
+            # Bumped vs shell-agent: runs 4 domain agents (meta + cv + blog + trip)
+            requests: { cpu: 200m, memory: 512Mi }
+            limits:   { cpu: 1000m, memory: 1Gi }
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: shell-agent
+  name: frame-agent
   namespace: frame
 spec:
   selector:
-    app: shell-agent
+    app: frame-agent
   ports:
     - port: 4001
       targetPort: 4001

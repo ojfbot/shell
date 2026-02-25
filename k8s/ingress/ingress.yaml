@@ -24,11 +24,11 @@ spec:
               service:
                 name: shell
                 port: { number: 4000 }
-          - path: /shell-api
+          - path: /frame-api
             pathType: Prefix
             backend:
               service:
-                name: shell-agent
+                name: frame-agent
                 port: { number: 4001 }
 
     # Sub-app static assets + APIs

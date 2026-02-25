@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2022"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "paths": {
+      "@ojfbot/agent-core": ["../agent-core/src/index.ts"],
+      "@ojfbot/agent-core/agents/*": ["../agent-core/src/agents/*.ts"],
+      "@ojfbot/agent-core/middleware/*": ["../agent-core/src/middleware/*.ts"],
+      "@ojfbot/agent-core/services/*": ["../agent-core/src/services/*.ts"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

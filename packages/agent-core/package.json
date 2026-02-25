@@ -1,0 +1,26 @@
+{
+  "name": "@ojfbot/agent-core",
+  "version": "0.1.0",
+  "description": "Shared AI agent primitives for ojfbot Frame OS",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./agents/*": "./src/agents/*.ts",
+    "./middleware/*": "./src/middleware/*.ts",
+    "./services/*": "./src/services/*.ts"
+  },
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "catalog:",
+    "express-rate-limit": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/express": "catalog:",
+    "@types/node": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  }
+}

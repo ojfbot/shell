@@ -4,7 +4,7 @@
 
 `shell` is the Frame host application — the AI App OS that composes all ojfbot applications into a single interface.
 
-**Architecture: Module Federation (Vite) + K8s pod cluster**
+**Architecture: Module Federation (Vite) + K8s pod cluster + frame-agent LLM gateway**
 
 Each sub-app (cv-builder, BlogEngine, TripPlanner, purefoy) runs as an independent pod exposing its `Dashboard` component as a Vite Module Federation remote. The shell is the host that loads those remotes dynamically — no iframes, no page reloads, shared React/Redux singleton.
 
@@ -12,14 +12,45 @@ The K8s topology maps directly to the "browser as OS" metaphor:
 - Each sub-app pod ≈ a browser process (isolated, independently deployable)
 - The shell pod ≈ the browser chrome (persistent, composes the others)
 - The ingress ≈ the browser's URL bar / routing layer
-- The ShellAgent API ≈ the browser's AI layer
+- `frame-agent` ≈ the browser's AI layer — single LLM gateway for the entire cluster
 
 ## Packages
 
 | Package | Port | Purpose |
 |---|---|---|
 | `packages/shell-app` | 4000 | Vite Module Federation host. Header + AppSwitcher + AppFrame. |
-| `packages/shell-agent` | 4001 | ShellAgent Express API. Routes natural language commands to active app's API. |
+| `packages/frame-agent` | 4001 | Meta-orchestrator + LLM gateway. Single Anthropic API key for all sub-apps. |
+| `packages/agent-core` | — | Shared npm package: BaseAgent, AgentManager, middleware (no port). |
+
+## frame-agent architecture
+
+`frame-agent` is the single AI backend for the entire Frame cluster:
+
+```
+shell-app (UI)
+  └── frame-agent (port 4001) — ONE Anthropic API key
+        ├── MetaOrchestratorAgent — classifies + routes NL to domain
+        ├── CvBuilderDomainAgent  — resume, jobs, tailoring, interview
+        ├── BlogEngineDomainAgent — posts, drafts, Notion, podcast
+        └── TripPlannerDomainAgent — trips, itineraries, budget, transport
+
+  ↓ delegates CRUD/data to:
+  cv-builder-api (port 3001)  — domain data service
+  blogengine-api (port 3006)  — domain data service
+  tripplanner-api (port 3011) — domain data service
+```
+
+Sub-app APIs expose `GET /api/tools` returning their capability manifest.
+Domain agents in frame-agent call sub-app APIs for data only — no direct Anthropic calls in sub-apps (Phase 2 migration).
+
+## @ojfbot/agent-core
+
+Shared package with:
+- `BaseAgent` — Anthropic client, streaming, history management
+- `AgentManager<T>` — typed singleton factory
+- Middleware: `validateBody`, `validateQuery`, `getRateLimiter`, `errorHandler`, `notFoundHandler`
+
+Each sub-app imports this instead of duplicating the pattern.
 
 ## Data model
 
@@ -29,6 +60,8 @@ App → Instance → Thread (see `appRegistrySlice.ts`):
 - **Thread**: a named conversation within an instance ("Flights", "Hotels")
 
 Multiple instances of the same app type are supported.
+
+`activeAppType` from the Redux store is passed to frame-agent as context with every chat message, enabling domain routing.
 
 ## Theming
 
@@ -42,15 +75,25 @@ Carbon is a style layer. `src/themes/tokens.css` defines CSS custom property ove
 ```bash
 pnpm install
 
-# Start shell only (sub-apps expected at their localhost ports)
-pnpm --filter @ojfbot/shell-app dev   # http://localhost:4000
-pnpm --filter @ojfbot/shell-agent dev # http://localhost:4001
+# Start shell + frame-agent (sub-apps expected at their localhost ports)
+pnpm dev:all
+# or individually:
+pnpm --filter @ojfbot/shell-app dev    # http://localhost:4000
+pnpm --filter @ojfbot/frame-agent dev  # http://localhost:4001
 
 # Full local cluster
 docker compose up
 
-# Type check
+# Type check all packages
 pnpm type-check
+```
+
+Environment variables for frame-agent dev:
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...
+export CV_BUILDER_API_URL=http://localhost:3001
+export BLOGENGINE_API_URL=http://localhost:3006
+export TRIPPLANNER_API_URL=http://localhost:3011
 ```
 
 ## Sub-app Module Federation setup
@@ -68,8 +111,6 @@ federation({
 })
 ```
 
-See `k8s/README.md` for full setup instructions per app.
-
 ## K8s deployment
 
 ```bash
@@ -78,17 +119,19 @@ kubectl apply -f k8s/shell/
 kubectl apply -f k8s/apps/
 kubectl apply -f k8s/ingress/
 
-# Create secrets
+# Create secrets (ONE key for the entire cluster — held by frame-agent)
 kubectl create secret generic ojfbot-secrets \
   --namespace=frame \
   --from-literal=anthropic-api-key=$ANTHROPIC_API_KEY
 ```
 
 Ingress routes:
-- `app.ojfbot.dev` → shell (port 4000)
-- `cv.ojfbot.dev`  → cv-builder (port 3000) + API (port 3001)
-- `blog.ojfbot.dev` → BlogEngine
-- `trips.ojfbot.dev` → TripPlanner
+- `app.jim.software` → shell (port 4000)
+- `app.jim.software/frame-api` → frame-agent (port 4001)
+- `cv.jim.software` → cv-builder (port 3000) + API (port 3001)
+- `blog.jim.software` → BlogEngine
+- `trips.jim.software` → TripPlanner
+- `api.jim.software` → unified API routing
 
 ## Visual regression CI
 
@@ -96,9 +139,13 @@ The visual regression pipeline lives in cv-builder. The shell itself is not yet 
 
 ## Roadmap
 
-- [ ] ShellAgent streaming chat (header command bar → active app orchestrator)
+- [x] frame-agent: MetaOrchestratorAgent + 3 domain agents
+- [x] @ojfbot/agent-core: shared BaseAgent + middleware
+- [x] ShellHeader with chat input → frame-agent
+- [x] chatSlice + store/hooks wired
 - [ ] ThemeSwitcher component (toggle ojfbot/material/arc in UI)
-- [ ] `spawnInstance` wired to ShellAgent NL command ("new trip to Berlin")
+- [ ] `spawnInstance` wired to frame-agent NL command ("new trip to Berlin")
 - [ ] Persist AppRegistry to localStorage
+- [ ] Sub-app API migration: remove direct Anthropic calls, delegate to frame-agent (Phase 2)
 - [ ] Shell visual regression tests
 - [ ] CI pipeline (build + type-check on PR)
