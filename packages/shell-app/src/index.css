@@ -37,6 +37,8 @@ html, body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  background-color: var(--cds-background);  /* changes with theme class */
+  color: var(--cds-text-primary);
 }
 
 /* ── Main content area ───────────────────────────────────────── */
@@ -46,6 +48,7 @@ html, body {
   display: flex;
   flex-direction: column;
   overflow: auto;
+  background-color: var(--cds-background);
 }
 
 /* ── Shell command area (inside Carbon Header flex row) ──────── */

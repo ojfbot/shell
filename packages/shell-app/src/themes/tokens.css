@@ -2,11 +2,26 @@
  * Carbon is a style layer.
  * These CSS custom properties override Carbon's token system.
  *
- * Carbon's <Theme> component adds .cds--g100 / .cds--white class to its wrapper.
- * We target .cds--g100 directly so our overrides win (same specificity, later load order).
+ * :root defines --ojf-* tokens for light mode (Carbon white theme default).
+ * .cds--g100 overrides them for dark mode — same specificity, later load order wins.
+ *
+ * App.tsx syncs the theme class to <html> via useEffect so body + :root-resolved
+ * tokens switch correctly alongside the <Theme> wrapper.
  */
 
-/* ── ojfbot dark (purple accent, near-black surfaces) ── */
+/* ── ojfbot shared tokens (active in both light + dark unless overridden) ── */
+:root {
+  --ojf-accent:        #5b4de0;  /* purple accessible on white */
+  --ojf-accent-hover:  #4a3ecb;
+  --ojf-accent-subtle: rgba(91, 77, 224, 0.10);
+  --ojf-font-sans:     'IBM Plex Sans', sans-serif;
+  --ojf-font-mono:     'IBM Plex Mono', 'JetBrains Mono', 'Fira Code', monospace;
+  --ojf-ease:          cubic-bezier(0.16, 1, 0.3, 1);
+  --ojf-duration-fast: 120ms;
+  --ojf-duration-base: 200ms;
+}
+
+/* ── ojfbot dark overrides (purple accent, near-black surfaces) ── */
 .cds--g100 {
   /* Brand */
   --ojf-accent:        #7c6af7;
@@ -27,15 +42,6 @@
   --ojf-text-primary:  #e8e8e8;
   --ojf-text-secondary:#a0a0a0;
   --ojf-text-muted:    #555555;
-
-  /* Typography — Carbon loads IBM Plex Sans via its type SCSS module */
-  --ojf-font-sans:     'IBM Plex Sans', sans-serif;
-  --ojf-font-mono:     'IBM Plex Mono', 'JetBrains Mono', 'Fira Code', monospace;
-
-  /* Motion */
-  --ojf-ease:          cubic-bezier(0.16, 1, 0.3, 1);
-  --ojf-duration-fast: 120ms;
-  --ojf-duration-base: 200ms;
 
   /* ── Carbon token overrides ── */
   --cds-background:              var(--ojf-bg);
@@ -73,6 +79,13 @@
   --cds-header-background:       var(--ojf-surface-1);
   --cds-header-border:           transparent;  /* no visible line under header or beside hamburger */
   --cds-side-nav-background:     var(--ojf-surface-1);
+}
+
+/* ── Hamburger button: active state when sidebar is open ─────── */
+/*    Carbon's default active bg is too light against our near-black header. */
+.cds--g100 .cds--header__action--active,
+.cds--g100 .cds--header__action--active:hover {
+  background-color: var(--ojf-surface-hover);
 }
 
 /*

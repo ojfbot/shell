@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Theme,
   Header,
@@ -20,6 +20,12 @@ export function App() {
   const [sideNavExpanded, setSideNavExpanded] = useState(false)
   const isDark = useAppSelector(s => s.theme.isDark)
   const dispatch = useAppDispatch()
+
+  // Push theme class to <html> so body + :root-resolved tokens change with the theme
+  useEffect(() => {
+    document.documentElement.classList.toggle('cds--g100', isDark)
+    document.documentElement.classList.toggle('cds--white', !isDark)
+  }, [isDark])
 
   return (
     // Theme renders as the app-container div — adds .cds--g100 / .cds--white in-place
