@@ -28,9 +28,9 @@
   --ojf-text-secondary:#a0a0a0;
   --ojf-text-muted:    #555555;
 
-  /* Typography */
-  --ojf-font-sans:     'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --ojf-font-mono:     'JetBrains Mono', 'Fira Code', monospace;
+  /* Typography — Carbon loads IBM Plex Sans via its type SCSS module */
+  --ojf-font-sans:     'IBM Plex Sans', sans-serif;
+  --ojf-font-mono:     'IBM Plex Mono', 'JetBrains Mono', 'Fira Code', monospace;
 
   /* Motion */
   --ojf-ease:          cubic-bezier(0.16, 1, 0.3, 1);
@@ -71,7 +71,7 @@
   --cds-icon-primary:            var(--ojf-text-primary);
   --cds-icon-secondary:          var(--ojf-text-secondary);
   --cds-header-background:       var(--ojf-surface-1);
-  --cds-header-border:           var(--ojf-border);
+  --cds-header-border:           transparent;  /* no visible line under header or beside hamburger */
   --cds-side-nav-background:     var(--ojf-surface-1);
 }
 
