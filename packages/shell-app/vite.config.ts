@@ -48,6 +48,14 @@ export default defineConfig({
     port: 4000,   // Shell runs on 4000 to avoid clashing with sub-apps
     cors: true,
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        // Use the modern Sass compiler API (suppresses legacy-js-api deprecation warning)
+        api: 'modern-compiler' as const,
+      },
+    },
+  },
   preview: { port: 4000 },
   build: {
     // Module Federation requires non-legacy chunk format

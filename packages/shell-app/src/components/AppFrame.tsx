@@ -7,9 +7,10 @@
  * Falls back gracefully when a remote is unavailable (dev mode, pod not ready).
  */
 
-import React, { Suspense, lazy, useEffect, useState } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
 import { useAppSelector } from '../store/hooks.js'
 import type { AppType } from '../store/slices/appRegistrySlice.js'
+import { HomeScreen } from './HomeScreen.js'
 
 // Vite Module Federation remote imports.
 // The keys match the federation.remotes config in vite.config.ts.
@@ -76,7 +77,7 @@ export function AppFrame() {
   }, [activeInstance?.appType])
 
   if (!activeInstance) {
-    return <div className="frame-empty">No app selected.</div>
+    return <HomeScreen />
   }
 
   if (loading) {

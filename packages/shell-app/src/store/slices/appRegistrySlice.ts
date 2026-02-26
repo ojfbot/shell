@@ -72,8 +72,8 @@ const DEFAULT_INSTANCES: AppInstance[] = [
 
 const initialState: AppRegistryState = {
   instances: DEFAULT_INSTANCES,
-  activeInstanceId: 'default-cv-builder',
-  activeAppType: 'cv-builder',
+  activeInstanceId: null,  // HomeScreen shown until user picks an app
+  activeAppType: null,
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
