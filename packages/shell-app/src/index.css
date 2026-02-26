@@ -259,11 +259,12 @@ html, body {
   max-width: 900px;
 }
 
-.home-screen__tile {
+/* Raise specificity to beat ClickableTile's default padding without !important */
+.home-screen .home-screen__tile {
   display: flex;
   flex-direction: column;
-  gap: 0.375rem;
-  padding: 1.25rem !important;
+  gap: 0.5rem;
+  padding: 1.25rem;
   min-height: 148px;
 }
 
