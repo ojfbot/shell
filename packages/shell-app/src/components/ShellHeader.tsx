@@ -2,6 +2,10 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from '../store/hooks.js'
 import { sendMessage, clearChat } from '../store/slices/chatSlice.js'
 
+/**
+ * Renders the command input bar inside the Carbon Header flex row.
+ * Takes up remaining header space between HeaderName and the right edge.
+ */
 export function ShellHeader() {
   const dispatch = useAppDispatch()
   const { activeAppType } = useAppSelector(s => s.appRegistry)
@@ -35,7 +39,6 @@ export function ShellHeader() {
     }
   }
 
-  // Focus input on Cmd+K
   useEffect(() => {
     function handleGlobalKey(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -53,9 +56,7 @@ export function ShellHeader() {
     : 'Ask anything (⌘K)'
 
   return (
-    <header className="shell-header">
-      <div className="shell-header__logo">Frame</div>
-
+    <div className="shell-header__command-area">
       <form className="shell-header__input-form" onSubmit={handleSubmit}>
         <input
           ref={inputRef}
@@ -116,6 +117,6 @@ export function ShellHeader() {
           </div>
         </div>
       )}
-    </header>
+    </div>
   )
 }

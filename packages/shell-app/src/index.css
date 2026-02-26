@@ -2,48 +2,44 @@
 
 html, body, #root {
   height: 100%;
-  overflow: hidden;
   font-family: system-ui, -apple-system, sans-serif;
-  background: var(--cds-background, #161616);
-  color: var(--cds-text-primary, #f4f4f4);
 }
 
-/* ── Shell layout ─────────────────────────────────────────────── */
-.frame-layout {
-  display: grid;
-  grid-template-rows: 48px 1fr;
-  height: 100%;
+/* ── Carbon overrides ─────────────────────────────────────────── */
+/* Always show hamburger button regardless of viewport */
+.cds--header__menu-toggle__hidden {
+  display: flex !important;
 }
 
-.frame-body {
-  display: grid;
-  grid-template-columns: 220px 1fr;
-  overflow: hidden;
+/* Sidebar overlay below modals */
+.cds--side-nav__overlay {
+  z-index: 8999 !important;
 }
 
-.frame-main {
+/* ── App container ────────────────────────────────────────────── */
+.app-container {
+  max-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Main content area ───────────────────────────────────────── */
+.main-content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   overflow: auto;
-  padding: 1rem;
 }
 
-/* ── Shell header ─────────────────────────────────────────────── */
-.shell-header {
+/* ── Shell command area (inside Carbon Header flex row) ──────── */
+.shell-header__command-area {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  flex: 1;
   padding: 0 1rem;
-  background: var(--cds-layer-01, #262626);
-  border-bottom: 1px solid var(--cds-border-subtle-01, #393939);
   position: relative;
-  z-index: 100;
-}
-
-.shell-header__logo {
-  font-weight: 600;
-  font-size: 0.875rem;
-  letter-spacing: 0.08em;
-  color: var(--cds-text-primary, #f4f4f4);
-  white-space: nowrap;
 }
 
 .shell-header__input-form {
@@ -97,7 +93,7 @@ html, body, #root {
 
 /* ── Chat overlay ─────────────────────────────────────────────── */
 .shell-chat-overlay {
-  position: absolute;
+  position: fixed;
   top: 48px;
   left: 50%;
   transform: translateX(-50%);
@@ -106,7 +102,7 @@ html, body, #root {
   border: 1px solid var(--cds-border-subtle-01, #525252);
   border-radius: 6px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-  z-index: 200;
+  z-index: 9000;
   overflow: hidden;
 }
 
@@ -148,97 +144,48 @@ html, body, #root {
   padding: 4px 10px;
 }
 
-/* ── App switcher sidebar ─────────────────────────────────────── */
-.app-switcher {
-  background: var(--cds-layer-01, #262626);
-  border-right: 1px solid var(--cds-border-subtle-01, #393939);
-  overflow-y: auto;
-  padding: 0.75rem 0;
+/* ── Sidebar app list ─────────────────────────────────────────── */
+.sidebar-search-container {
+  padding: 1rem;
 }
 
-.app-type-group { margin-bottom: 0.25rem; }
+.applications-list {
+  margin-top: 1rem;
+}
 
-.app-type-label {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.25rem 0.75rem;
-  font-size: 0.7rem;
+.application-item {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.1s;
+  user-select: none;
+  color: var(--cds-text-primary, #f4f4f4);
+  font-size: 0.875rem;
+}
+
+.application-item:hover {
+  background-color: var(--cds-layer-hover);
+}
+
+.application-item:active {
+  background-color: var(--cds-layer-active);
+}
+
+.application-item.current-app {
+  background-color: var(--cds-layer-selected);
   font-weight: 600;
-  letter-spacing: 0.08em;
-  color: var(--cds-text-helper, #8d8d8d);
-  text-transform: uppercase;
 }
 
-.spawn-btn {
-  background: none;
-  border: none;
-  color: var(--cds-text-helper, #8d8d8d);
-  cursor: pointer;
-  font-size: 1rem;
-  line-height: 1;
-  padding: 0 4px;
-}
-.spawn-btn:hover { color: var(--cds-text-primary, #f4f4f4); }
-
-.instance { }
-
-.instance-header {
-  background: none;
-  border: none;
-  color: var(--cds-text-secondary, #c6c6c6);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.8rem;
-  padding: 0.35rem 0.75rem;
-  width: 100%;
-  text-align: left;
-}
-.instance-header:hover { background: var(--cds-layer-hover-01, #333333); }
-.instance.active > .instance-header { color: var(--cds-text-primary, #f4f4f4); }
-
-.instance-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.thread-count { font-size: 0.7rem; color: var(--cds-text-helper, #8d8d8d); }
-.chevron { font-size: 0.6rem; color: var(--cds-text-helper, #8d8d8d); }
-
-.thread-list { list-style: none; padding-left: 1.25rem; }
-
-.thread-item {
-  background: none;
-  border: none;
-  color: var(--cds-text-helper, #8d8d8d);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  font-size: 0.78rem;
-  gap: 0.5rem;
-  padding: 0.25rem 0.5rem;
-  width: 100%;
-  text-align: left;
-}
-.thread-item:hover { color: var(--cds-text-secondary, #c6c6c6); }
-.thread-item.active-thread { color: var(--cds-interactive, #a56eff); }
-
-.msg-count {
-  background: var(--cds-layer-03, #525252);
-  border-radius: 8px;
-  font-size: 0.65rem;
-  padding: 1px 5px;
+.application-item:focus {
+  outline: 2px solid var(--cds-focus);
+  outline-offset: -2px;
 }
 
-.add-thread-btn {
-  background: none;
-  border: none;
-  color: var(--cds-text-helper, #8d8d8d);
-  cursor: pointer;
-  font-size: 0.75rem;
-  padding: 0.2rem 0.5rem;
-  text-align: left;
-  width: 100%;
+.no-results {
+  padding: 1rem;
+  color: var(--cds-text-secondary);
+  text-align: center;
 }
-.add-thread-btn:hover { color: var(--cds-text-secondary, #c6c6c6); }
 
 /* ── AppFrame states ──────────────────────────────────────────── */
 .frame-loading,
@@ -248,7 +195,7 @@ html, body, #root {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  flex: 1;
   gap: 0.5rem;
   color: var(--cds-text-helper, #8d8d8d);
   font-size: 0.875rem;

@@ -1,18 +1,9 @@
-/**
- * Left sidebar — App → Instance → Thread hierarchy.
- *
- * Groups instances by app type. Each instance is expandable to show
- * its named threads. Clicking a thread activates that instance + thread.
- */
-
-import React, { useState } from 'react'
+import { useState, useMemo } from 'react'
+import { TextInput } from '@carbon/react'
 import { useAppDispatch, useAppSelector } from '../store/hooks.js'
 import {
   activateInstance,
-  activateThread,
-  addThread,
   spawnInstance,
-  type AppInstance,
   type AppType,
 } from '../store/slices/appRegistrySlice.js'
 
@@ -32,94 +23,70 @@ const APP_REMOTE_DEFAULTS: Record<AppType, string> = {
 
 const APP_TYPES: AppType[] = ['cv-builder', 'tripplanner', 'blogengine', 'purefoy']
 
+/**
+ * Flat app list with search — renders inside Carbon SideNav.
+ * Clicking an app activates its first instance (or creates one).
+ */
 export function AppSwitcher() {
   const dispatch = useAppDispatch()
   const { instances, activeInstanceId } = useAppSelector(s => s.appRegistry)
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({})
+  const [search, setSearch] = useState('')
 
-  const grouped = APP_TYPES.reduce<Record<AppType, AppInstance[]>>((acc, t) => {
-    acc[t] = instances.filter(i => i.appType === t)
-    return acc
-  }, {} as Record<AppType, AppInstance[]>)
+  const activeAppType = instances.find(i => i.id === activeInstanceId)?.appType
 
-  function toggleExpand(id: string) {
-    setExpanded(prev => ({ ...prev, [id]: !prev[id] }))
-  }
+  const filtered = useMemo(
+    () => APP_TYPES.filter(t =>
+      APP_LABELS[t].toLowerCase().includes(search.toLowerCase())
+    ),
+    [search]
+  )
 
-  function handleSpawn(appType: AppType) {
-    const label = prompt(`Name this ${APP_LABELS[appType]} instance:`)
-    if (!label?.trim()) return
-    dispatch(spawnInstance({ appType, name: label.trim(), remoteUrl: APP_REMOTE_DEFAULTS[appType] }))
-  }
-
-  function handleAddThread(instanceId: string) {
-    const name = prompt('Thread name:')
-    if (!name?.trim()) return
-    dispatch(addThread({ instanceId, name: name.trim() }))
+  function handleSelect(appType: AppType) {
+    const existing = instances.find(i => i.appType === appType)
+    if (existing) {
+      dispatch(activateInstance(existing.id))
+    } else {
+      dispatch(spawnInstance({
+        appType,
+        name: APP_LABELS[appType],
+        remoteUrl: APP_REMOTE_DEFAULTS[appType],
+      }))
+    }
   }
 
   return (
-    <nav className="app-switcher" aria-label="App switcher">
-      {APP_TYPES.map(appType => {
-        const typeInstances = grouped[appType]
-        if (typeInstances.length === 0) return null
-        return (
-          <section key={appType} className="app-type-group">
-            <div className="app-type-label">
-              <span>{APP_LABELS[appType]}</span>
-              <button
-                className="spawn-btn"
-                onClick={() => handleSpawn(appType)}
-                title={`New ${APP_LABELS[appType]} instance`}
-                aria-label={`New ${APP_LABELS[appType]}`}
-              >+</button>
+    <div className="sidebar-search-container">
+      <TextInput
+        id="app-search"
+        labelText=""
+        placeholder="Search applications..."
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+        size="lg"
+      />
+      <div className="applications-list">
+        {filtered.length > 0 ? (
+          filtered.map(appType => (
+            <div
+              key={appType}
+              className={`application-item${activeAppType === appType ? ' current-app' : ''}`}
+              onClick={() => handleSelect(appType)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={e => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  handleSelect(appType)
+                }
+              }}
+            >
+              {APP_LABELS[appType]}
             </div>
-
-            {typeInstances.map(inst => (
-              <div key={inst.id} className={`instance ${activeInstanceId === inst.id ? 'active' : ''}`}>
-                <button
-                  className="instance-header"
-                  onClick={() => {
-                    dispatch(activateInstance(inst.id))
-                    toggleExpand(inst.id)
-                  }}
-                >
-                  <span className="instance-name">{inst.name}</span>
-                  <span className="thread-count">{inst.threads.length}</span>
-                  <span className="chevron">{expanded[inst.id] ? '▾' : '▸'}</span>
-                </button>
-
-                {expanded[inst.id] && (
-                  <ul className="thread-list">
-                    {inst.threads.map(thread => (
-                      <li key={thread.id}>
-                        <button
-                          className={`thread-item ${inst.activeThreadId === thread.id && activeInstanceId === inst.id ? 'active-thread' : ''}`}
-                          onClick={() => {
-                            dispatch(activateInstance(inst.id))
-                            dispatch(activateThread({ instanceId: inst.id, threadId: thread.id }))
-                          }}
-                        >
-                          {thread.name}
-                          {thread.messageCount > 0 && (
-                            <span className="msg-count">{thread.messageCount}</span>
-                          )}
-                        </button>
-                      </li>
-                    ))}
-                    <li>
-                      <button
-                        className="add-thread-btn"
-                        onClick={() => handleAddThread(inst.id)}
-                      >+ thread</button>
-                    </li>
-                  </ul>
-                )}
-              </div>
-            ))}
-          </section>
-        )
-      })}
-    </nav>
+          ))
+        ) : (
+          <div className="no-results">No applications found</div>
+        )}
+      </div>
+    </div>
   )
 }

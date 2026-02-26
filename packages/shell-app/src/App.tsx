@@ -1,17 +1,51 @@
-import React from 'react'
-import { ShellHeader } from './components/ShellHeader.js'
+import { useState } from 'react'
+import {
+  Header,
+  HeaderMenuButton,
+  HeaderName,
+  SideNav,
+  SideNavItems,
+} from '@carbon/react'
 import { AppSwitcher } from './components/AppSwitcher.js'
 import { AppFrame } from './components/AppFrame.js'
+import { ShellHeader } from './components/ShellHeader.js'
 
 export function App() {
+  const [sideNavExpanded, setSideNavExpanded] = useState(false)
+
   return (
-    <div className="frame-layout">
-      <ShellHeader />
-      <div className="frame-body">
-        <AppSwitcher />
-        <main className="frame-main">
-          <AppFrame />
-        </main>
+    <div className="app-container">
+      <Header aria-label="Frame">
+        <HeaderMenuButton
+          aria-label={sideNavExpanded ? 'Close menu' : 'Open menu'}
+          onClick={() => setSideNavExpanded(v => !v)}
+          isActive={sideNavExpanded}
+          aria-expanded={sideNavExpanded}
+        />
+        <HeaderName prefix="">Frame</HeaderName>
+        <ShellHeader />
+      </Header>
+
+      {sideNavExpanded && (
+        <SideNav
+          aria-label="App navigation"
+          expanded={sideNavExpanded}
+          onOverlayClick={() => setSideNavExpanded(false)}
+        >
+          <SideNavItems>
+            <AppSwitcher />
+          </SideNavItems>
+        </SideNav>
+      )}
+
+      <div
+        className="main-content"
+        style={{
+          marginLeft: sideNavExpanded ? '256px' : '0',
+          transition: 'margin-left 0.11s cubic-bezier(0.2, 0, 1, 0.9)',
+        }}
+      >
+        <AppFrame />
       </div>
     </div>
   )
