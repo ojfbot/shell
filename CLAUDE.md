@@ -65,10 +65,11 @@ Multiple instances of the same app type are supported.
 
 ## Theming
 
-Carbon is a style layer. `src/themes/tokens.css` defines CSS custom property overrides for Carbon's token system. Switching `data-theme` on `<html>` toggles between:
-- `ojfbot` — default dark, purple accent
-- `material` — Material Design 3 inspired
-- `arc` — Arc/TBC inspired
+Carbon is a style layer. `src/themes/tokens.css` defines CSS custom property overrides for Carbon's token system.
+
+**Dark / light mode** is controlled by the Redux `themeSlice` (`isDark: boolean`). The `<Theme>` component from `@carbon/react` reads that state and adds `.cds--g100` (dark) or `.cds--white` (light) to its wrapper div. `tokens.css` targets `.cds--g100` to apply the ojfbot dark-purple overrides — same selector specificity, later load order wins.
+
+**Accent skin switcher** (`ojfbot` / `material` / `arc`) is the next layer, gated behind a `data-theme` attribute on `<html>`. Skin blocks are stubbed in `tokens.css` as comments — only `--ojf-*` brand tokens need overriding per skin, Carbon tokens derive from them automatically.
 
 ## Dev commands
 
@@ -143,7 +144,8 @@ The visual regression pipeline lives in cv-builder. The shell itself is not yet 
 - [x] @ojfbot/agent-core: shared BaseAgent + middleware
 - [x] ShellHeader with chat input → frame-agent
 - [x] chatSlice + store/hooks wired
-- [ ] ThemeSwitcher component (toggle ojfbot/material/arc in UI)
+- [x] Dark/light mode toggle (themeSlice in Redux, `<Theme>` class-based)
+- [ ] Accent skin switcher (ojfbot/material/arc via `data-theme`)
 - [ ] `spawnInstance` wired to frame-agent NL command ("new trip to Berlin")
 - [ ] Persist AppRegistry to localStorage
 - [ ] Sub-app API migration: remove direct Anthropic calls, delegate to frame-agent (Phase 2)

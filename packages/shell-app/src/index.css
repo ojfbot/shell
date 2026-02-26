@@ -49,13 +49,16 @@ html, body {
 }
 
 /* ── Shell command area (inside Carbon Header flex row) ──────── */
+:root {
+  --shell-header-gap: 2.5rem; /* visual gap between "Frame" label and chat input */
+}
+
 .shell-header__command-area {
   display: flex;
   align-items: center;
   justify-content: center;
   flex: 1;
-  /* extra left padding creates visual gap after "Frame" label */
-  padding: 0 1rem 0 2.5rem;
+  padding: 0 1rem 0 var(--shell-header-gap);
   position: relative;
 }
 
