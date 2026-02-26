@@ -45,12 +45,16 @@
   --cds-layer-03:                var(--ojf-surface-3);
 
   /* Hover/selected/active — calibrated to be visible against #111111 side-nav bg */
-  --cds-layer-hover:             #242424;
-  --cds-layer-hover-01:          #242424;
-  --cds-layer-selected:          #2e2e2e;
-  --cds-layer-selected-01:       #2e2e2e;
-  --cds-layer-active:            #1c1c1c;
-  --cds-layer-active-01:         #1c1c1c;
+  --ojf-surface-hover:           #242424;
+  --ojf-surface-select:          #2e2e2e;
+  --ojf-surface-active:          #1c1c1c;
+
+  --cds-layer-hover:             var(--ojf-surface-hover);
+  --cds-layer-hover-01:          var(--ojf-surface-hover);
+  --cds-layer-selected:          var(--ojf-surface-select);
+  --cds-layer-selected-01:       var(--ojf-surface-select);
+  --cds-layer-active:            var(--ojf-surface-active);
+  --cds-layer-active-01:         var(--ojf-surface-active);
 
   --cds-border-subtle-01:        var(--ojf-border-subtle);
   --cds-border-strong-01:        var(--ojf-border);
@@ -71,32 +75,13 @@
   --cds-side-nav-background:     var(--ojf-surface-1);
 }
 
-/* ── Material skin (future) ── */
-[data-theme="material"] {
-  --ojf-accent:        #6750a4;
-  --ojf-accent-hover:  #7965af;
-  --ojf-bg:            #1c1b1f;
-  --ojf-surface-1:     #2b2930;
-  --ojf-surface-2:     #322f37;
-  --ojf-surface-3:     #3b383e;
-  --ojf-border:        #49454f;
-  --ojf-border-subtle: #38343c;
-  --ojf-text-primary:  #e6e1e5;
-  --ojf-text-secondary:#cac4d0;
-  --ojf-text-muted:    #938f99;
-}
-
-/* ── Arc / TBC skin (future) ── */
-[data-theme="arc"] {
-  --ojf-accent:        #ff6b6b;
-  --ojf-accent-hover:  #ff5252;
-  --ojf-bg:            #1a1a2e;
-  --ojf-surface-1:     #16213e;
-  --ojf-surface-2:     #1e2a4a;
-  --ojf-surface-3:     #253358;
-  --ojf-border:        #2d3f6e;
-  --ojf-border-subtle: #243059;
-  --ojf-text-primary:  #eef2ff;
-  --ojf-text-secondary:#a8b4e0;
-  --ojf-text-muted:    #5a6fa8;
-}
+/*
+ * ── Accent skin switcher (future) ───────────────────────────────────────────
+ * When the ThemeSwitcher component lands, add blocks here keyed by data-theme:
+ *
+ *   [data-theme="material"] { --ojf-accent: #6750a4; ... }
+ *   [data-theme="arc"]      { --ojf-accent: #ff6b6b; ... }
+ *
+ * Only ojf-brand tokens need overriding — Carbon tokens derive from them
+ * via the .cds--g100 block above.
+ */

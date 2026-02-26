@@ -13,10 +13,13 @@ import { Asleep, Light } from '@carbon/icons-react'
 import { AppSwitcher } from './components/AppSwitcher.js'
 import { AppFrame } from './components/AppFrame.js'
 import { ShellHeader } from './components/ShellHeader.js'
+import { useAppSelector, useAppDispatch } from './store/hooks.js'
+import { toggleTheme } from './store/slices/themeSlice.js'
 
 export function App() {
   const [sideNavExpanded, setSideNavExpanded] = useState(false)
-  const [isDark, setIsDark] = useState(true)
+  const isDark = useAppSelector(s => s.theme.isDark)
+  const dispatch = useAppDispatch()
 
   return (
     // Theme renders as the app-container div — adds .cds--g100 / .cds--white in-place
@@ -38,7 +41,7 @@ export function App() {
           <HeaderGlobalAction
             aria-label="Toggle theme"
             tooltipAlignment="end"
-            onClick={() => setIsDark(d => !d)}
+            onClick={() => dispatch(toggleTheme())}
           >
             {isDark ? <Light size={20} /> : <Asleep size={20} />}
           </HeaderGlobalAction>
