@@ -1,14 +1,13 @@
 /**
  * Carbon is a style layer.
  * These CSS custom properties override Carbon's token system.
- * Skins (ojfbot.css, material.css, arc.css) override THIS file.
  *
- * Applied via: <html data-theme="ojfbot|material|arc">
+ * Carbon's <Theme> component adds .cds--g100 / .cds--white class to its wrapper.
+ * We target .cds--g100 directly so our overrides win (same specificity, later load order).
  */
 
-/* ── ojfbot default (dark, purple accent) ── */
-:root,
-[data-theme="ojfbot"] {
+/* ── ojfbot dark (purple accent, near-black surfaces) ── */
+.cds--g100 {
   /* Brand */
   --ojf-accent:        #7c6af7;
   --ojf-accent-hover:  #6b59e8;
@@ -44,7 +43,15 @@
   --cds-layer-01:                var(--ojf-surface-1);
   --cds-layer-02:                var(--ojf-surface-2);
   --cds-layer-03:                var(--ojf-surface-3);
-  --cds-layer-hover-01:          var(--ojf-surface-2);
+
+  /* Hover/selected/active — calibrated to be visible against #111111 side-nav bg */
+  --cds-layer-hover:             #242424;
+  --cds-layer-hover-01:          #242424;
+  --cds-layer-selected:          #2e2e2e;
+  --cds-layer-selected-01:       #2e2e2e;
+  --cds-layer-active:            #1c1c1c;
+  --cds-layer-active-01:         #1c1c1c;
+
   --cds-border-subtle-01:        var(--ojf-border-subtle);
   --cds-border-strong-01:        var(--ojf-border);
   --cds-text-primary:            var(--ojf-text-primary);
@@ -64,11 +71,10 @@
   --cds-side-nav-background:     var(--ojf-surface-1);
 }
 
-/* ── Material skin ── */
+/* ── Material skin (future) ── */
 [data-theme="material"] {
   --ojf-accent:        #6750a4;
   --ojf-accent-hover:  #7965af;
-  --ojf-accent-subtle: rgba(103, 80, 164, 0.12);
   --ojf-bg:            #1c1b1f;
   --ojf-surface-1:     #2b2930;
   --ojf-surface-2:     #322f37;
@@ -78,17 +84,12 @@
   --ojf-text-primary:  #e6e1e5;
   --ojf-text-secondary:#cac4d0;
   --ojf-text-muted:    #938f99;
-  --ojf-font-sans:     'Roboto', 'Google Sans', sans-serif;
-
-  /* Material uses a slightly elevated surface for header */
-  --cds-header-background: #2b2930;
 }
 
-/* ── Arc / TBC skin (inspired by Arc browser's visual language) ── */
+/* ── Arc / TBC skin (future) ── */
 [data-theme="arc"] {
   --ojf-accent:        #ff6b6b;
   --ojf-accent-hover:  #ff5252;
-  --ojf-accent-subtle: rgba(255, 107, 107, 0.1);
   --ojf-bg:            #1a1a2e;
   --ojf-surface-1:     #16213e;
   --ojf-surface-2:     #1e2a4a;
@@ -98,5 +99,4 @@
   --ojf-text-primary:  #eef2ff;
   --ojf-text-secondary:#a8b4e0;
   --ojf-text-muted:    #5a6fa8;
-  --ojf-font-sans:     'SF Pro Display', -apple-system, sans-serif;
 }

@@ -1,14 +1,29 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html, body, #root {
+html, body {
   height: 100%;
-  font-family: system-ui, -apple-system, sans-serif;
+  overflow: hidden;
+  font-family: 'IBM Plex Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  height: 100%;
+  overflow: hidden;
 }
 
 /* ── Carbon overrides ─────────────────────────────────────────── */
 /* Always show hamburger button regardless of viewport */
 .cds--header__menu-toggle__hidden {
   display: flex !important;
+}
+
+/* Header stays on top, never shrinks */
+.cds--header {
+  position: relative;
+  z-index: 8000;
+  flex-shrink: 0;
 }
 
 /* Sidebar overlay below modals */
@@ -18,9 +33,10 @@ html, body, #root {
 
 /* ── App container ────────────────────────────────────────────── */
 .app-container {
-  max-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 /* ── Main content area ───────────────────────────────────────── */
@@ -36,18 +52,19 @@ html, body, #root {
 .shell-header__command-area {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  justify-content: center;
   flex: 1;
-  padding: 0 1rem;
+  /* extra left padding creates visual gap after "Frame" label */
+  padding: 0 1rem 0 2.5rem;
   position: relative;
 }
 
 .shell-header__input-form {
   display: flex;
   align-items: center;
-  flex: 1;
+  width: 100%;
   gap: 0.5rem;
-  max-width: 640px;
+  max-width: 560px;
 }
 
 .shell-header__input {
@@ -173,6 +190,7 @@ html, body, #root {
 
 .application-item.current-app {
   background-color: var(--cds-layer-selected);
+  border-color: var(--cds-border-interactive);
   font-weight: 600;
 }
 
