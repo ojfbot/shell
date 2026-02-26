@@ -10,3 +10,5 @@ const themeSlice = createSlice({
 
 export const { toggleTheme } = themeSlice.actions
 export default themeSlice.reducer
+
+export const selectIsDark = (state: { theme: { isDark: boolean } }) => state.theme.isDark

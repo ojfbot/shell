@@ -1,0 +1,38 @@
+// ── Carbon SCSS — selective component imports ────────────────────────────────
+//
+// WHY: @carbon/styles/css/styles.css is a ~600KB pre-compiled monolith.
+//      Importing SCSS partials lets Vite's CSS pipeline include only the
+//      components this app actually uses, reducing bundle size.
+//
+// PATTERN (copy to other repos):
+//   1. Add `sass` to devDependencies
+//   2. Import this file in main.tsx instead of css/styles.css
+//   3. Add @use lines for any new Carbon components you adopt
+//
+// ORDER matters — config must precede all other Carbon modules.
+// ──────────────────────────────────────────────────────────────────────────────
+
+// 1. Global configuration (prefix, font-face, reset flags)
+@use '@carbon/styles/scss/config' with (
+  $prefix: 'cds',
+  $css--font-face: true,
+);
+
+// 2. Reset + foundational layers
+@use '@carbon/styles/scss/reset';
+@use '@carbon/styles/scss/layer';
+
+// 3. Type scale (IBM Plex Sans @font-face + utility classes)
+@use '@carbon/styles/scss/type' as *;
+
+// 4. Theme token system — emits .cds--g100 / .cds--white CSS custom properties.
+//    <Theme> from @carbon/react activates these by adding the class to its wrapper.
+@use '@carbon/styles/scss/themes';
+@use '@carbon/styles/scss/theme';
+
+// 5. Components — add a line here for each Carbon component you adopt.
+//    Remove lines for components you stop using.
+@use '@carbon/styles/scss/components/ui-shell';   // Header, SideNav, HeaderGlobalBar
+@use '@carbon/styles/scss/components/button';     // Button
+@use '@carbon/styles/scss/components/text-input'; // TextInput (AppSwitcher search)
+@use '@carbon/styles/scss/components/tile';       // ClickableTile (HomeScreen)
