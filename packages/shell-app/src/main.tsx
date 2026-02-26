@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { Provider } from 'react-redux'
 import { store } from './store/index.js'
 import { App } from './App.js'
+import '@carbon/styles/css/styles.css'
 import './themes/tokens.css'
 import './index.css'
 

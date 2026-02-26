@@ -139,9 +139,15 @@ importers:
 
   packages/shell-app:
     dependencies:
+      '@carbon/icons-react':
+        specifier: ^11.0.0
+        version: 11.75.0(react@18.3.1)
       '@carbon/react':
         specifier: ^1.67.0
         version: 1.101.0(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(sass@1.97.3)
+      '@carbon/styles':
+        specifier: ^1.67.0
+        version: 1.100.0(sass@1.97.3)
       '@reduxjs/toolkit':
         specifier: 'catalog:'
         version: 2.11.2(react-redux@9.2.0(@types/react@18.3.28)(react@18.3.1)(redux@5.0.1))(react@18.3.1)
