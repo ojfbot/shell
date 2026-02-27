@@ -145,9 +145,8 @@ The visual regression pipeline lives in cv-builder. The shell itself is not yet 
 - [x] ShellHeader with chat input → frame-agent
 - [x] chatSlice + store/hooks wired
 - [x] Dark/light mode toggle (themeSlice in Redux, `<Theme>` class-based)
-- [ ] Accent skin switcher (ojfbot/material/arc via `data-theme`)
-- [ ] `spawnInstance` wired to frame-agent NL command ("new trip to Berlin")
+- [x] CI pipeline (type-check + build on PR and main push)
+- [ ] `spawnInstance` wired to frame-agent NL command ("new trip to Berlin") — Phase 4
 - [ ] Persist AppRegistry to localStorage
-- [ ] Sub-app API migration: remove direct Anthropic calls, delegate to frame-agent (Phase 2)
+- [ ] Sub-app API migration: remove direct Anthropic calls, delegate to frame-agent — Phase 2
 - [ ] Shell visual regression tests
-- [ ] CI pipeline (build + type-check on PR)
