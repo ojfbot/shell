@@ -19,6 +19,30 @@
   --ojf-ease:          cubic-bezier(0.16, 1, 0.3, 1);
   --ojf-duration-fast: 120ms;
   --ojf-duration-base: 200ms;
+
+  /* Surface scale (light mode) */
+  --ojf-bg:            #ffffff;
+  --ojf-surface-1:     #f4f4f4;
+  --ojf-surface-2:     #e0e0e0;
+  --ojf-surface-3:     #c6c6c6;
+
+  /* Border (light mode) */
+  --ojf-border:        #c6c6c6;
+  --ojf-border-subtle: #e0e0e0;
+
+  /* Text (light mode) */
+  --ojf-text-primary:  #161616;
+  --ojf-text-secondary:#525252;
+  --ojf-text-muted:    #8d8d8d;
+
+  /* Override Carbon interactive — ojf purple in both modes */
+  --cds-interactive:             var(--ojf-accent);
+  --cds-focus:                   var(--ojf-accent);
+  --cds-link-primary:            var(--ojf-accent);
+  --cds-link-primary-hover:      var(--ojf-accent-hover);
+  --cds-button-primary:          var(--ojf-accent);
+  --cds-button-primary-hover:    var(--ojf-accent-hover);
+  --cds-button-primary-active:   var(--ojf-accent-hover);
 }
 
 /* ── ojfbot dark overrides (purple accent, near-black surfaces) ── */
