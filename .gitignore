@@ -5,3 +5,7 @@
 **/env.json
 *.env
 .DS_Store
+
+# Managed by core — do not commit
+domain-knowledge/
+.claude/commands/
