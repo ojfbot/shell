@@ -36,3 +36,6 @@
 @use '@carbon/styles/scss/components/button';     // Button
 @use '@carbon/styles/scss/components/text-input'; // TextInput (AppSwitcher search)
 @use '@carbon/styles/scss/components/tile';       // ClickableTile (HomeScreen)
+@use '@carbon/styles/scss/components/modal';        // Modal (SettingsModal)
+@use '@carbon/styles/scss/components/loading';      // Loading spinner (settings lazy-load fallback)
+@use '@carbon/styles/scss/components/notification'; // InlineNotification (settings error state)

@@ -62,10 +62,25 @@ html, body {
   flex-shrink: 0;
 }
 
-/* Sidebar overlay below modals */
-.cds--side-nav__overlay {
-  z-index: 8999 !important;
-}
+/*
+ * ── Shell z-index hierarchy ───────────────────────────────────────────────────
+ * Sub-apps (BlogEngine, cv-builder, TripPlanner) use position:fixed overlays
+ * with z-index up to 9998 (ThreadSidebar: 9998, ThreadSidebar overlay: 9997).
+ * Shell chrome must sit above these so the SideNav and modals are never buried.
+ *
+ *   Sub-app ThreadSidebar overlay : 9997
+ *   Sub-app ThreadSidebar         : 9998
+ *   Shell SideNav backdrop        : 9999  ← cds--side-nav__overlay
+ *   Shell SideNav panel           : 10000 ← cds--side-nav
+ *   Shell chat overlay            : 10001 ← shell-chat-overlay
+ *   Shell settings modal          : 10002 ← shell-settings-modal
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+.cds--side-nav         { z-index: 10000 !important; }
+.cds--side-nav__overlay { z-index:  9999 !important; }
+
+/* Settings modal above all sub-app fixed overlays */
+.shell-settings-modal.cds--modal { z-index: 10002; }
 
 /* ── App container ────────────────────────────────────────────── */
 .app-container {
@@ -217,7 +232,7 @@ html, body {
   border: 1px solid var(--cds-border-subtle-01, #525252);
   border-radius: 6px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-  z-index: 9000;
+  z-index: 10001;
   overflow: hidden;
 }
 
