@@ -25,6 +25,8 @@ export function App() {
   const { activeAppType, activeInstanceId } = useAppSelector(s => s.appRegistry)
   const dispatch = useAppDispatch()
 
+  const showSettings = !!activeInstanceId && !!activeAppType && activeAppType !== 'purefoy'
+
   // Push theme class to <html> so body + :root-resolved tokens change with the theme
   useEffect(() => {
     document.documentElement.classList.toggle('cds--g100', isDark)
@@ -58,7 +60,7 @@ export function App() {
         </HeaderName>
         <ShellHeader />
         <HeaderGlobalBar>
-          {activeInstanceId && activeAppType && activeAppType !== 'purefoy' && (
+          {showSettings && (
             <HeaderGlobalAction
               aria-label={`${APP_LABELS[activeAppType]} Settings`}
               tooltipAlignment="end"
@@ -97,7 +99,7 @@ export function App() {
         <AppFrame />
       </div>
 
-      {settingsOpen && activeAppType && activeAppType !== 'purefoy' && (
+      {settingsOpen && showSettings && activeAppType && (
         <SettingsModal
           open={settingsOpen}
           appType={activeAppType}

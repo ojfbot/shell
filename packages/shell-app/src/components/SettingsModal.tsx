@@ -7,8 +7,8 @@
  * Each sub-app exposes a bare SettingsPanel component via MF './Settings' export.
  * SETTINGS_LOADERS provides the React.lazy() factory for each app type.
  *
- * z-index: overridden to 9500 via .shell-settings-modal in index.css
- * (above chat overlay at 9000 and sidebar overlay at 8999).
+ * z-index: overridden to 10002 via .shell-settings-modal in index.css
+ * (above sub-app ThreadSidebar overlays which reach 9998).
  */
 
 import React, { Suspense } from 'react'
@@ -29,6 +29,7 @@ class SettingsEB extends React.Component<
 > {
   state: { error: Error | null } = { error: null }
   static getDerivedStateFromError(error: Error): { error: Error } { return { error } }
+  componentDidCatch(err: Error) { console.error('[SettingsEB]', err) }
   render() {
     if (this.state.error) {
       return (
@@ -63,11 +64,14 @@ export function SettingsModal({ open, appType, onClose }: SettingsModalProps) {
           fallback={
             <InlineLoading
               description="Loading settings…"
-              style={{ minHeight: '120px' }}
+              className="settings-loading-fallback"
             />
           }
         >
-          {open && Panel && <Panel onClose={onClose} />}
+          {open && (Panel
+            ? <Panel onClose={onClose} />
+            : <p>No settings available for this app.</p>
+          )}
         </Suspense>
       </SettingsEB>
     </Modal>
