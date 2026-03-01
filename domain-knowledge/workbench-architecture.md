@@ -1,1 +1,0 @@
-../../core/domain-knowledge/workbench-architecture.md
