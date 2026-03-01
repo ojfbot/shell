@@ -6,15 +6,9 @@ import {
   activateInstance,
   spawnInstance,
   goHome,
+  APP_LABELS,
   type AppType,
 } from '../store/slices/appRegistrySlice.js'
-
-const APP_LABELS: Record<AppType, string> = {
-  'cv-builder': 'CV Builder',
-  'tripplanner': 'TripPlanner',
-  'blogengine': 'BlogEngine',
-  'purefoy': 'Purefoy',
-}
 
 const APP_REMOTE_DEFAULTS: Record<AppType, string> = {
   'cv-builder': import.meta.env.VITE_REMOTE_CV_BUILDER ?? 'http://localhost:3000',
@@ -71,7 +65,7 @@ export function AppSwitcher() {
         />
         <button
           className={`sidebar-home-btn${activeInstanceId === null ? ' is-home' : ''}`}
-          onClick={() => { if (activeInstanceId !== null) dispatch(goHome()) }}
+          onClick={() => dispatch(goHome())}
           disabled={activeInstanceId === null}
           aria-label="Return to home"
           title="Return to home"

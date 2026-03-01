@@ -19,6 +19,14 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 
 export type AppType = 'cv-builder' | 'tripplanner' | 'blogengine' | 'purefoy'
 
+/** Single source of truth for app display names — used in breadcrumb and sidebar. */
+export const APP_LABELS: Record<AppType, string> = {
+  'cv-builder': 'CV Builder',
+  'tripplanner': 'TripPlanner',
+  'blogengine': 'BlogEngine',
+  'purefoy': 'Purefoy',
+}
+
 export interface AppThread {
   id: string
   name: string           // "Flights", "Hotel search", "Itinerary v2"

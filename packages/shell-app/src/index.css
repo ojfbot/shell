@@ -42,7 +42,10 @@ html, body {
   animation: breadcrumbSlideIn var(--cds-duration-moderate-01, 150ms) cubic-bezier(0.2, 0, 0.38, 0.9) both;
 }
 
-/* App active state: "Frame" dims + italicises only when sep sibling exists */
+/* App active state: "Frame" dims + italicises only when sep sibling exists.
+ * Uses CSS :has() — supported in all evergreen browsers (Chrome 105+, Safari 15.4+,
+ * Firefox 121+). Deliberate browser floor: this is a progressive enhancement;
+ * the breadcrumb still renders correctly, just without the dim/italic on "Frame". */
 .cds--header__name:has(.shell-breadcrumb-sep) .shell-breadcrumb-home {
   font-style: italic;
   font-weight: 700;
