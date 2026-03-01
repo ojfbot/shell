@@ -6,9 +6,10 @@
 *.env
 .DS_Store
 
-# Managed by core — do not commit (these are symlinks to ../../core/…)
-domain-knowledge/
+# Managed by core — do not commit (these are symlinks/dirs to ../../core/…)
+domain-knowledge
 .claude/commands/
 decisions/core
 personal-knowledge/
+personal-knowledge
 .claude/settings.json

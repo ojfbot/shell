@@ -36,6 +36,13 @@
   --ojf-text-secondary:#525252;
   --ojf-text-muted:    #8d8d8d;
 
+  /* Light mode header/nav — Carbon's <Header> defaults to #161616 in white theme;
+     override here so light mode has a clearly branded purple header while dark mode
+     uses the near-black surface-1 below. */
+  --cds-header-background:   var(--ojf-accent);    /* #5b4de0 brand purple */
+  --cds-header-border:       transparent;
+  --cds-side-nav-background: var(--ojf-surface-1); /* #f4f4f4 sidebar */
+
   /* Override Carbon interactive — ojf purple in both modes */
   --cds-interactive:             var(--ojf-accent);
   --cds-focus:                   var(--ojf-accent);
@@ -67,7 +74,7 @@
   /* Text */
   --ojf-text-primary:  #e8e8e8;
   --ojf-text-secondary:#a0a0a0;
-  --ojf-text-muted:    #555555;
+  --ojf-text-muted:    #6f6f6f;  /* was #555555 — too dark for placeholder text on dark surfaces */
 
   /* ── Carbon token overrides ── */
   --cds-background:              var(--ojf-bg);

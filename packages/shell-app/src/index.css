@@ -53,7 +53,7 @@ html, body {
 .cds--g100 .cds--header__name:has(.shell-breadcrumb-sep) .shell-breadcrumb-home,
 .cds--g100 .shell-breadcrumb-sep { color: #8d8d8d; }
 .cds--white .cds--header__name:has(.shell-breadcrumb-sep) .shell-breadcrumb-home,
-.cds--white .shell-breadcrumb-sep { color: #6f6f6f; }
+.cds--white .shell-breadcrumb-sep { color: rgba(255,255,255,0.55); } /* purple header — soft white */
 
 /* Header stays on top, never shrinks */
 .cds--header {
@@ -186,6 +186,17 @@ html, body {
 .shell-header__submit:hover:not(:disabled) { background: var(--ojf-accent-hover); }
 .shell-header__submit:disabled { opacity: 0.4; cursor: not-allowed; }
 
+/* Light mode: submit sits on a purple header — white bg with accent ↑ so it's visible */
+.cds--white .shell-header__submit {
+  background: rgba(255,255,255,0.92);
+  color: var(--ojf-accent);
+}
+.cds--white .shell-header__submit:hover:not(:disabled) { background: #ffffff; }
+.cds--white .shell-header__submit:disabled {
+  background: rgba(255,255,255,0.92);
+  opacity: 0.4;
+}
+
 .shell-header__domain-badge {
   font-size: 0.75rem;
   color: var(--cds-text-helper, #8d8d8d);
@@ -262,6 +273,27 @@ html, body {
 .sidebar-search-row .cds--form-item {
   flex: 1;
   margin-bottom: 0;
+}
+
+/* Sidebar switcher/home button — always brand accent with white icon.
+   Disabled = dimmed (opacity 0.4), NOT blacked out. */
+.sidebar-search-row .cds--btn--ghost {
+  background-color: var(--ojf-accent);
+  color: #ffffff;
+  flex-shrink: 0;
+}
+.sidebar-search-row .cds--btn--ghost:hover:not(:disabled) {
+  background-color: var(--ojf-accent-hover);
+  color: #ffffff;
+}
+.sidebar-search-row .cds--btn--ghost:active:not(:disabled) {
+  background-color: var(--ojf-accent-active);
+  color: #ffffff;
+}
+.sidebar-search-row .cds--btn--ghost:disabled {
+  background-color: var(--ojf-accent);
+  color: #ffffff;
+  opacity: 0.4;
 }
 
 
