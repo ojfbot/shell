@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
+import { TextInput } from '@carbon/react'
 import { useAppDispatch, useAppSelector } from '../store/hooks.js'
 import { sendMessage, clearChat } from '../store/slices/chatSlice.js'
 
@@ -58,17 +59,18 @@ export function ShellHeader() {
   return (
     <div className="shell-header__command-area">
       <form className="shell-header__input-form" onSubmit={handleSubmit}>
-        <input
+        <TextInput
           ref={inputRef}
-          className="shell-header__input"
-          type="text"
+          id="frame-command"
+          labelText="Frame command"
+          hideLabel
+          size="sm"
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           onFocus={() => setShowChat(true)}
           placeholder={placeholder}
           disabled={isStreaming}
-          aria-label="Frame OS command input"
         />
         <button
           type="submit"

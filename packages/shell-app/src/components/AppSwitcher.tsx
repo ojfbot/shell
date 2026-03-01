@@ -1,9 +1,11 @@
 import { useState, useMemo } from 'react'
 import { TextInput } from '@carbon/react'
+import { Switcher } from '@carbon/icons-react'
 import { useAppDispatch, useAppSelector } from '../store/hooks.js'
 import {
   activateInstance,
   spawnInstance,
+  goHome,
   type AppType,
 } from '../store/slices/appRegistrySlice.js'
 
@@ -26,6 +28,7 @@ const APP_TYPES: AppType[] = ['cv-builder', 'tripplanner', 'blogengine', 'purefo
 /**
  * Flat app list with search — renders inside Carbon SideNav.
  * Clicking an app activates its first instance (or creates one).
+ * The home button clears the active app and returns to HomeScreen.
  */
 export function AppSwitcher() {
   const dispatch = useAppDispatch()
@@ -56,14 +59,25 @@ export function AppSwitcher() {
 
   return (
     <div className="sidebar-search-container">
-      <TextInput
-        id="app-search"
-        labelText=""
-        placeholder="Search applications..."
-        value={search}
-        onChange={e => setSearch(e.target.value)}
-        size="lg"
-      />
+      <div className="sidebar-search-row">
+        <TextInput
+          id="app-search"
+          labelText="Search applications"
+          hideLabel
+          placeholder="Search..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          size="sm"
+        />
+        <button
+          className={`sidebar-home-btn${activeInstanceId === null ? ' is-home' : ''}`}
+          onClick={() => dispatch(goHome())}
+          aria-label="Return to home"
+          title="Return to home"
+        >
+          <Switcher size={16} />
+        </button>
+      </div>
       <div className="applications-list">
         {filtered.length > 0 ? (
           filtered.map(appType => (

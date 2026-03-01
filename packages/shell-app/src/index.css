@@ -19,6 +19,26 @@ html, body {
   display: flex !important;
 }
 
+/* ── Header breadcrumb ────────────────────────────────────────── */
+/* "Frame" — bold italic, dimmed; app name — normal weight, full color */
+.shell-breadcrumb-home {
+  font-style: italic;
+  font-weight: 700;
+}
+.shell-breadcrumb-sep {
+  font-style: normal;
+  font-weight: 400;
+}
+.shell-breadcrumb-app {
+  font-style: normal;
+  font-weight: 400;
+}
+/* Explicit colors: Carbon's Header creates its own layer context */
+.cds--g100 .shell-breadcrumb-home,
+.cds--g100 .shell-breadcrumb-sep { color: #8d8d8d; }
+.cds--white .shell-breadcrumb-home,
+.cds--white .shell-breadcrumb-sep { color: #6f6f6f; }
+
 /* Header stays on top, never shrinks */
 .cds--header {
   position: relative;
@@ -51,18 +71,41 @@ html, body {
   background-color: var(--cds-background);
 }
 
+/* ── App frame fade animation ─────────────────────────────────── */
+@keyframes frameFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.frame-fade-in {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  animation: frameFadeIn 0.15s cubic-bezier(0.2, 0, 0.38, 0.9) forwards;
+}
+
+.frame-loading {
+  animation: frameFadeIn 0.1s ease forwards;
+}
+
 /* ── Shell command area (inside Carbon Header flex row) ──────── */
 :root {
   --shell-header-gap: 2.5rem; /* visual gap between "Frame" label and chat input */
 }
 
 .shell-header__command-area {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 560px;
+  max-width: 55vw;
   display: flex;
   align-items: center;
-  justify-content: center;
-  flex: 1;
-  padding: 0 1rem 0 var(--shell-header-gap);
-  position: relative;
+  z-index: 1;
+  padding: 0 0.5rem;
 }
 
 .shell-header__input-form {
@@ -70,27 +113,58 @@ html, body {
   align-items: center;
   width: 100%;
   gap: 0.5rem;
-  max-width: 560px;
 }
 
-.shell-header__input {
+/* Carbon TextInput constrained to fit inside the 48px header */
+.shell-header__input-form .cds--form-item {
   flex: 1;
-  background: var(--cds-field-01);
-  border: 1px solid var(--cds-border-strong-01);
-  border-radius: 4px;
-  color: var(--cds-text-primary);
-  font-family: var(--ojf-font-sans);
-  font-size: 0.875rem;
+  margin-bottom: 0;
+}
+
+.shell-header__input-form .cds--text-input-wrapper,
+.shell-header__input-form .cds--text-input {
   height: 32px;
-  padding: 0 0.75rem;
-  outline: none;
-  transition: border-color var(--ojf-duration-fast) var(--ojf-ease);
+  min-height: 32px;
 }
-.shell-header__input:focus {
-  border-color: var(--cds-focus);
+
+/* Carbon's <Header> creates its own layer context that can prevent the parent
+   .cds--g100 / .cds--white scope from cascading --cds-field tokens into the
+   TextInput. Override explicitly, scoped to each theme class on <html>. */
+.cds--g100 .shell-header__input-form .cds--text-input {
+  background-color: #2d2d2d;
+  color: #f4f4f4;
+  border-bottom-color: #6f6f6f;
 }
-.shell-header__input::placeholder { color: var(--cds-text-placeholder); }
-.shell-header__input:disabled { opacity: 0.5; cursor: not-allowed; }
+.cds--g100 .shell-header__input-form .cds--text-input::placeholder {
+  color: #8d8d8d;
+}
+.cds--white .shell-header__input-form .cds--text-input {
+  background-color: #f4f4f4;
+  color: #161616;
+  border-bottom-color: #8d8d8d;
+}
+.cds--white .shell-header__input-form .cds--text-input::placeholder {
+  color: #a8a8a8;
+}
+
+/* Same fix for the sidebar search input — Carbon's <SideNav> has the same
+   layer context issue as <Header>. Scope overrides to the theme class on <html>. */
+.cds--g100 .sidebar-search-container .cds--text-input {
+  background-color: #2d2d2d;
+  color: #f4f4f4;
+  border-bottom-color: #6f6f6f;
+}
+.cds--g100 .sidebar-search-container .cds--text-input::placeholder {
+  color: #8d8d8d;
+}
+.cds--white .sidebar-search-container .cds--text-input {
+  background-color: #f4f4f4;
+  color: #161616;
+  border-bottom-color: #8d8d8d;
+}
+.cds--white .sidebar-search-container .cds--text-input::placeholder {
+  color: #a8a8a8;
+}
 
 .shell-header__submit {
   background: var(--ojf-accent);
@@ -176,6 +250,34 @@ html, body {
   padding: 1rem;
 }
 
+.sidebar-search-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sidebar-search-row .cds--form-item {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.sidebar-home-btn {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background: var(--ojf-accent);
+  color: #fff;
+  transition: background var(--ojf-duration-fast) var(--ojf-ease);
+}
+.sidebar-home-btn:hover { background: var(--ojf-accent-hover); }
+.sidebar-home-btn.is-home { opacity: 0.6; }
+
 .applications-list {
   margin-top: 1rem;
 }
@@ -186,21 +288,7 @@ html, body {
   border-radius: 4px;
   transition: background-color 0.1s;
   user-select: none;
-  color: var(--cds-text-primary, #f4f4f4);
   font-size: 0.875rem;
-}
-
-.application-item:hover {
-  background-color: var(--cds-layer-hover);
-}
-
-.application-item:active {
-  background-color: var(--cds-layer-active);
-}
-
-.application-item.current-app {
-  background-color: var(--cds-layer-selected);
-  font-weight: 600;
 }
 
 .application-item:focus {
@@ -213,6 +301,17 @@ html, body {
   color: var(--cds-text-secondary);
   text-align: center;
 }
+
+/* SideNav has the same layer context issue as Header — explicit theme overrides. */
+.cds--g100 .application-item { color: #f4f4f4; }
+.cds--g100 .application-item:hover { background-color: #353535; }
+.cds--g100 .application-item:active { background-color: #474747; }
+.cds--g100 .application-item.current-app { background-color: #525252; font-weight: 600; }
+
+.cds--white .application-item { color: #161616; }
+.cds--white .application-item:hover { background-color: #e8e8e8; }
+.cds--white .application-item:active { background-color: #d1d1d1; }
+.cds--white .application-item.current-app { background-color: #e0e0e0; font-weight: 600; }
 
 /* ── HomeScreen ───────────────────────────────────────────────── */
 .home-screen {
