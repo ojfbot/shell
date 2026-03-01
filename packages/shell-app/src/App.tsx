@@ -15,13 +15,7 @@ import { AppFrame } from './components/AppFrame.js'
 import { ShellHeader } from './components/ShellHeader.js'
 import { useAppSelector, useAppDispatch } from './store/hooks.js'
 import { toggleTheme } from './store/slices/themeSlice.js'
-
-const APP_LABELS: Record<string, string> = {
-  'cv-builder': 'CV Builder',
-  'tripplanner': 'TripPlanner',
-  'blogengine': 'BlogEngine',
-  'purefoy': 'Purefoy',
-}
+import { APP_LABELS } from './store/slices/appRegistrySlice.js'
 
 export function App() {
   const [sideNavExpanded, setSideNavExpanded] = useState(false)
