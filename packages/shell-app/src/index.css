@@ -80,7 +80,10 @@ html, body {
 .cds--side-nav__overlay { z-index:  9999 !important; }
 
 /* Settings modal above all sub-app fixed overlays */
-.shell-settings-modal.cds--modal { z-index: 10002; }
+.shell-settings-modal.cds--modal { z-index: 10002 !important; }
+
+/* Suspense fallback inside SettingsModal */
+.settings-loading-fallback { min-height: 120px; }
 
 /* ── App container ────────────────────────────────────────────── */
 .app-container {
