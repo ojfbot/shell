@@ -288,8 +288,8 @@ html, body {
   color: #fff;
   transition: background var(--ojf-duration-fast) var(--ojf-ease);
 }
-.sidebar-home-btn:hover { background: var(--ojf-accent-hover); }
-.sidebar-home-btn.is-home { opacity: 0.6; }
+.sidebar-home-btn:hover:not(:disabled) { background: var(--ojf-accent-hover); }
+.sidebar-home-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .applications-list {
   margin-top: 1rem;

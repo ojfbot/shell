@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { frameAgentManager } from '../services/frame-agent-manager.js'
 
-const router = Router()
+const router: Router = Router()
 
 router.get('/', (_req, res) => {
   res.json({

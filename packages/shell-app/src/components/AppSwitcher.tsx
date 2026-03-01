@@ -71,7 +71,8 @@ export function AppSwitcher() {
         />
         <button
           className={`sidebar-home-btn${activeInstanceId === null ? ' is-home' : ''}`}
-          onClick={() => dispatch(goHome())}
+          onClick={() => { if (activeInstanceId !== null) dispatch(goHome()) }}
+          disabled={activeInstanceId === null}
           aria-label="Return to home"
           title="Return to home"
         >
