@@ -411,3 +411,11 @@ html, body {
 
 .remote-error-detail { font-size: 0.75rem; opacity: 0.6; }
 .remote-error-hint { font-size: 0.75rem; color: var(--cds-text-helper, #8d8d8d); }
+
+/* ── Settings modal ───────────────────────────────────────────── */
+.settings-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding-top: 1.25rem;
+}

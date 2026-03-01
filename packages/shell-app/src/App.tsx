@@ -9,16 +9,18 @@ import {
   SideNav,
   SideNavItems,
 } from '@carbon/react'
-import { Asleep, Light } from '@carbon/icons-react'
+import { Asleep, Light, Settings } from '@carbon/icons-react'
 import { AppSwitcher } from './components/AppSwitcher.js'
 import { AppFrame } from './components/AppFrame.js'
 import { ShellHeader } from './components/ShellHeader.js'
+import { SettingsModal } from './components/SettingsModal.js'
 import { useAppSelector, useAppDispatch } from './store/hooks.js'
 import { toggleTheme } from './store/slices/themeSlice.js'
 import { APP_LABELS } from './store/slices/appRegistrySlice.js'
 
 export function App() {
   const [sideNavExpanded, setSideNavExpanded] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
   const isDark = useAppSelector(s => s.theme.isDark)
   const { activeAppType } = useAppSelector(s => s.appRegistry)
   const dispatch = useAppDispatch()
@@ -57,6 +59,13 @@ export function App() {
         <ShellHeader />
         <HeaderGlobalBar>
           <HeaderGlobalAction
+            aria-label="Settings"
+            tooltipAlignment="end"
+            onClick={() => setSettingsOpen(true)}
+          >
+            <Settings size={20} />
+          </HeaderGlobalAction>
+          <HeaderGlobalAction
             aria-label="Toggle theme"
             tooltipAlignment="end"
             onClick={() => dispatch(toggleTheme())}
@@ -85,6 +94,8 @@ export function App() {
       >
         <AppFrame />
       </div>
+
+      <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </Theme>
   )
 }
