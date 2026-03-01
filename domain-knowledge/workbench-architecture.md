@@ -1,1 +1,1 @@
-../../node-template/domain-knowledge/workbench-architecture.md
+../../core/domain-knowledge/workbench-architecture.md
