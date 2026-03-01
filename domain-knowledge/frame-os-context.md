@@ -1,1 +1,1 @@
-../../node-template/domain-knowledge/frame-os-context.md
+../../core/domain-knowledge/frame-os-context.md

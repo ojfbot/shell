@@ -1,1 +1,1 @@
-../../node-template/domain-knowledge/app-templates.md
+../../core/domain-knowledge/app-templates.md

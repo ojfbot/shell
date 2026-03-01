@@ -20,23 +20,36 @@ html, body {
 }
 
 /* ── Header breadcrumb ────────────────────────────────────────── */
-/* "Frame" — bold italic, dimmed; app name — normal weight, full color */
+@keyframes breadcrumbSlideIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Home state: "Frame" is bold, upright, full brightness */
 .shell-breadcrumb-home {
-  font-style: italic;
+  font-style: normal;
   font-weight: 700;
+  transition: color var(--cds-duration-fast-02, 110ms) cubic-bezier(0.2, 0, 0.38, 0.9);
 }
 .shell-breadcrumb-sep {
   font-style: normal;
   font-weight: 400;
+  animation: breadcrumbSlideIn var(--cds-duration-fast-02, 110ms) cubic-bezier(0.2, 0, 0.38, 0.9) both;
 }
 .shell-breadcrumb-app {
   font-style: normal;
-  font-weight: 400;
+  font-weight: 700;
+  animation: breadcrumbSlideIn var(--cds-duration-moderate-01, 150ms) cubic-bezier(0.2, 0, 0.38, 0.9) both;
 }
-/* Explicit colors: Carbon's Header creates its own layer context */
-.cds--g100 .shell-breadcrumb-home,
+
+/* App active state: "Frame" dims + italicises only when sep sibling exists */
+.cds--header__name:has(.shell-breadcrumb-sep) .shell-breadcrumb-home {
+  font-style: italic;
+  font-weight: 700;
+}
+.cds--g100 .cds--header__name:has(.shell-breadcrumb-sep) .shell-breadcrumb-home,
 .cds--g100 .shell-breadcrumb-sep { color: #8d8d8d; }
-.cds--white .shell-breadcrumb-home,
+.cds--white .cds--header__name:has(.shell-breadcrumb-sep) .shell-breadcrumb-home,
 .cds--white .shell-breadcrumb-sep { color: #6f6f6f; }
 
 /* Header stays on top, never shrinks */
