@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { validateBody, getRateLimiter } from '@ojfbot/agent-core'
 import { frameAgentManager } from '../services/frame-agent-manager.js'
 
-const router = Router()
+const router: Router = Router()
 
 const ChatRequestSchema = z.object({
   message: z.string().min(1, 'Message cannot be empty'),
