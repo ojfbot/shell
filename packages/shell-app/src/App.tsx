@@ -21,6 +21,7 @@ import { APP_LABELS } from './store/slices/appRegistrySlice.js'
 export function App() {
   const [sideNavExpanded, setSideNavExpanded] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [settingsKey, setSettingsKey] = useState(0)
   const isDark = useAppSelector(s => s.theme.isDark)
   const { activeAppType, activeInstanceId } = useAppSelector(s => s.appRegistry)
   const dispatch = useAppDispatch()
@@ -99,11 +100,12 @@ export function App() {
         <AppFrame />
       </div>
 
-      {settingsOpen && showSettings && activeAppType && (
+      {showSettings && activeAppType && (
         <SettingsModal
           open={settingsOpen}
           appType={activeAppType}
-          onClose={() => setSettingsOpen(false)}
+          resetKey={settingsKey}
+          onClose={() => { setSettingsOpen(false); setSettingsKey(k => k + 1) }}
         />
       )}
     </Theme>

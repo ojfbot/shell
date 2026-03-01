@@ -20,6 +20,7 @@ import { SETTINGS_LOADERS } from '../remotes/settings-loaders.js'
 interface SettingsModalProps {
   open: boolean
   appType: AppType
+  resetKey: number
   onClose: () => void
 }
 
@@ -46,7 +47,7 @@ class SettingsEB extends React.Component<
   }
 }
 
-export function SettingsModal({ open, appType, onClose }: SettingsModalProps) {
+export function SettingsModal({ open, appType, resetKey, onClose }: SettingsModalProps) {
   const Panel = SETTINGS_LOADERS[appType]
 
   return (
@@ -58,8 +59,8 @@ export function SettingsModal({ open, appType, onClose }: SettingsModalProps) {
       size="sm"
       className="shell-settings-modal"
     >
-      {/* key=appType resets the error boundary when the active app changes */}
-      <SettingsEB key={appType}>
+      {/* key resets the error boundary on app change and on each close→reopen */}
+      <SettingsEB key={`${appType}-${resetKey}`}>
         <Suspense
           fallback={
             <InlineLoading
