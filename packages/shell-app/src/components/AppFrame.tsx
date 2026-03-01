@@ -96,10 +96,12 @@ export function AppFrame() {
   return (
     <RemoteErrorBoundary appType={activeInstance.appType}>
       <Suspense fallback={<div className="frame-loading">Loading…</div>}>
-        <RemoteComponent
-          instanceId={activeInstance.id}
-          threadId={activeInstance.activeThreadId}
-        />
+        <div className="frame-fade-in" key={activeInstance.appType}>
+          <RemoteComponent
+            instanceId={activeInstance.id}
+            threadId={activeInstance.activeThreadId}
+          />
+        </div>
       </Suspense>
     </RemoteErrorBoundary>
   )

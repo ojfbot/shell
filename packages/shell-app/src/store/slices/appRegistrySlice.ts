@@ -184,6 +184,12 @@ export const appRegistrySlice = createSlice({
       }
       if (inst) inst.lastActivity = now()
     },
+
+    // Return to HomeScreen — clears the active instance without closing it
+    goHome(state) {
+      state.activeInstanceId = null
+      state.activeAppType = null
+    },
   },
 })
 
@@ -196,6 +202,7 @@ export const {
   renameThread,
   removeThread,
   bumpThreadActivity,
+  goHome,
 } = appRegistrySlice.actions
 
 export default appRegistrySlice.reducer

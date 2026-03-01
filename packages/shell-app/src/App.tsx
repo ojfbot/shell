@@ -16,9 +16,17 @@ import { ShellHeader } from './components/ShellHeader.js'
 import { useAppSelector, useAppDispatch } from './store/hooks.js'
 import { toggleTheme } from './store/slices/themeSlice.js'
 
+const APP_LABELS: Record<string, string> = {
+  'cv-builder': 'CV Builder',
+  'tripplanner': 'TripPlanner',
+  'blogengine': 'BlogEngine',
+  'purefoy': 'Purefoy',
+}
+
 export function App() {
   const [sideNavExpanded, setSideNavExpanded] = useState(false)
   const isDark = useAppSelector(s => s.theme.isDark)
+  const { activeAppType } = useAppSelector(s => s.appRegistry)
   const dispatch = useAppDispatch()
 
   // Push theme class to <html> so body + :root-resolved tokens change with the theme
@@ -41,7 +49,17 @@ export function App() {
           isActive={sideNavExpanded}
           aria-expanded={sideNavExpanded}
         />
-        <HeaderName prefix="">Frame</HeaderName>
+        <HeaderName prefix="">
+          <span className="shell-breadcrumb-home">Frame</span>
+          {activeAppType && (
+            <>
+              <span className="shell-breadcrumb-sep"> / </span>
+              <span className="shell-breadcrumb-app">
+                {APP_LABELS[activeAppType] ?? activeAppType}
+              </span>
+            </>
+          )}
+        </HeaderName>
         <ShellHeader />
         <HeaderGlobalBar>
           <HeaderGlobalAction
@@ -54,17 +72,15 @@ export function App() {
         </HeaderGlobalBar>
       </Header>
 
-      {sideNavExpanded && (
-        <SideNav
-          aria-label="App navigation"
-          expanded={sideNavExpanded}
-          onOverlayClick={() => setSideNavExpanded(false)}
-        >
-          <SideNavItems>
-            <AppSwitcher />
-          </SideNavItems>
-        </SideNav>
-      )}
+      <SideNav
+        aria-label="App navigation"
+        expanded={sideNavExpanded}
+        onOverlayClick={() => setSideNavExpanded(false)}
+      >
+        <SideNavItems>
+          <AppSwitcher />
+        </SideNavItems>
+      </SideNav>
 
       <div
         className="main-content"
