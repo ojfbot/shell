@@ -1,8 +1,14 @@
 name: Claude Code Review
 
+# Manual-only: automatic triggering on PR events is disabled.
+# Run from GitHub Actions → "Claude Code Review" → "Run workflow" and supply the PR number.
 on:
-  pull_request:
-    types: [opened, synchronize, ready_for_review, reopened]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to review'
+        required: true
+        type: string
 
 jobs:
   claude-review:
@@ -26,7 +32,7 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |
             REPO: ${{ github.repository }}
-            PR NUMBER: ${{ github.event.pull_request.number }}
+            PR NUMBER: ${{ github.event.inputs.pr_number }}
 
             Please review this pull request and provide feedback on:
             - Code quality and best practices
