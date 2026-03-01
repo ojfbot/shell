@@ -1,1 +1,0 @@
-../../core/domain-knowledge/langgraph-patterns.md
