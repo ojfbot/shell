@@ -19,13 +19,55 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 
 export type AppType = 'cv-builder' | 'tripplanner' | 'blogengine' | 'purefoy'
 
-/** Single source of truth for app display names — used in breadcrumb and sidebar. */
-export const APP_LABELS: Record<AppType, string> = {
-  'cv-builder': 'CV Builder',
-  'tripplanner': 'TripPlanner',
-  'blogengine': 'BlogEngine',
-  'purefoy': 'Purefoy',
+/**
+ * Static metadata the shell holds for each registered app type.
+ * This is the single source of truth for all app-level display names, remote
+ * URLs, and default instance names.  Do NOT duplicate these values anywhere
+ * else in the shell — derive APP_LABELS, APP_TYPES, and DEFAULT_INSTANCES
+ * from this record instead.
+ *
+ * Sub-apps self-identify at runtime via GET /api/tools (see ADR-0010).
+ * Shell remains authoritative; client apps confirm, not define.
+ */
+export interface AppConfig {
+  /** Human-readable label used in breadcrumb + sidebar. */
+  label: string
+  /** Module Federation remote URL, resolved from env at build time. */
+  remoteUrl: string
+  /** Name given to the first instance created for this app type. */
+  defaultInstanceName: string
 }
+
+export const APP_CONFIG: Record<AppType, AppConfig> = {
+  'cv-builder': {
+    label: 'CV Builder',
+    remoteUrl: import.meta.env.VITE_REMOTE_CV_BUILDER ?? 'http://localhost:3000',
+    defaultInstanceName: 'My CV',
+  },
+  'tripplanner': {
+    label: 'TripPlanner',
+    remoteUrl: import.meta.env.VITE_REMOTE_TRIPPLANNER ?? 'http://localhost:3010',
+    defaultInstanceName: 'My Trips',
+  },
+  'blogengine': {
+    label: 'BlogEngine',
+    remoteUrl: import.meta.env.VITE_REMOTE_BLOGENGINE ?? 'http://localhost:3005',
+    defaultInstanceName: 'Blog',
+  },
+  'purefoy': {
+    label: 'Purefoy',
+    remoteUrl: import.meta.env.VITE_REMOTE_PUREFOY ?? 'http://localhost:3020',
+    defaultInstanceName: 'Purefoy',
+  },
+}
+
+/** Derived — do NOT add entries here; update APP_CONFIG above instead. */
+export const APP_TYPES = Object.keys(APP_CONFIG) as AppType[]
+
+/** Derived — do NOT add entries here; update APP_CONFIG above instead. */
+export const APP_LABELS: Record<AppType, string> = Object.fromEntries(
+  Object.entries(APP_CONFIG).map(([k, v]) => [k, v.label])
+) as Record<AppType, string>
 
 export interface AppThread {
   id: string
@@ -53,30 +95,21 @@ interface AppRegistryState {
   activeAppType: AppType | null
 }
 
-// ── Default instances (one per app type, created on first load) ───────────────
+// ── Default instances (one per app type on first load) ────────────────────────
+// Derived from APP_CONFIG — do NOT hardcode URLs or names here.
 
-const DEFAULT_INSTANCES: AppInstance[] = [
-  {
-    id: 'default-cv-builder',
-    appType: 'cv-builder',
-    name: 'My CV',
-    remoteUrl: import.meta.env.VITE_REMOTE_CV_BUILDER ?? 'http://localhost:3000',
-    threads: [{ id: 'default', name: 'Main', createdAt: new Date().toISOString(), lastActivity: new Date().toISOString(), messageCount: 0 }],
-    activeThreadId: 'default',
-    createdAt: new Date().toISOString(),
-    lastActivity: new Date().toISOString(),
-  },
-  {
-    id: 'default-blogengine',
-    appType: 'blogengine',
-    name: 'Blog',
-    remoteUrl: import.meta.env.VITE_REMOTE_BLOGENGINE ?? 'http://localhost:3005',
-    threads: [{ id: 'default', name: 'Main', createdAt: new Date().toISOString(), lastActivity: new Date().toISOString(), messageCount: 0 }],
-    activeThreadId: 'default',
-    createdAt: new Date().toISOString(),
-    lastActivity: new Date().toISOString(),
-  },
-]
+const DEFAULT_APP_TYPES: AppType[] = ['cv-builder', 'blogengine']
+
+const DEFAULT_INSTANCES: AppInstance[] = DEFAULT_APP_TYPES.map(appType => ({
+  id: `default-${appType}`,
+  appType,
+  name: APP_CONFIG[appType].defaultInstanceName,
+  remoteUrl: APP_CONFIG[appType].remoteUrl,
+  threads: [{ id: 'default', name: 'Main', createdAt: new Date().toISOString(), lastActivity: new Date().toISOString(), messageCount: 0 }],
+  activeThreadId: 'default',
+  createdAt: new Date().toISOString(),
+  lastActivity: new Date().toISOString(),
+}))
 
 const initialState: AppRegistryState = {
   instances: DEFAULT_INSTANCES,

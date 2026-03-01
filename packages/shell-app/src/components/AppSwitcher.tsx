@@ -1,23 +1,16 @@
 import { useState, useMemo } from 'react'
-import { TextInput } from '@carbon/react'
+import { TextInput, IconButton } from '@carbon/react'
 import { Switcher } from '@carbon/icons-react'
 import { useAppDispatch, useAppSelector } from '../store/hooks.js'
 import {
   activateInstance,
   spawnInstance,
   goHome,
+  APP_CONFIG,
   APP_LABELS,
+  APP_TYPES,
   type AppType,
 } from '../store/slices/appRegistrySlice.js'
-
-const APP_REMOTE_DEFAULTS: Record<AppType, string> = {
-  'cv-builder': import.meta.env.VITE_REMOTE_CV_BUILDER ?? 'http://localhost:3000',
-  'tripplanner': import.meta.env.VITE_REMOTE_TRIPPLANNER ?? 'http://localhost:3010',
-  'blogengine': import.meta.env.VITE_REMOTE_BLOGENGINE ?? 'http://localhost:3005',
-  'purefoy': import.meta.env.VITE_REMOTE_PUREFOY ?? 'http://localhost:3020',
-}
-
-const APP_TYPES: AppType[] = ['cv-builder', 'tripplanner', 'blogengine', 'purefoy']
 
 /**
  * Flat app list with search — renders inside Carbon SideNav.
@@ -45,8 +38,8 @@ export function AppSwitcher() {
     } else {
       dispatch(spawnInstance({
         appType,
-        name: APP_LABELS[appType],
-        remoteUrl: APP_REMOTE_DEFAULTS[appType],
+        name: APP_CONFIG[appType].defaultInstanceName,
+        remoteUrl: APP_CONFIG[appType].remoteUrl,
       }))
     }
   }
@@ -63,15 +56,15 @@ export function AppSwitcher() {
           onChange={e => setSearch(e.target.value)}
           size="sm"
         />
-        <button
-          className={`sidebar-home-btn${activeInstanceId === null ? ' is-home' : ''}`}
+        <IconButton
+          label="Return to home"
+          kind="ghost"
+          size="sm"
           onClick={() => dispatch(goHome())}
           disabled={activeInstanceId === null}
-          aria-label="Return to home"
-          title="Return to home"
         >
           <Switcher size={16} />
-        </button>
+        </IconButton>
       </div>
       <div className="applications-list">
         {filtered.length > 0 ? (

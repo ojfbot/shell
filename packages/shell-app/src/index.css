@@ -143,43 +143,30 @@ html, body {
   min-height: 32px;
 }
 
-/* Carbon's <Header> creates its own layer context that can prevent the parent
-   .cds--g100 / .cds--white scope from cascading --cds-field tokens into the
-   TextInput. Override explicitly, scoped to each theme class on <html>. */
-.cds--g100 .shell-header__input-form .cds--text-input {
-  background-color: #2d2d2d;
-  color: #f4f4f4;
-  border-bottom-color: #6f6f6f;
-}
-.cds--g100 .shell-header__input-form .cds--text-input::placeholder {
-  color: #8d8d8d;
-}
-.cds--white .shell-header__input-form .cds--text-input {
-  background-color: #f4f4f4;
-  color: #161616;
-  border-bottom-color: #8d8d8d;
-}
-.cds--white .shell-header__input-form .cds--text-input::placeholder {
-  color: #a8a8a8;
-}
-
-/* Same fix for the sidebar search input — Carbon's <SideNav> has the same
-   layer context issue as <Header>. Scope overrides to the theme class on <html>. */
+/* Carbon's <Header> and <SideNav> both create their own layer contexts, preventing
+   the parent .cds--g100/.cds--white scope from cascading --cds-field tokens into
+   TextInput. Override explicitly, scoped to the theme class on <html>.
+   Values reference --ojf-* tokens so brand changes propagate; hardcoded fallbacks
+   maintain behaviour if a token fails to resolve. */
+.cds--g100 .shell-header__input-form .cds--text-input,
 .cds--g100 .sidebar-search-container .cds--text-input {
-  background-color: #2d2d2d;
-  color: #f4f4f4;
-  border-bottom-color: #6f6f6f;
+  background-color: var(--ojf-surface-select, #2d2d2d);
+  color: var(--ojf-text-primary, #f4f4f4);
+  border-bottom-color: var(--cds-border-strong-01, #6f6f6f);
 }
+.cds--g100 .shell-header__input-form .cds--text-input::placeholder,
 .cds--g100 .sidebar-search-container .cds--text-input::placeholder {
-  color: #8d8d8d;
+  color: var(--ojf-text-muted, #8d8d8d);
 }
+.cds--white .shell-header__input-form .cds--text-input,
 .cds--white .sidebar-search-container .cds--text-input {
-  background-color: #f4f4f4;
-  color: #161616;
-  border-bottom-color: #8d8d8d;
+  background-color: var(--ojf-surface-1, #f4f4f4);
+  color: var(--ojf-text-primary, #161616);
+  border-bottom-color: var(--cds-border-strong-01, #8d8d8d);
 }
+.cds--white .shell-header__input-form .cds--text-input::placeholder,
 .cds--white .sidebar-search-container .cds--text-input::placeholder {
-  color: #a8a8a8;
+  color: var(--ojf-text-muted, #a8a8a8);
 }
 
 .shell-header__submit {
@@ -277,22 +264,6 @@ html, body {
   margin-bottom: 0;
 }
 
-.sidebar-home-btn {
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  background: var(--ojf-accent);
-  color: #fff;
-  transition: background var(--ojf-duration-fast) var(--ojf-ease);
-}
-.sidebar-home-btn:hover:not(:disabled) { background: var(--ojf-accent-hover); }
-.sidebar-home-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .applications-list {
   margin-top: 1rem;

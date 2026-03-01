@@ -13,6 +13,7 @@
 :root {
   --ojf-accent:        #5b4de0;  /* purple accessible on white */
   --ojf-accent-hover:  #4a3ecb;
+  --ojf-accent-active: #3d31b8;  /* pressed — one shade darker than hover */
   --ojf-accent-subtle: rgba(91, 77, 224, 0.10);
   --ojf-font-sans:     'IBM Plex Sans', sans-serif;
   --ojf-font-mono:     'IBM Plex Mono', 'JetBrains Mono', 'Fira Code', monospace;
@@ -42,7 +43,7 @@
   --cds-link-primary-hover:      var(--ojf-accent-hover);
   --cds-button-primary:          var(--ojf-accent);
   --cds-button-primary-hover:    var(--ojf-accent-hover);
-  --cds-button-primary-active:   var(--ojf-accent-hover);
+  --cds-button-primary-active:   var(--ojf-accent-active);
 }
 
 /* ── ojfbot dark overrides (purple accent, near-black surfaces) ── */
@@ -50,6 +51,7 @@
   /* Brand */
   --ojf-accent:        #7c6af7;
   --ojf-accent-hover:  #6b59e8;
+  --ojf-accent-active: #5848d9;  /* pressed — one shade darker than hover */
   --ojf-accent-subtle: rgba(124, 106, 247, 0.12);
 
   /* Surface scale */
@@ -97,7 +99,7 @@
   --cds-link-primary-hover:      var(--ojf-accent-hover);
   --cds-button-primary:          var(--ojf-accent);
   --cds-button-primary-hover:    var(--ojf-accent-hover);
-  --cds-button-primary-active:   var(--ojf-accent-hover);
+  --cds-button-primary-active:   var(--ojf-accent-active);
   --cds-icon-primary:            var(--ojf-text-primary);
   --cds-icon-secondary:          var(--ojf-text-secondary);
   --cds-header-background:       var(--ojf-surface-1);
