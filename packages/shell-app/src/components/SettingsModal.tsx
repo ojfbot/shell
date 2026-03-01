@@ -30,7 +30,9 @@ class SettingsEB extends React.Component<
 > {
   state: { error: Error | null } = { error: null }
   static getDerivedStateFromError(error: Error): { error: Error } { return { error } }
-  componentDidCatch(err: Error) { console.error('[SettingsEB]', err) }
+  componentDidCatch(err: Error, info: React.ErrorInfo) {
+    console.error('[SettingsEB]', err, info.componentStack)
+  }
   render() {
     if (this.state.error) {
       return (

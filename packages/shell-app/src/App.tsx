@@ -100,10 +100,13 @@ export function App() {
         <AppFrame />
       </div>
 
-      {showSettings && activeAppType && (
+      {/* showSettings asserts activeAppType is non-null + not 'purefoy'.
+          resetKey increments on close: gives fresh form state on reopen (intentional UX)
+          and clears any MF load error held in SettingsEB. */}
+      {showSettings && (
         <SettingsModal
           open={settingsOpen}
-          appType={activeAppType}
+          appType={activeAppType!}
           resetKey={settingsKey}
           onClose={() => { setSettingsOpen(false); setSettingsKey(k => k + 1) }}
         />
