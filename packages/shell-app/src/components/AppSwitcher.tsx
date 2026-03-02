@@ -60,6 +60,7 @@ export function AppSwitcher() {
           label="Return to home"
           kind="ghost"
           size="sm"
+          align="bottom-right"
           onClick={() => dispatch(goHome())}
           disabled={activeInstanceId === null}
         >

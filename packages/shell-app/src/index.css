@@ -118,13 +118,21 @@ html, body {
 /* ── Main content area ───────────────────────────────────────── */
 /* overflow:hidden (not auto) — prevents InteractiveChat's auto-scroll from scrolling
  * the shell container and pushing the sub-app tab bar above the viewport.
- * Each sub-app component is responsible for its own internal scrolling. */
+ * Each sub-app component is responsible for its own internal scrolling.
+ *
+ * isolation:isolate — creates an explicit stacking context for ALL content inside
+ * the main area (sub-apps, frame-fade-in animation layer, thread sidebars, etc.).
+ * Their z-indices are resolved within this context; in the root context the entire
+ * main-content block sits at z-index:auto (effectively 0). This guarantees the shell
+ * chrome (sidenav z:10000, header z:10001) always composites above app content,
+ * regardless of how the browser orders animation/transform compositor layers inside. */
 .main-content {
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  isolation: isolate;
   background-color: var(--cds-background);
 }
 
