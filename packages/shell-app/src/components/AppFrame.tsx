@@ -25,6 +25,9 @@ const REMOTE_LOADERS: Record<AppType, () => Promise<{ default: React.ComponentTy
 interface RemoteProps {
   instanceId: string
   threadId: string | null
+  /** Tells the remote to suppress its standalone chrome (title heading, standalone margins).
+   *  Shell provides its own Header + breadcrumb; remotes should render their AppPanel only. */
+  shellMode: true
 }
 
 function RemoteErrorBoundary({ appType, children }: { appType: AppType; children: React.ReactNode }) {
@@ -100,6 +103,7 @@ export function AppFrame() {
           <RemoteComponent
             instanceId={activeInstance.id}
             threadId={activeInstance.activeThreadId}
+            shellMode={true}
           />
         </div>
       </Suspense>

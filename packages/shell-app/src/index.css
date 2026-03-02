@@ -3,6 +3,10 @@
 html, body {
   height: 100%;
   overflow: hidden;
+  /* Explicit background prevents browser-white flash before React mounts.
+   * html already has class="cds--g100" (index.html) so --cds-background
+   * resolves to #0a0a0a (dark) before any JS executes. */
+  background-color: var(--cds-background, #0a0a0a);
   font-family: var(--ojf-font-sans, 'IBM Plex Sans', sans-serif);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -55,32 +59,48 @@ html, body {
 .cds--white .cds--header__name:has(.shell-breadcrumb-sep) .shell-breadcrumb-home,
 .cds--white .shell-breadcrumb-sep { color: rgba(255,255,255,0.55); } /* purple header — soft white */
 
-/* Header stays on top, never shrinks */
-.cds--header {
-  position: relative;
-  z-index: 8000;
-  flex-shrink: 0;
-}
-
 /*
  * ── Shell z-index hierarchy ───────────────────────────────────────────────────
  * Sub-apps (BlogEngine, cv-builder, TripPlanner) use position:fixed overlays
- * with z-index up to 9998 (ThreadSidebar: 9998, ThreadSidebar overlay: 9997).
- * Shell chrome must sit above these so the SideNav and modals are never buried.
+ * with z-index up to 999 (cv-builder ThreadSidebar inline style).
+ * Shell chrome sits above all sub-app overlays.
  *
- *   Sub-app ThreadSidebar overlay : 9997
- *   Sub-app ThreadSidebar         : 9998
- *   Shell SideNav backdrop        : 9999  ← cds--side-nav__overlay
- *   Shell SideNav panel           : 10000 ← cds--side-nav
- *   Shell chat overlay            : 10001 ← shell-chat-overlay
- *   Shell settings modal          : 10002 ← shell-settings-modal
+ *   Sub-app ThreadSidebar         :  999  ← .thread-sidebar inline style
+ *   Shell sidenav                 : 10000 ← .shell-sidenav
+ *   Shell header                  : 10001 ← .cds--header
+ *   Shell chat overlay            : 10002 ← shell-chat-overlay
+ *   Shell settings modal          : 10003 ← shell-settings-modal
  * ─────────────────────────────────────────────────────────────────────────────
  */
-.cds--side-nav         { z-index: 10000 !important; }
-.cds--side-nav__overlay { z-index:  9999 !important; }
+
+/* Header stays on top, never shrinks */
+.cds--header {
+  position: relative;
+  z-index: 10001;
+  flex-shrink: 0;
+}
+
+/* App switcher sidebar — fully custom, no Carbon SideNav responsive overrides */
+.shell-sidenav {
+  position: fixed;
+  top: 48px; /* below the 48px Carbon Header */
+  left: 0;
+  width: 256px;
+  height: calc(100vh - 48px);
+  background: var(--cds-layer-01, #262626);
+  border-right: 1px solid var(--cds-border-subtle-01, #393939);
+  transform: translateX(-256px);
+  transition: transform 0.11s cubic-bezier(0.2, 0, 1, 0.9);
+  z-index: 10000;
+  overflow-y: auto;
+}
+
+.shell-sidenav--open {
+  transform: translateX(0);
+}
 
 /* Settings modal above all sub-app fixed overlays */
-.shell-settings-modal.cds--modal { z-index: 10002 !important; }
+.shell-settings-modal.cds--modal { z-index: 10003 !important; }
 
 /* Suspense fallback inside SettingsModal */
 .settings-loading-fallback { min-height: 120px; }
@@ -96,19 +116,22 @@ html, body {
 }
 
 /* ── Main content area ───────────────────────────────────────── */
+/* overflow:hidden (not auto) — prevents InteractiveChat's auto-scroll from scrolling
+ * the shell container and pushing the sub-app tab bar above the viewport.
+ * Each sub-app component is responsible for its own internal scrolling. */
 .main-content {
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  overflow: auto;
+  overflow: hidden;
   background-color: var(--cds-background);
 }
 
 /* ── App frame fade animation ─────────────────────────────────── */
 @keyframes frameFadeIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .frame-fade-in {
@@ -235,7 +258,7 @@ html, body {
   border: 1px solid var(--cds-border-subtle-01, #525252);
   border-radius: 6px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-  z-index: 10001;
+  z-index: 10002;
   overflow: hidden;
 }
 
