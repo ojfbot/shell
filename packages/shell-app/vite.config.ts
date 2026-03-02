@@ -19,11 +19,13 @@ import federation from '@originjs/vite-plugin-federation'
 //   VITE_REMOTE_BLOGENGINE=https://blog.jim.software
 //   VITE_REMOTE_TRIPPLANNER=https://trips.jim.software
 //   VITE_REMOTE_PUREFOY=https://purefoy.jim.software
+//   VITE_REMOTE_CORE_READER=https://reader.jim.software
 const remoteBase = {
   cv_builder:   process.env.VITE_REMOTE_CV_BUILDER   ?? 'http://localhost:3000',
   blogengine:   process.env.VITE_REMOTE_BLOGENGINE   ?? 'http://localhost:3005',
   tripplanner:  process.env.VITE_REMOTE_TRIPPLANNER  ?? 'http://localhost:3010',
   purefoy:      process.env.VITE_REMOTE_PUREFOY      ?? 'http://localhost:3020',
+  core_reader:  process.env.VITE_REMOTE_CORE_READER  ?? 'http://localhost:3015',
 }
 
 export default defineConfig({
