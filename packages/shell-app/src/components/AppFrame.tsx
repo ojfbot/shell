@@ -27,7 +27,7 @@ interface RemoteProps {
   threadId: string | null
   /** Tells the remote to suppress its standalone chrome (title heading, standalone margins).
    *  Shell provides its own Header + breadcrumb; remotes should render their AppPanel only. */
-  shellMode: true
+  shellMode: boolean
 }
 
 function RemoteErrorBoundary({ appType, children }: { appType: AppType; children: React.ReactNode }) {

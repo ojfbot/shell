@@ -17,7 +17,7 @@ import { toggleTheme } from './store/slices/themeSlice.js'
 import { APP_LABELS } from './store/slices/appRegistrySlice.js'
 
 export function App() {
-  const [sideNavExpanded, setSideNavExpanded] = useState(true)
+  const [sideNavExpanded, setSideNavExpanded] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [settingsKey, setSettingsKey] = useState(0)
   const isDark = useAppSelector(s => s.theme.isDark)
@@ -78,9 +78,14 @@ export function App() {
         </HeaderGlobalBar>
       </Header>
 
+      {/* role="navigation" — <aside> is implicitly "complementary"; we want nav semantics.
+          inert removes the closed sidenav from the tab order and AT without display:none,
+          so keyboard users can't accidentally land on invisible AppSwitcher items. */}
       <aside
         className={`shell-sidenav${sideNavExpanded ? ' shell-sidenav--open' : ''}`}
+        role="navigation"
         aria-label="App navigation"
+        {...(!sideNavExpanded && { inert: '' })}
       >
         <AppSwitcher />
       </aside>

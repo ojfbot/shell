@@ -10,7 +10,7 @@ import federation from '@originjs/vite-plugin-federation'
 // Sub-app vite configs each need the federation REMOTE counterpart:
 //   federation({ name: 'cv_builder', filename: 'remoteEntry.js',
 //     exposes: { './Dashboard': './src/components/Dashboard' },
-//     shared: { react, 'react-dom', '@reduxjs/toolkit', 'react-redux', '@carbon/react' } })
+//     shared: { 'react', 'react-dom', '@reduxjs/toolkit', 'react-redux', '@carbon/react' } })
 // @carbon/react MUST be in both host and remote shared lists — omitting it from the host
 // causes remotes to load a duplicate Carbon instance → CSS class conflicts + broken tab bar.
 

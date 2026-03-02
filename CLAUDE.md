@@ -112,6 +112,8 @@ federation({
 })
 ```
 
+**Scroll contract:** the shell's `.main-content` uses `overflow: hidden` (not `auto`) to prevent InteractiveChat's auto-scroll from pushing the sub-app tab bar above the viewport. This means every sub-app component is responsible for its own internal scroll roots — do not rely on the shell container scrolling for you.
+
 ## K8s deployment
 
 ```bash
