@@ -17,7 +17,7 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-export type AppType = 'cv-builder' | 'tripplanner' | 'blogengine' | 'purefoy'
+export type AppType = 'cv-builder' | 'tripplanner' | 'blogengine' | 'purefoy' | 'core-reader'
 
 /**
  * Static metadata the shell holds for each registered app type.
@@ -58,6 +58,11 @@ export const APP_CONFIG: Record<AppType, AppConfig> = {
     label: 'Purefoy',
     remoteUrl: import.meta.env.VITE_REMOTE_PUREFOY ?? 'http://localhost:3020',
     defaultInstanceName: 'Purefoy',
+  },
+  'core-reader': {
+    label: 'CoreReader',
+    remoteUrl: import.meta.env.VITE_REMOTE_CORE_READER ?? 'http://localhost:3015',
+    defaultInstanceName: 'CoreReader',
   },
 }
 

@@ -20,6 +20,7 @@ const REMOTE_LOADERS: Record<AppType, () => Promise<{ default: React.ComponentTy
   'tripplanner': () => import('tripplanner/Dashboard' as string) as never,
   'blogengine':  () => import('blogengine/Dashboard' as string) as never,
   'purefoy':     () => import('purefoy/Dashboard' as string) as never,
+  'core-reader': () => import('core_reader/Dashboard' as string) as never,
 }
 
 interface RemoteProps {
