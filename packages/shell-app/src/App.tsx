@@ -6,8 +6,6 @@ import {
   HeaderName,
   HeaderGlobalBar,
   HeaderGlobalAction,
-  SideNav,
-  SideNavItems,
 } from '@carbon/react'
 import { Asleep, Light, Settings } from '@carbon/icons-react'
 import { AppSwitcher } from './components/AppSwitcher.js'
@@ -19,7 +17,7 @@ import { toggleTheme } from './store/slices/themeSlice.js'
 import { APP_LABELS } from './store/slices/appRegistrySlice.js'
 
 export function App() {
-  const [sideNavExpanded, setSideNavExpanded] = useState(false)
+  const [sideNavExpanded, setSideNavExpanded] = useState(true)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [settingsKey, setSettingsKey] = useState(0)
   const isDark = useAppSelector(s => s.theme.isDark)
@@ -80,15 +78,12 @@ export function App() {
         </HeaderGlobalBar>
       </Header>
 
-      <SideNav
+      <aside
+        className={`shell-sidenav${sideNavExpanded ? ' shell-sidenav--open' : ''}`}
         aria-label="App navigation"
-        expanded={sideNavExpanded}
-        onOverlayClick={() => setSideNavExpanded(false)}
       >
-        <SideNavItems>
-          <AppSwitcher />
-        </SideNavItems>
-      </SideNav>
+        <AppSwitcher />
+      </aside>
 
       <div
         className="main-content"

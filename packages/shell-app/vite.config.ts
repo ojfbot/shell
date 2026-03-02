@@ -10,7 +10,9 @@ import federation from '@originjs/vite-plugin-federation'
 // Sub-app vite configs each need the federation REMOTE counterpart:
 //   federation({ name: 'cv_builder', filename: 'remoteEntry.js',
 //     exposes: { './Dashboard': './src/components/Dashboard' },
-//     shared: ['react','react-dom','@reduxjs/toolkit','react-redux'] })
+//     shared: { react, 'react-dom', '@reduxjs/toolkit', 'react-redux', '@carbon/react' } })
+// @carbon/react MUST be in both host and remote shared lists — omitting it from the host
+// causes remotes to load a duplicate Carbon instance → CSS class conflicts + broken tab bar.
 
 // Local dev defaults. Production overrides via VITE_REMOTE_* env vars:
 //   VITE_REMOTE_CV_BUILDER=https://cv.jim.software
@@ -35,13 +37,17 @@ export default defineConfig({
           `${base}/assets/remoteEntry.js`,
         ])
       ),
-      // Shared singletons — one copy in the runtime regardless of which module loaded it
-      shared: [
-        'react',
-        'react-dom',
-        '@reduxjs/toolkit',
-        'react-redux',
-      ],
+      // Shared singletons — one copy in the runtime regardless of which module loaded it.
+      // Object form enforces singleton + version constraints matching the remote configs.
+      shared: {
+        'react':            { singleton: true, requiredVersion: '^18.3.1' },
+        'react-dom':        { singleton: true, requiredVersion: '^18.3.1' },
+        '@reduxjs/toolkit': { singleton: true, requiredVersion: '^2.10.1' },
+        'react-redux':      { singleton: true, requiredVersion: '^9.2.0' },
+        // Must match cv-builder's shared @carbon/react entry — omitting this caused cv-builder
+        // to load a duplicate Carbon instance, breaking Carbon CSS class resolution in shell.
+        '@carbon/react':    { singleton: true, requiredVersion: '^1.67.0' },
+      },
     }),
   ],
   server: {
