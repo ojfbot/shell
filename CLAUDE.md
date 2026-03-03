@@ -148,7 +148,14 @@ The visual regression pipeline lives in cv-builder. The shell itself is not yet 
 - [x] chatSlice + store/hooks wired
 - [x] Dark/light mode toggle (themeSlice in Redux, `<Theme>` class-based)
 - [x] CI pipeline (type-check + build on PR and main push)
+- [x] Module Federation remotes: cv-builder, BlogEngine, TripPlanner all connected (Dashboard + Settings exposed)
+- [x] SettingsModal: multi-panel, per-app settings, search, auto-jump to active app, localStorage persistence — ADR-0011
+- [x] Sub-app SettingsPanel: live connection status probe in each sub-app (cv-builder, TripPlanner, BlogEngine)
+- [x] Branch protection rulesets: all 4 repos, PR-required, rebase-only
+- [x] Vercel production deployment: frame.jim.software live — ADR-0013/ADR-0014
 - [ ] `spawnInstance` wired to frame-agent NL command ("new trip to Berlin") — Phase 4
 - [ ] Persist AppRegistry to localStorage
 - [ ] Sub-app API migration: remove direct Anthropic calls, delegate to frame-agent — Phase 2
 - [ ] Shell visual regression tests
+- [ ] TripPlanner GET /api/tools endpoint — Phase 1B
+- [ ] BlogEngine GET /api/tools fix (currently routes all tools to POST /api/v2/chat) — Phase 1B
