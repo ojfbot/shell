@@ -32,7 +32,8 @@
  * the rendering.
  */
 
-import React, { Suspense, useState, useMemo } from 'react'
+import React, { Suspense, useState, useMemo, useEffect } from 'react'
+import { useSelector } from 'react-redux'
 import {
   ComposedModal,
   ModalHeader,
@@ -89,10 +90,20 @@ class SettingsEB extends React.Component<
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function SettingsModal({ open, onClose }: Props) {
+  const contextAppType = useSelector((s: any) => s?.appRegistry?.activeAppType as AppType | null)
+
   const [activeTab, setActiveTab] = useState(0)
   const [query, setQuery] = useState('')
   // Incremented on close — resets each panel's error boundary on next open.
   const [resetKey, setResetKey] = useState(0)
+
+  // When the modal opens, jump to the tab matching the currently active app.
+  useEffect(() => {
+    if (!open) return
+    if (!contextAppType) return
+    const idx = SETTINGS_APP_TYPES.indexOf(contextAppType)
+    if (idx >= 0) setActiveTab(idx)
+  }, [open, contextAppType])
 
   // Filter the tab list based on the search query.
   // Matches against app name OR any field label/keyword from SETTINGS_META.
