@@ -19,12 +19,9 @@ import { APP_LABELS } from './store/slices/appRegistrySlice.js'
 export function App() {
   const [sideNavExpanded, setSideNavExpanded] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const [settingsKey, setSettingsKey] = useState(0)
   const isDark = useAppSelector(s => s.theme.isDark)
-  const { activeAppType, activeInstanceId } = useAppSelector(s => s.appRegistry)
+  const { activeAppType } = useAppSelector(s => s.appRegistry)
   const dispatch = useAppDispatch()
-
-  const showSettings = !!activeInstanceId && !!activeAppType && activeAppType !== 'purefoy'
 
   // Push theme class to <html> so body + :root-resolved tokens change with the theme
   useEffect(() => {
@@ -59,15 +56,13 @@ export function App() {
         </HeaderName>
         <ShellHeader />
         <HeaderGlobalBar>
-          {showSettings && (
-            <HeaderGlobalAction
-              aria-label={`${APP_LABELS[activeAppType]} Settings`}
-              tooltipAlignment="end"
-              onClick={() => setSettingsOpen(true)}
-            >
-              <Settings size={20} />
-            </HeaderGlobalAction>
-          )}
+          <HeaderGlobalAction
+            aria-label="Settings"
+            tooltipAlignment="end"
+            onClick={() => setSettingsOpen(true)}
+          >
+            <Settings size={20} />
+          </HeaderGlobalAction>
           <HeaderGlobalAction
             aria-label="Toggle theme"
             tooltipAlignment="end"
@@ -100,17 +95,10 @@ export function App() {
         <AppFrame />
       </div>
 
-      {/* showSettings asserts activeAppType is non-null + not 'purefoy'.
-          resetKey increments on close: gives fresh form state on reopen (intentional UX)
-          and clears any MF load error held in SettingsEB. */}
-      {showSettings && (
-        <SettingsModal
-          open={settingsOpen}
-          appType={activeAppType!}
-          resetKey={settingsKey}
-          onClose={() => { setSettingsOpen(false); setSettingsKey(k => k + 1) }}
-        />
-      )}
+      <SettingsModal
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+      />
     </Theme>
   )
 }

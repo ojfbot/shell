@@ -99,11 +99,112 @@ html, body {
   transform: translateX(0);
 }
 
-/* Settings modal above all sub-app fixed overlays */
-.shell-settings-modal.cds--modal { z-index: 10003 !important; }
+/* ── Settings modal ───────────────────────────────────────────── */
 
-/* Suspense fallback inside SettingsModal */
+/* Above all sub-app fixed overlays (ThreadSidebar reaches 9998) */
+.shell-settings-modal .cds--modal-container { z-index: 10003; }
+.shell-settings-modal.cds--modal            { z-index: 10002 !important; }
+
+/* Constrain height so the modal doesn't exceed the viewport */
+.shell-settings-modal .cds--modal-container {
+  max-height: min(80vh, 640px);
+}
+
+/* Search bar — sits below the modal title inside ModalHeader */
+.settings-search-input.cds--search {
+  margin-top: 0.75rem;
+  /* stretch edge-to-edge of the header content area */
+  margin-inline: -1rem;
+  width: calc(100% + 2rem);
+}
+.settings-search-input .cds--search-input {
+  background: var(--cds-field);
+}
+
+/* ── Tab bar (rendered inside ModalHeader, above scrollable body) ─ */
+.settings-modal-tabs {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-bottom: 1px solid var(--cds-border-subtle);
+  /* Flush to modal edges so the underline rule spans the full width */
+  margin-inline: -1rem;
+  padding-inline: 1rem;
+  margin-top: 0.25rem;
+  gap: 0;
+}
+.settings-modal-tabs::-webkit-scrollbar { display: none; }
+
+.settings-tab {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-family: inherit;
+  line-height: 1.25rem;
+  color: var(--cds-text-secondary);
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  /* Negative margin pulls the border-bottom flush with the container's rule */
+  margin-bottom: -1px;
+  transition: color 70ms ease, border-bottom-color 70ms ease, background 70ms ease;
+}
+.settings-tab:hover {
+  color: var(--cds-text-primary);
+  background: var(--cds-layer-hover);
+}
+.settings-tab--active {
+  color: var(--cds-text-primary);
+  border-bottom-color: var(--cds-interactive);
+}
+.settings-tab:focus-visible {
+  outline: 2px solid var(--cds-focus);
+  outline-offset: -2px;
+}
+
+/* ── Panel content area ───────────────────────────────────────── */
+
+/* Remove default top padding from ModalBody — the tab bar provides separation */
+.settings-modal-body.cds--modal-scroll-content {
+  padding-top: 1.5rem;
+}
+
+.settings-panel-region { min-height: 80px; }
+
+/* Suspense loading spinner */
 .settings-loading-fallback { min-height: 120px; }
+
+/* "No settings panel" and "no results" messages */
+.settings-no-panel,
+.settings-no-results {
+  color: var(--cds-text-secondary);
+  font-size: 0.875rem;
+  padding: 1.5rem 0;
+}
+
+/* ── Sub-app panel shared layout ──────────────────────────────── */
+/* These classes are used inside MF lazy panels loaded by SettingsModal.
+   Because panels render inside the shell's modal, the shell's global CSS
+   applies — sub-apps do not need to duplicate these rules. */
+
+.settings-form-group {
+  margin-bottom: 1.5rem;
+}
+/* Space out fields inside a FormGroup */
+.settings-form-group .cds--text-input-wrapper,
+.settings-form-group .cds--select,
+.settings-form-group .cds--toggle {
+  margin-top: 1rem;
+}
+.settings-form-group .cds--toggle:first-of-type { margin-top: 0.75rem; }
+
+/* Info banner inside panels */
+.settings-info-banner.cds--inline-notification {
+  margin-bottom: 1rem;
+  max-width: 100%;
+}
 
 /* ── App container ────────────────────────────────────────────── */
 .app-container {
