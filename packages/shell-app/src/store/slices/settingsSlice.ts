@@ -79,6 +79,12 @@ export interface PurefoySettings {
   showDebugPanel: boolean
 }
 
+export interface CoreReaderSettings {
+  // ── Connection ──────────────────────────────────────────────────────────────
+  /** Runtime API base URL override. Empty string = use VITE_REMOTE_CORE_READER env default. */
+  apiBaseUrl: string
+}
+
 // ── App settings map ──────────────────────────────────────────────────────────
 
 export interface AppsSettings {
@@ -86,6 +92,7 @@ export interface AppsSettings {
   'tripplanner': TripPlannerSettings
   'blogengine': BlogEngineSettings
   'purefoy': PurefoySettings
+  'core-reader': CoreReaderSettings
 }
 
 // ── Capability manifest (firewall) ────────────────────────────────────────────
@@ -141,6 +148,9 @@ const initialState: SettingsState = {
       apiBaseUrl: '',
       showDebugPanel: false,
     },
+    'core-reader': {
+      apiBaseUrl: '',
+    },
   },
   // Firewall-closed by default. Add explicit entries to authorize cross-reads.
   capabilities: {},
@@ -168,6 +178,10 @@ export const settingsSlice = createSlice({
     updatePurefoySettings(state, action: PayloadAction<Partial<PurefoySettings>>) {
       Object.assign(state.apps['purefoy'], action.payload)
     },
+    /** CoreReader only. */
+    updateCoreReaderSettings(state, action: PayloadAction<Partial<CoreReaderSettings>>) {
+      Object.assign(state.apps['core-reader'], action.payload)
+    },
     /**
      * Shell-only: update the capability manifest.
      * Only the shell operator (SettingsModal, frame-agent) should dispatch this.
@@ -185,6 +199,7 @@ export const {
   updateTripPlannerSettings,
   updateBlogEngineSettings,
   updatePurefoySettings,
+  updateCoreReaderSettings,
   setCapabilities,
 } = settingsSlice.actions
 

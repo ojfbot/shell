@@ -78,4 +78,7 @@ export const SETTINGS_META: Partial<Record<AppType, SettingsFieldMeta[]>> = {
     { label: 'API base URL',    keywords: ['api', 'url', 'connection', 'endpoint', 'backend', 'override'] },
     { label: 'Show debug panel', keywords: ['debug', 'panel', 'developer', 'devtools', 'inspect'] },
   ],
+  'core-reader': [
+    { label: 'API base URL', keywords: ['api', 'url', 'connection', 'endpoint', 'backend', 'localhost', '3015', 'reader'] },
+  ],
 }
