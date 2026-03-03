@@ -17,11 +17,12 @@ export function ShellHeader() {
   const inputRef = useRef<HTMLInputElement>(null)
 
   const frameAgentUrl = import.meta.env.VITE_FRAME_AGENT_URL ?? 'http://localhost:4001'
+  const agentAvailable = frameAgentUrl !== ''
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     const msg = input.trim()
-    if (!msg || isStreaming) return
+    if (!msg || isStreaming || !agentAvailable) return
 
     setShowChat(true)
     dispatch(sendMessage({
@@ -52,9 +53,11 @@ export function ShellHeader() {
     return () => window.removeEventListener('keydown', handleGlobalKey)
   }, [])
 
-  const placeholder = activeAppType
-    ? `Ask anything · ${activeAppType} (⌘K)`
-    : 'Ask anything (⌘K)'
+  const placeholder = !agentAvailable
+    ? 'Agent offline — demo mode'
+    : activeAppType
+      ? `Ask anything · ${activeAppType} (⌘K)`
+      : 'Ask anything (⌘K)'
 
   return (
     <div className="shell-header__command-area">
@@ -70,12 +73,12 @@ export function ShellHeader() {
           onKeyDown={handleKeyDown}
           onFocus={() => setShowChat(true)}
           placeholder={placeholder}
-          disabled={isStreaming}
+          disabled={isStreaming || !agentAvailable}
         />
         <button
           type="submit"
           className="shell-header__submit"
-          disabled={isStreaming || !input.trim()}
+          disabled={isStreaming || !input.trim() || !agentAvailable}
           aria-label="Send"
         >
           {isStreaming ? '…' : '↑'}

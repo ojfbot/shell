@@ -27,7 +27,7 @@ app.use(express.urlencoded({ extended: true }))
 // Initialize frame-agent — loads API key + instantiates all domain agents
 try {
   initializeFrameAgent()
-  console.log('frame-agent initialized — meta-orchestrator + 3 domain agents ready')
+  console.log('frame-agent initialized — meta-orchestrator + 4 domain agents ready')
 } catch (err) {
   console.error('Failed to initialize frame-agent:', err)
   console.error('Check ANTHROPIC_API_KEY environment variable')
@@ -60,6 +60,15 @@ app.listen(PORT, () => {
   console.log(`  cv-builder:  ${process.env.CV_BUILDER_API_URL  ?? 'http://localhost:3001'}`)
   console.log(`  blogengine:  ${process.env.BLOGENGINE_API_URL  ?? 'http://localhost:3006'}`)
   console.log(`  tripplanner: ${process.env.TRIPPLANNER_API_URL ?? 'http://localhost:3011'}`)
+  console.log(`  purefoy:     ${process.env.PUREFOY_API_URL      ?? 'http://localhost:3020'}`)
+
+  // ADR-0008: fetch GET /api/tools from each sub-app after bind so the server
+  // is up for K8s health checks immediately. Falls back to static stubs on failure.
+  if (frameAgentManager.isInitialized()) {
+    frameAgentManager.get('metaOrchestrator').init().catch((err: unknown) => {
+      console.warn('frame-agent: domain tool discovery failed:', err)
+    })
+  }
 })
 
 process.on('SIGTERM', () => {

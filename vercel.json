@@ -1,0 +1,8 @@
+{
+  "buildCommand": "pnpm --filter @ojfbot/shell-app build",
+  "outputDirectory": "packages/shell-app/dist",
+  "installCommand": "pnpm install",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

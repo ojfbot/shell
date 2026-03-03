@@ -8,7 +8,7 @@ const router: Router = Router()
 const ChatRequestSchema = z.object({
   message: z.string().min(1, 'Message cannot be empty'),
   context: z.object({
-    activeAppType: z.enum(['cv-builder', 'blogengine', 'tripplanner', 'purefoy', 'cross-domain']).optional(),
+    activeAppType: z.enum(['cv-builder', 'blogengine', 'tripplanner', 'purefoy', 'cross-domain', 'meta']).optional(),
     instanceId: z.string().optional(),
     threadId: z.string().nullable().optional(),
   }).optional(),
