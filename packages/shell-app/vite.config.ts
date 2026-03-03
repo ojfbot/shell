@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import federation from '@originjs/vite-plugin-federation'
 
@@ -14,21 +14,21 @@ import federation from '@originjs/vite-plugin-federation'
 // @carbon/react MUST be in both host and remote shared lists — omitting it from the host
 // causes remotes to load a duplicate Carbon instance → CSS class conflicts + broken tab bar.
 
-// Local dev defaults. Production overrides via VITE_REMOTE_* env vars:
-//   VITE_REMOTE_CV_BUILDER=https://cv.jim.software
-//   VITE_REMOTE_BLOGENGINE=https://blog.jim.software
-//   VITE_REMOTE_TRIPPLANNER=https://trips.jim.software
-//   VITE_REMOTE_PUREFOY=https://purefoy.jim.software
-//   VITE_REMOTE_CORE_READER=https://reader.jim.software
-const remoteBase = {
-  cv_builder:   process.env.VITE_REMOTE_CV_BUILDER   ?? 'http://localhost:3000',
-  blogengine:   process.env.VITE_REMOTE_BLOGENGINE   ?? 'http://localhost:3005',
-  tripplanner:  process.env.VITE_REMOTE_TRIPPLANNER  ?? 'http://localhost:3010',
-  purefoy:      process.env.VITE_REMOTE_PUREFOY      ?? 'http://localhost:3020',
-  core_reader:  process.env.VITE_REMOTE_CORE_READER  ?? 'http://localhost:3015',
-}
+// Local dev defaults. Production overrides via VITE_REMOTE_* env vars in .env.production.
+// Uses loadEnv so the federation plugin (which runs in Node during build) can read them —
+// process.env does NOT include .env.* files; loadEnv does.
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '')
 
-export default defineConfig({
+  const remoteBase = {
+    cv_builder:   env.VITE_REMOTE_CV_BUILDER   ?? 'http://localhost:3000',
+    blogengine:   env.VITE_REMOTE_BLOGENGINE   ?? 'http://localhost:3005',
+    tripplanner:  env.VITE_REMOTE_TRIPPLANNER  ?? 'http://localhost:3010',
+    purefoy:      env.VITE_REMOTE_PUREFOY      ?? 'http://localhost:3020',
+    core_reader:  env.VITE_REMOTE_CORE_READER  ?? 'http://localhost:3015',
+  }
+
+  return {
   plugins: [
     react(),
     federation({
@@ -70,4 +70,5 @@ export default defineConfig({
     target: 'esnext',
     minify: false,
   },
+  }
 })
