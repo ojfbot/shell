@@ -47,8 +47,7 @@ import type { AppType } from '../store/slices/appRegistrySlice.js'
 import { SETTINGS_LOADERS, SETTINGS_META } from '../remotes/settings-loaders.js'
 
 // Apps that appear in the settings tab bar (in display order).
-// 'core-reader' is intentionally omitted — no settings surface yet.
-const SETTINGS_APP_TYPES: AppType[] = ['cv-builder', 'tripplanner', 'blogengine', 'purefoy']
+const SETTINGS_APP_TYPES: AppType[] = ['cv-builder', 'tripplanner', 'blogengine', 'purefoy', 'core-reader']
 
 interface Props {
   open: boolean
