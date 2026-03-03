@@ -77,7 +77,6 @@ class SettingsEB extends React.Component<
           kind="error"
           title="Could not load settings panel"
           subtitle={this.state.error.message}
-          lowContrast
           hideCloseButton
         />
       )
