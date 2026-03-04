@@ -6,6 +6,7 @@ import { initializeFrameAgent, frameAgentManager } from './services/frame-agent-
 import chatRouter from './routes/chat.js'
 import toolsRouter from './routes/tools.js'
 import healthRouter from './routes/health.js'
+import inspectRouter from './routes/inspect.js'
 
 const app = express()
 const PORT = parseInt(process.env.PORT ?? '4001', 10)
@@ -13,7 +14,16 @@ const PORT = parseInt(process.env.PORT ?? '4001', 10)
 // Security
 app.use(helmet())
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:4000',
+  origin: (origin, callback) => {
+    const allowed = (process.env.CORS_ORIGIN || 'http://localhost:4000').split(',').map(s => s.trim())
+    // Allow MrPlug browser extension (any chrome-extension:// or moz-extension:// origin)
+    // and requests with no Origin header (service workers)
+    if (!origin || origin.startsWith('chrome-extension://') || origin.startsWith('moz-extension://') || allowed.includes(origin)) {
+      callback(null, true)
+    } else {
+      callback(new Error(`CORS: origin '${origin}' not allowed`))
+    }
+  },
   credentials: true,
 }))
 
@@ -48,6 +58,7 @@ app.get('/health', (_req, res) => {
 app.use('/api/chat', chatRouter)
 app.use('/api/tools', toolsRouter)
 app.use('/api/health', healthRouter)
+app.use('/api/inspect', inspectRouter)
 
 // 404 + error handling
 app.use(notFoundHandler)
