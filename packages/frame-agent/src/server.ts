@@ -11,14 +11,35 @@ import inspectRouter from './routes/inspect.js'
 const app = express()
 const PORT = parseInt(process.env.PORT ?? '4001', 10)
 
+// Extension ID allowlist — comma-separated Chrome/Firefox extension IDs.
+// Leave unset in dev to allow any extension origin (convenient for local testing).
+// Set in production to lock down which extension IDs can reach the LLM gateway.
+// Example: ALLOWED_EXTENSION_IDS=abcdefghijklmnopabcdefghijklmnop,mnopabcdefghijklmn
+const allowedExtensionIds = (process.env.ALLOWED_EXTENSION_IDS ?? '')
+  .split(',')
+  .map(s => s.trim())
+  .filter(Boolean)
+
 // Security
 app.use(helmet())
 app.use(cors({
   origin: (origin, callback) => {
     const allowed = (process.env.CORS_ORIGIN || 'http://localhost:4000').split(',').map(s => s.trim())
-    // Allow MrPlug browser extension (any chrome-extension:// or moz-extension:// origin)
-    // and requests with no Origin header (service workers)
-    if (!origin || origin.startsWith('chrome-extension://') || origin.startsWith('moz-extension://') || allowed.includes(origin)) {
+    if (!origin) {
+      // No Origin header — service workers, curl, server-to-server
+      callback(null, true)
+    } else if (origin.startsWith('chrome-extension://') || origin.startsWith('moz-extension://')) {
+      // MrPlug browser extension. In dev (no allowlist), accept any extension origin.
+      // In production, restrict to known extension IDs via ALLOWED_EXTENSION_IDS.
+      if (allowedExtensionIds.length === 0) {
+        callback(null, true)
+      } else {
+        const id = origin.split('://')[1]
+        allowedExtensionIds.includes(id)
+          ? callback(null, true)
+          : callback(new Error(`CORS: extension '${origin}' not in ALLOWED_EXTENSION_IDS`))
+      }
+    } else if (allowed.includes(origin)) {
       callback(null, true)
     } else {
       callback(new Error(`CORS: origin '${origin}' not allowed`))
