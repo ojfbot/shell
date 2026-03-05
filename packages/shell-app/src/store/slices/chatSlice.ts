@@ -33,6 +33,7 @@ export const sendMessage = createAsyncThunk(
   async (payload: {
     message: string
     activeAppType: string | null
+    activeInstanceId: string | null
     frameAgentUrl: string
     conversationHistory: ChatMessage[]
   }) => {
@@ -41,7 +42,10 @@ export const sendMessage = createAsyncThunk(
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         message: payload.message,
-        context: { activeAppType: payload.activeAppType ?? undefined },
+        context: {
+          activeAppType: payload.activeAppType ?? undefined,
+          instanceId: payload.activeInstanceId ?? undefined,
+        },
         conversationHistory: payload.conversationHistory,
       }),
     })

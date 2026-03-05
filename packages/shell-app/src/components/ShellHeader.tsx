@@ -9,7 +9,7 @@ import { sendMessage, clearChat } from '../store/slices/chatSlice.js'
  */
 export function ShellHeader() {
   const dispatch = useAppDispatch()
-  const { activeAppType } = useAppSelector(s => s.appRegistry)
+  const { activeAppType, activeInstanceId } = useAppSelector(s => s.appRegistry)
   const { isStreaming, messages, error, lastDomain } = useAppSelector(s => s.chat)
 
   const [input, setInput] = useState('')
@@ -28,6 +28,7 @@ export function ShellHeader() {
     dispatch(sendMessage({
       message: msg,
       activeAppType,
+      activeInstanceId,
       frameAgentUrl,
       conversationHistory: messages,
     }))
