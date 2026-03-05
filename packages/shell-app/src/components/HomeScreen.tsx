@@ -1,10 +1,10 @@
 import { ClickableTile } from '@carbon/react'
-import { type CarbonIconType, Document, AirlineManageGates, Blog } from '@carbon/icons-react'
+import { type CarbonIconType, Document, AirlineManageGates, Blog, Add } from '@carbon/icons-react'
 import { useAppDispatch, useAppSelector } from '../store/hooks.js'
 import {
   spawnInstance,
   activateInstance,
-  type AppInstance,
+  APP_CONFIG,
   type AppType,
 } from '../store/slices/appRegistrySlice.js'
 
@@ -13,36 +13,24 @@ const APPS: {
   label: string
   hint: string
   Icon: CarbonIconType
-  remoteEnvKey: string
-  defaultPort: number
-  defaultName: string
 }[] = [
   {
     type: 'cv-builder',
     label: 'CV Builder',
     hint: 'Resume · cover letters · interview prep',
     Icon: Document,
-    remoteEnvKey: 'VITE_REMOTE_CV_BUILDER',
-    defaultPort: 3000,
-    defaultName: 'My CV',
   },
   {
     type: 'tripplanner',
     label: 'Trip Planner',
     hint: 'Itineraries · budgets · bookings',
     Icon: AirlineManageGates,
-    remoteEnvKey: 'VITE_REMOTE_TRIPPLANNER',
-    defaultPort: 3010,
-    defaultName: 'My Trips',
   },
   {
     type: 'blogengine',
     label: 'Blog Engine',
     hint: 'Posts · drafts · Notion sync',
     Icon: Blog,
-    remoteEnvKey: 'VITE_REMOTE_BLOGENGINE',
-    defaultPort: 3005,
-    defaultName: 'My Blog',
   },
 ]
 
@@ -59,19 +47,14 @@ export function HomeScreen() {
   const dispatch = useAppDispatch()
   const { instances } = useAppSelector(s => s.appRegistry)
 
-  function handleLaunch(
-    type: AppType,
-    remoteEnvKey: string,
-    defaultPort: number,
-    defaultName: string,
-    existing: AppInstance | undefined,
-  ) {
-    if (existing) {
-      dispatch(activateInstance(existing.id))
-    } else {
-      const remoteUrl = (import.meta.env[remoteEnvKey] as string | undefined) ?? `http://localhost:${defaultPort}`
-      dispatch(spawnInstance({ appType: type, name: defaultName, remoteUrl }))
-    }
+  function handleNewSession(type: AppType, existingCount: number) {
+    const base = APP_CONFIG[type].defaultInstanceName
+    const name = existingCount === 0 ? base : `${base} ${existingCount + 1}`
+    dispatch(spawnInstance({
+      appType: type,
+      name,
+      remoteUrl: APP_CONFIG[type].remoteUrl,
+    }))
   }
 
   return (
@@ -83,34 +66,48 @@ export function HomeScreen() {
         </p>
       </div>
 
-      <div className="home-screen__grid">
-        {APPS.map(({ type, label, hint, Icon, remoteEnvKey, defaultPort, defaultName }) => {
-          const existing = instances.find(i => i.appType === type)
-          const threadCount = existing?.threads.length ?? 0
-          const lastActive = existing ? relativeTime(existing.lastActivity) : null
+      <div className="home-screen__sections">
+        {APPS.map(({ type, label, hint, Icon }) => {
+          const appInstances = instances.filter(i => i.appType === type)
 
           return (
-            <ClickableTile
-              key={type}
-              className="home-screen__tile"
-              onClick={() => handleLaunch(type, remoteEnvKey, defaultPort, defaultName, existing)}
-            >
-              <div className="home-screen__tile-header">
-                <Icon size={20} />
-                <span className="home-screen__tile-app">{label}</span>
+            <div key={type} className="home-screen__section">
+              <div className="home-screen__section-label">
+                <Icon size={16} />
+                <span>{label}</span>
               </div>
-              <p className="home-screen__tile-name">
-                {existing ? existing.name : 'No session'}
-              </p>
-              <p className="home-screen__tile-meta">
-                {existing
-                  ? `${threadCount} thread${threadCount !== 1 ? 's' : ''} · ${lastActive}`
-                  : hint}
-              </p>
-              <span className="home-screen__tile-cta">
-                {existing ? 'Open →' : 'Launch →'}
-              </span>
-            </ClickableTile>
+
+              <div className="home-screen__grid">
+                {appInstances.map(inst => {
+                  const threadCount = inst.threads.length
+                  return (
+                    <ClickableTile
+                      key={inst.id}
+                      className="home-screen__tile"
+                      onClick={() => dispatch(activateInstance(inst.id))}
+                    >
+                      <p className="home-screen__tile-name">{inst.name}</p>
+                      <p className="home-screen__tile-meta">
+                        {threadCount} thread{threadCount !== 1 ? 's' : ''} · {relativeTime(inst.lastActivity)}
+                      </p>
+                      <span className="home-screen__tile-cta">Open →</span>
+                    </ClickableTile>
+                  )
+                })}
+
+                <ClickableTile
+                  className="home-screen__tile home-screen__tile--new"
+                  onClick={() => handleNewSession(type, appInstances.length)}
+                >
+                  <div className="home-screen__tile-new-icon">
+                    <Add size={20} />
+                  </div>
+                  <p className="home-screen__tile-name">New session</p>
+                  <p className="home-screen__tile-meta">{hint}</p>
+                  <span className="home-screen__tile-cta">Launch →</span>
+                </ClickableTile>
+              </div>
+            </div>
           )
         })}
       </div>
