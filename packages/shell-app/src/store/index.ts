@@ -14,6 +14,7 @@ import settingsReducer from './slices/settingsSlice.js'
 // URLs live in this slice.
 
 const SETTINGS_STORAGE_KEY = 'ojfbot:settings'
+const REGISTRY_STORAGE_KEY = 'ojfbot:appRegistry'
 
 function loadPersistedSettings() {
   try {
@@ -24,7 +25,17 @@ function loadPersistedSettings() {
   }
 }
 
+function loadPersistedRegistry() {
+  try {
+    const raw = localStorage.getItem(REGISTRY_STORAGE_KEY)
+    return raw ? JSON.parse(raw) : undefined
+  } catch {
+    return undefined
+  }
+}
+
 const persistedSettings = loadPersistedSettings()
+const persistedRegistry = loadPersistedRegistry()
 
 export const store = configureStore({
   reducer: {
@@ -33,17 +44,22 @@ export const store = configureStore({
     theme: themeReducer,
     settings: settingsReducer,
   },
-  preloadedState: persistedSettings ? { settings: persistedSettings } : undefined,
+  preloadedState: {
+    ...(persistedSettings ? { settings: persistedSettings } : {}),
+    ...(persistedRegistry ? { appRegistry: persistedRegistry } : {}),
+  },
 })
 
-// Debounced save — writes settings to localStorage 300ms after the last dispatch.
+// Debounced save — writes settings + appRegistry to localStorage 300ms after the last dispatch.
 // Avoids thrashing storage on rapid save-on-change form interactions.
 let saveTimer: ReturnType<typeof setTimeout>
 store.subscribe(() => {
   clearTimeout(saveTimer)
   saveTimer = setTimeout(() => {
     try {
-      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(store.getState().settings))
+      const state = store.getState()
+      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(state.settings))
+      localStorage.setItem(REGISTRY_STORAGE_KEY, JSON.stringify(state.appRegistry))
     } catch {
       // QuotaExceededError or SecurityError in sandboxed iframes — ignore silently.
     }

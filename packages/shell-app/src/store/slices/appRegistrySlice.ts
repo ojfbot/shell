@@ -103,7 +103,7 @@ interface AppRegistryState {
 // ── Default instances (one per app type on first load) ────────────────────────
 // Derived from APP_CONFIG — do NOT hardcode URLs or names here.
 
-const DEFAULT_APP_TYPES: AppType[] = ['cv-builder', 'blogengine']
+const DEFAULT_APP_TYPES: AppType[] = ['cv-builder', 'blogengine', 'tripplanner']
 
 const DEFAULT_INSTANCES: AppInstance[] = DEFAULT_APP_TYPES.map(appType => ({
   id: `default-${appType}`,

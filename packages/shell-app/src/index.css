@@ -496,11 +496,55 @@ html, body {
   transition: background-color 0.1s;
   user-select: none;
   font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .application-item:focus {
   outline: 2px solid var(--cds-focus);
   outline-offset: -2px;
+}
+
+.application-item__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.application-item__delete {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 2px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  opacity: 0;
+  color: var(--cds-text-secondary);
+  transition: opacity 0.1s, background-color 0.1s, color 0.1s;
+}
+
+.application-item:hover .application-item__delete,
+.application-item:focus-within .application-item__delete {
+  opacity: 1;
+}
+
+.application-item__delete:hover {
+  background: var(--cds-support-error, #da1e28);
+  color: #fff;
+  opacity: 1;
+}
+
+.application-item__delete:focus {
+  outline: 2px solid var(--cds-focus);
+  outline-offset: -2px;
+  opacity: 1;
 }
 
 .no-results {
@@ -526,7 +570,7 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   padding: 3rem 1.5rem;
   gap: 2.5rem;
   overflow-y: auto;
@@ -561,41 +605,51 @@ html, body {
   padding: 1px 5px;
 }
 
-.home-screen__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1rem;
+/* Sections container — replaces the old flat grid */
+.home-screen__sections {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
   width: 100%;
   max-width: 900px;
+}
+
+.home-screen__section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.home-screen__section-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--ojf-accent);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.home-screen__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.75rem;
+  width: 100%;
 }
 
 /* Raise specificity to beat ClickableTile's default padding without !important */
 .home-screen .home-screen__tile {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  padding: 1.25rem;
-  min-height: 148px;
+  gap: 0.4rem;
+  padding: 1rem;
+  min-height: 120px;
 }
 
-.home-screen__tile-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--ojf-accent);
-  margin-bottom: 0.25rem;
-}
-
-.home-screen__tile-app {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--cds-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
 
 .home-screen__tile-name {
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: var(--cds-text-primary);
   line-height: 1.2;
@@ -613,6 +667,29 @@ html, body {
   color: var(--ojf-accent);
   margin-top: 0.25rem;
   font-weight: 500;
+}
+
+/* ── AppSwitcher groups ───────────────────────────────────────── */
+.app-group {
+  margin-bottom: 0.5rem;
+}
+
+.app-group__label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.5rem 1rem 0.25rem;
+  color: var(--cds-text-secondary);
+}
+
+.application-item--new {
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+
+.application-item--new:hover {
+  opacity: 1;
 }
 
 /* ── AppFrame states ──────────────────────────────────────────── */
