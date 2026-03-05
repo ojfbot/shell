@@ -496,11 +496,55 @@ html, body {
   transition: background-color 0.1s;
   user-select: none;
   font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .application-item:focus {
   outline: 2px solid var(--cds-focus);
   outline-offset: -2px;
+}
+
+.application-item__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.application-item__delete {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 2px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  opacity: 0;
+  color: var(--cds-text-secondary);
+  transition: opacity 0.1s, background-color 0.1s, color 0.1s;
+}
+
+.application-item:hover .application-item__delete,
+.application-item:focus-within .application-item__delete {
+  opacity: 1;
+}
+
+.application-item__delete:hover {
+  background: var(--cds-support-error, #da1e28);
+  color: #fff;
+  opacity: 1;
+}
+
+.application-item__delete:focus {
+  outline: 2px solid var(--cds-focus);
+  outline-offset: -2px;
+  opacity: 1;
 }
 
 .no-results {
@@ -603,20 +647,6 @@ html, body {
   min-height: 120px;
 }
 
-/* New session tile — dashed border, dimmer CTA */
-.home-screen .home-screen__tile--new {
-  border-style: dashed;
-  opacity: 0.75;
-}
-
-.home-screen .home-screen__tile--new:hover {
-  opacity: 1;
-}
-
-.home-screen__tile-new-icon {
-  color: var(--ojf-accent);
-  margin-bottom: 0.1rem;
-}
 
 .home-screen__tile-name {
   font-size: 0.9rem;
