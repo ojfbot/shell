@@ -1,9 +1,10 @@
 import { useState, useMemo } from 'react'
 import { TextInput, IconButton } from '@carbon/react'
-import { Switcher } from '@carbon/icons-react'
+import { Switcher, Close } from '@carbon/icons-react'
 import { useAppDispatch, useAppSelector } from '../store/hooks.js'
 import {
   activateInstance,
+  closeInstance,
   spawnInstance,
   goHome,
   APP_CONFIG,
@@ -15,8 +16,8 @@ import {
 /**
  * Instance list with search — renders inside Carbon SideNav.
  * Shows all instances grouped by app type; clicking activates the instance.
- * "+ New" spawns an additional instance of that app type.
- * The home button clears the active app and returns to HomeScreen.
+ * Extra instances (beyond the first per app type) show a × button on the
+ * right edge — the last instance of each type is protected.
  */
 export function AppSwitcher() {
   const dispatch = useAppDispatch()
@@ -75,26 +76,43 @@ export function AppSwitcher() {
         {visibleTypes.length > 0 ? (
           visibleTypes.map(appType => {
             const typeInstances = filteredInstances.filter(i => i.appType === appType)
+            const totalOfType = instances.filter(i => i.appType === appType).length
             return (
               <div key={appType} className="app-group">
                 <div className="app-group__label">{APP_LABELS[appType]}</div>
-                {typeInstances.map(inst => (
-                  <div
-                    key={inst.id}
-                    className={`application-item${activeInstanceId === inst.id ? ' current-app' : ''}`}
-                    onClick={() => dispatch(activateInstance(inst.id))}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault()
-                        dispatch(activateInstance(inst.id))
-                      }
-                    }}
-                  >
-                    {inst.name}
-                  </div>
-                ))}
+                {typeInstances.map(inst => {
+                  const isDeletable = totalOfType > 1
+                  const isCurrent = activeInstanceId === inst.id
+                  return (
+                    <div
+                      key={inst.id}
+                      className={`application-item${isCurrent ? ' current-app' : ''}`}
+                      onClick={() => dispatch(activateInstance(inst.id))}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault()
+                          dispatch(activateInstance(inst.id))
+                        }
+                      }}
+                    >
+                      <span className="application-item__label">{inst.name}</span>
+                      {isDeletable && (
+                        <button
+                          className="application-item__delete"
+                          aria-label={`Close ${inst.name}`}
+                          onClick={e => {
+                            e.stopPropagation()
+                            dispatch(closeInstance(inst.id))
+                          }}
+                        >
+                          <Close size={14} />
+                        </button>
+                      )}
+                    </div>
+                  )
+                })}
                 {!q && (
                   <div
                     className="application-item application-item--new"

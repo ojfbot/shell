@@ -1,37 +1,19 @@
 import { ClickableTile } from '@carbon/react'
-import { type CarbonIconType, Document, AirlineManageGates, Blog, Add } from '@carbon/icons-react'
+import { type CarbonIconType, Document, AirlineManageGates, Blog } from '@carbon/icons-react'
 import { useAppDispatch, useAppSelector } from '../store/hooks.js'
 import {
-  spawnInstance,
   activateInstance,
-  APP_CONFIG,
   type AppType,
 } from '../store/slices/appRegistrySlice.js'
 
 const APPS: {
   type: AppType
   label: string
-  hint: string
   Icon: CarbonIconType
 }[] = [
-  {
-    type: 'cv-builder',
-    label: 'CV Builder',
-    hint: 'Resume · cover letters · interview prep',
-    Icon: Document,
-  },
-  {
-    type: 'tripplanner',
-    label: 'Trip Planner',
-    hint: 'Itineraries · budgets · bookings',
-    Icon: AirlineManageGates,
-  },
-  {
-    type: 'blogengine',
-    label: 'Blog Engine',
-    hint: 'Posts · drafts · Notion sync',
-    Icon: Blog,
-  },
+  { type: 'cv-builder', label: 'CV Builder', Icon: Document },
+  { type: 'tripplanner', label: 'Trip Planner', Icon: AirlineManageGates },
+  { type: 'blogengine', label: 'Blog Engine', Icon: Blog },
 ]
 
 function relativeTime(iso: string): string {
@@ -47,16 +29,6 @@ export function HomeScreen() {
   const dispatch = useAppDispatch()
   const { instances } = useAppSelector(s => s.appRegistry)
 
-  function handleNewSession(type: AppType, existingCount: number) {
-    const base = APP_CONFIG[type].defaultInstanceName
-    const name = existingCount === 0 ? base : `${base} ${existingCount + 1}`
-    dispatch(spawnInstance({
-      appType: type,
-      name,
-      remoteUrl: APP_CONFIG[type].remoteUrl,
-    }))
-  }
-
   return (
     <div className="home-screen">
       <div className="home-screen__hero">
@@ -67,7 +39,7 @@ export function HomeScreen() {
       </div>
 
       <div className="home-screen__sections">
-        {APPS.map(({ type, label, hint, Icon }) => {
+        {APPS.map(({ type, label, Icon }) => {
           const appInstances = instances.filter(i => i.appType === type)
 
           return (
@@ -95,17 +67,6 @@ export function HomeScreen() {
                   )
                 })}
 
-                <ClickableTile
-                  className="home-screen__tile home-screen__tile--new"
-                  onClick={() => handleNewSession(type, appInstances.length)}
-                >
-                  <div className="home-screen__tile-new-icon">
-                    <Add size={20} />
-                  </div>
-                  <p className="home-screen__tile-name">New session</p>
-                  <p className="home-screen__tile-meta">{hint}</p>
-                  <span className="home-screen__tile-cta">Launch →</span>
-                </ClickableTile>
               </div>
             </div>
           )
