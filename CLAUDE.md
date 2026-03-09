@@ -6,7 +6,7 @@
 
 **Architecture: Module Federation (Vite) + K8s pod cluster + frame-agent LLM gateway**
 
-Each sub-app (cv-builder, BlogEngine, TripPlanner, purefoy) runs as an independent pod exposing its `Dashboard` component as a Vite Module Federation remote. The shell is the host that loads those remotes dynamically — no iframes, no page reloads, shared React/Redux singleton.
+Each sub-app (cv-builder, BlogEngine, TripPlanner, purefoy, core-reader) runs as an independent pod exposing its `Dashboard` component as a Vite Module Federation remote. The shell is the host that loads those remotes dynamically — no iframes, no page reloads, shared React/Redux singleton.
 
 The K8s topology maps directly to the "browser as OS" metaphor:
 - Each sub-app pod ≈ a browser process (isolated, independently deployable)
@@ -18,7 +18,7 @@ The K8s topology maps directly to the "browser as OS" metaphor:
 
 | Package | Port | Purpose |
 |---|---|---|
-| `packages/shell-app` | 4000 | Vite Module Federation host. Header + AppSwitcher + AppFrame. |
+| `packages/shell-app` | 4000 | Vite Module Federation host. Header + AppSwitcher + AppFrame. AppFrame mount divs carry a `data-mf-remote` attribute for MrPlug MF-aware detection. |
 | `packages/frame-agent` | 4001 | Meta-orchestrator + LLM gateway. Single Anthropic API key for all sub-apps. |
 | `packages/agent-core` | — | Shared npm package: BaseAgent, AgentManager, middleware (no port). |
 
@@ -55,11 +55,11 @@ Each sub-app imports this instead of duplicating the pattern.
 ## Data model
 
 App → Instance → Thread (see `appRegistrySlice.ts`):
-- **App** (type): cv-builder, tripplanner, blogengine, purefoy
+- **App** (type): cv-builder, tripplanner, blogengine, purefoy, core-reader
 - **Instance**: a named running context of an app type ("Tokyo Trip", "Berlin Trip")
 - **Thread**: a named conversation within an instance ("Flights", "Hotels")
 
-Multiple instances of the same app type are supported.
+Multiple instances of the same app type are supported, except for singleton app types (purefoy, core-reader) which enforce a single instance.
 
 `activeAppType` from the Redux store is passed to frame-agent as context with every chat message, enabling domain routing.
 
@@ -156,7 +156,7 @@ The visual regression pipeline lives in cv-builder. The shell itself is not yet 
 - [x] Branch protection rulesets: all 4 repos, PR-required, rebase-only
 - [x] Vercel production deployment: frame.jim.software live — ADR-0013/ADR-0014
 - [ ] `spawnInstance` wired to frame-agent NL command ("new trip to Berlin") — Phase 4
-- [ ] Persist AppRegistry to localStorage
+- [x] Multi-instance UI: session persistence, close button on extra instances, singleton enforcement for purefoy/core-reader
 - [ ] Sub-app API migration: remove direct Anthropic calls, delegate to frame-agent — Phase 2
 - [ ] Shell visual regression tests
 - [ ] TripPlanner GET /api/tools endpoint — Phase 1B
