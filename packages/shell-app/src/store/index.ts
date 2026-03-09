@@ -28,7 +28,14 @@ function loadPersistedSettings() {
 function loadPersistedRegistry() {
   try {
     const raw = localStorage.getItem(REGISTRY_STORAGE_KEY)
-    return raw ? JSON.parse(raw) : undefined
+    if (!raw) return undefined
+    const parsed = JSON.parse(raw)
+    // Shape guard: if the stored value doesn't look like AppRegistryState,
+    // discard it rather than letting stale / renamed fields silently corrupt
+    // Redux state. This fires naturally after schema-breaking changes (e.g.
+    // a new deploy adds a required field, or DEFAULT_APP_TYPES changes).
+    if (!Array.isArray(parsed?.instances)) return undefined
+    return parsed
   } catch {
     return undefined
   }

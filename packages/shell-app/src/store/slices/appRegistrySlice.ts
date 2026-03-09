@@ -103,6 +103,10 @@ interface AppRegistryState {
 // ── Default instances (one per app type on first load) ────────────────────────
 // Derived from APP_CONFIG — do NOT hardcode URLs or names here.
 
+// NOTE: tripplanner is included here even though its GET /api/tools endpoint is
+// Phase 1B (not yet implemented). The AppFrame handles remote-load failures
+// gracefully, so it shows an error state rather than crashing. Remove from this
+// list if a loading error on first visit turns out to be disruptive.
 const DEFAULT_APP_TYPES: AppType[] = ['cv-builder', 'blogengine', 'tripplanner']
 
 const DEFAULT_INSTANCES: AppInstance[] = DEFAULT_APP_TYPES.map(appType => ({

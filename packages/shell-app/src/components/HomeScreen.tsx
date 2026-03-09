@@ -50,7 +50,9 @@ export function HomeScreen() {
               </div>
 
               <div className="home-screen__grid">
-                {appInstances.map(inst => {
+                {appInstances.length === 0 ? (
+                  <p className="home-screen__empty">No instances — use the sidebar to create one.</p>
+                ) : appInstances.map(inst => {
                   const threadCount = inst.threads.length
                   return (
                     <ClickableTile
@@ -66,7 +68,6 @@ export function HomeScreen() {
                     </ClickableTile>
                   )
                 })}
-
               </div>
             </div>
           )

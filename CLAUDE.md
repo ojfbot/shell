@@ -97,6 +97,8 @@ export BLOGENGINE_API_URL=http://localhost:3006
 export TRIPPLANNER_API_URL=http://localhost:3011
 ```
 
+The `frame-agent` dev script uses `sh -c 'set -a; [ -f .env ] && . ./.env; ...'` (POSIX sh dotenv sourcing) instead of `NODE_OPTIONS=--env-file`. This is intentional: `--env-file` is blocked when `NODE_OPTIONS` is already set by the environment (e.g. in some CI/Docker setups). The POSIX sh form works everywhere.
+
 ## Sub-app Module Federation setup
 
 Each sub-app needs `@originjs/vite-plugin-federation` added to its `vite.config.ts`:
