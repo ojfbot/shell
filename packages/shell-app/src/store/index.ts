@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit'
-import appRegistryReducer from './slices/appRegistrySlice.js'
+import appRegistryReducer, { APP_CONFIG, DEFAULT_INSTANCES } from './slices/appRegistrySlice.js'
 import chatReducer from './slices/chatSlice.js'
 import themeReducer from './slices/themeSlice.js'
 import settingsReducer from './slices/settingsSlice.js'
@@ -35,6 +35,15 @@ function loadPersistedRegistry() {
     // Redux state. This fires naturally after schema-breaking changes (e.g.
     // a new deploy adds a required field, or DEFAULT_APP_TYPES changes).
     if (!Array.isArray(parsed?.instances)) return undefined
+    // Migration: inject any singleton instances that are missing from persisted
+    // state. This covers users whose stored registry predates a singleton app
+    // type being added to DEFAULT_APP_TYPES (e.g. purefoy / core-reader).
+    for (const [appType, cfg] of Object.entries(APP_CONFIG)) {
+      if (cfg.singleton && !parsed.instances.some((i: { appType: string }) => i.appType === appType)) {
+        const def = DEFAULT_INSTANCES.find(i => i.appType === appType)
+        if (def) parsed.instances.push(def)
+      }
+    }
     return parsed
   } catch {
     return undefined

@@ -119,7 +119,7 @@ export function AppSwitcher() {
                     </div>
                   )
                 })}
-                {!q && (
+                {!q && !APP_CONFIG[appType].singleton && (
                   <div
                     className="application-item application-item--new"
                     onClick={() => handleSpawnNew(appType)}

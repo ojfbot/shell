@@ -36,6 +36,13 @@ export interface AppConfig {
   remoteUrl: string
   /** Name given to the first instance created for this app type. */
   defaultInstanceName: string
+  /**
+   * When true, exactly one instance is always maintained.
+   * `spawnInstance` is a no-op for singleton types; the `+ New` button is
+   * hidden in the sidebar. The single instance is bootstrapped in
+   * DEFAULT_INSTANCES and persisted state is patched on load if it's missing.
+   */
+  singleton?: boolean
 }
 
 export const APP_CONFIG: Record<AppType, AppConfig> = {
@@ -58,11 +65,13 @@ export const APP_CONFIG: Record<AppType, AppConfig> = {
     label: 'Purefoy',
     remoteUrl: import.meta.env.VITE_REMOTE_PUREFOY ?? 'http://localhost:3020',
     defaultInstanceName: 'Purefoy',
+    singleton: true,
   },
   'core-reader': {
     label: 'CoreReader',
     remoteUrl: import.meta.env.VITE_REMOTE_CORE_READER ?? 'http://localhost:3015',
     defaultInstanceName: 'CoreReader',
+    singleton: true,
   },
 }
 
@@ -103,13 +112,15 @@ interface AppRegistryState {
 // ── Default instances (one per app type on first load) ────────────────────────
 // Derived from APP_CONFIG — do NOT hardcode URLs or names here.
 
-// NOTE: tripplanner is included here even though its GET /api/tools endpoint is
-// Phase 1B (not yet implemented). The AppFrame handles remote-load failures
-// gracefully, so it shows an error state rather than crashing. Remove from this
-// list if a loading error on first visit turns out to be disruptive.
-const DEFAULT_APP_TYPES: AppType[] = ['cv-builder', 'blogengine', 'tripplanner']
+// All app types that get a bootstrapped instance on first load.
+// NOTE: tripplanner GET /api/tools is Phase 1B (not done) — AppFrame handles
+// remote-load failures gracefully. Remove if first-visit errors are disruptive.
+// purefoy and core-reader are singletons — always present, no + New button.
+const DEFAULT_APP_TYPES: AppType[] = ['cv-builder', 'blogengine', 'tripplanner', 'purefoy', 'core-reader']
 
-const DEFAULT_INSTANCES: AppInstance[] = DEFAULT_APP_TYPES.map(appType => ({
+// Exported so store/index.ts can patch missing singleton instances into old
+// persisted state without duplicating the instance construction logic.
+export const DEFAULT_INSTANCES: AppInstance[] = DEFAULT_APP_TYPES.map(appType => ({
   id: `default-${appType}`,
   appType,
   name: APP_CONFIG[appType].defaultInstanceName,
@@ -154,6 +165,8 @@ export const appRegistrySlice = createSlice({
       remoteUrl: string
     }>) {
       const { appType, name, remoteUrl } = action.payload
+      // Singletons may never have more than one instance
+      if (APP_CONFIG[appType].singleton && state.instances.some(i => i.appType === appType)) return
       const instance: AppInstance = {
         id: uid(),
         appType,
