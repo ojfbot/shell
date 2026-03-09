@@ -154,9 +154,17 @@ function parseResponse(raw: string): InspectResponse {
 
 /**
  * Singleton managed by AgentManager — do not instantiate directly.
- * Note: like all frame-agent domain agents, this is a shared singleton.
- * Concurrent requests will interleave conversation history. Acceptable
- * for the current single-developer dev-tool use case; revisit if multi-user.
+ *
+ * Concurrency note: this is a shared singleton and is NOT safe for concurrent
+ * requests. Two overlapping calls will race on both `_mode` and
+ * `conversationHistory`:
+ *   - `_mode` is set as instance state before `chat()`, so request B can
+ *     overwrite request A's mode before A's `getSystemPrompt()` is called.
+ *   - `setConversationHistory` + `chat` is not atomic — B can clobber A's
+ *     history between the set and the Anthropic API call.
+ * Acceptable for the current single-developer dev-tool use case (MrPlug
+ * serialises requests per element inspection). Revisit if multi-user or if
+ * callers become concurrent.
  */
 export class InspectAgent extends BaseAgent {
   private _mode: 'ui' | 'ux' = 'ui'
@@ -175,12 +183,15 @@ export class InspectAgent extends BaseAgent {
     conversationHistory: InspectConversationMessage[],
     agentMode: 'ui' | 'ux',
   ): Promise<InspectResponse> {
+    // _mode must be set before chat() — getSystemPrompt() reads it.
+    // Not concurrency-safe: see class-level note above.
     this._mode = agentMode
 
     // Convert MrPlug ConversationMessage[] to BaseAgent AgentMessage[].
     // System messages are dropped — the system prompt is already injected by
     // BaseAgent.chat() via getSystemPrompt(). Proper message turns give the
     // model native multi-turn context rather than embedding history as text.
+    // Not atomic with the chat() call below — see class-level concurrency note.
     const agentHistory: AgentMessage[] = conversationHistory
       .filter((m): m is typeof m & { role: 'user' | 'assistant' } =>
         m.role === 'user' || m.role === 'assistant'

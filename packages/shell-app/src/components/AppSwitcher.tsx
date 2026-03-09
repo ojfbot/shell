@@ -42,9 +42,15 @@ export function AppSwitcher() {
   )
 
   function handleSpawnNew(appType: AppType) {
-    const existing = instances.filter(i => i.appType === appType)
     const base = APP_CONFIG[appType].defaultInstanceName
-    const name = existing.length === 0 ? base : `${base} ${existing.length + 1}`
+    const taken = new Set(instances.filter(i => i.appType === appType).map(i => i.name))
+    let name = base
+    if (taken.has(name)) {
+      // Find the first unused numeric suffix (skips over gaps left by closed instances)
+      let n = 2
+      while (taken.has(`${base} ${n}`)) n++
+      name = `${base} ${n}`
+    }
     dispatch(spawnInstance({ appType, name, remoteUrl: APP_CONFIG[appType].remoteUrl }))
   }
 
