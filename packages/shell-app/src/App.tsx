@@ -8,7 +8,7 @@ import {
   HeaderGlobalAction,
 } from '@carbon/react'
 import { Asleep, Light, Settings } from '@carbon/icons-react'
-import { AppSwitcher } from './components/AppSwitcher.js'
+import { AppSwitcherConnected } from './components/AppSwitcherConnected.js'
 import { AppFrame } from './components/AppFrame.js'
 import { ShellHeader } from './components/ShellHeader.js'
 import { SettingsModal } from './components/SettingsModal.js'
@@ -82,7 +82,7 @@ export function App() {
         aria-label="App navigation"
         {...(!sideNavExpanded && { inert: '' })}
       >
-        <AppSwitcher />
+        <AppSwitcherConnected />
       </aside>
 
       <div
