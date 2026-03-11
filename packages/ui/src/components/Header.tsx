@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { TextInput } from '@carbon/react'
-import type { AppType } from '../types.js'
 
 export interface ChatMessage {
   role: 'user' | 'assistant'
@@ -8,57 +7,49 @@ export interface ChatMessage {
 }
 
 export interface HeaderProps {
-  /** Currently active app type — used to contextualise the input placeholder. */
-  activeAppType: AppType | null
-  /** Currently active instance ID — included in sendMessage payload. */
-  activeInstanceId: string | null
-  /** Whether frame-agent is currently processing a request. */
+  /** Label for the active app — shown in placeholder text. Null when no app is active. */
+  activeAppLabel: string | null
+  /** Whether the frame-agent is available (controls disabled state and placeholder). */
+  agentAvailable: boolean
+  /** Whether a message is currently streaming. */
   isStreaming: boolean
-  /** Full conversation history from the chat slice. */
+  /** Current conversation history to render in the chat overlay. */
   messages: ChatMessage[]
-  /** Last error string from chat slice, or null. */
+  /** Non-null when the last response had an error. */
   error: string | null
-  /** Domain badge shown after a successful response. */
-  lastDomain: string | null
-  /** Base URL for the frame-agent API. */
-  frameAgentUrl: string
-  /**
-   * Called when the user submits a message.
-   * The host (shell-app) is responsible for dispatching sendMessage to the store.
-   */
-  onSendMessage: (payload: {
-    message: string
-    activeAppType: AppType | null
-    activeInstanceId: string | null
-    frameAgentUrl: string
-    conversationHistory: ChatMessage[]
-  }) => void
-  /** Called when the user clicks the Clear button in the chat overlay. */
+  /** Domain badge label for the last routed domain. Null when no message has been sent. */
+  lastDomainLabel: string | null
+  /** Called when the user submits a message. Shell-app dispatches to Redux. */
+  onSubmit: (message: string) => void
+  /** Called when the user clicks "Clear" in the chat overlay. */
   onClearChat: () => void
 }
 
 /**
- * Command bar rendered inside the Carbon Header flex row.
- * Occupies remaining space between HeaderName and the right edge.
+ * Command input bar for the Frame OS Shell header.
+ * Renders a Carbon TextInput, submit button, domain badge, and chat overlay.
  *
- * Pure component — no Redux imports. Wire via HeaderConnected in shell-app.
+ * Pure component — no Redux imports. Wire via a connected wrapper in shell-app.
  */
 export function Header({
-  activeAppType,
-  activeInstanceId,
+  activeAppLabel,
+  agentAvailable,
   isStreaming,
   messages,
   error,
-  lastDomain,
-  frameAgentUrl,
-  onSendMessage,
+  lastDomainLabel,
+  onSubmit,
   onClearChat,
 }: HeaderProps) {
   const [input, setInput] = useState('')
   const [showChat, setShowChat] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const agentAvailable = frameAgentUrl !== ''
+  const placeholder = !agentAvailable
+    ? 'Agent offline — demo mode'
+    : activeAppLabel
+      ? `Ask anything · ${activeAppLabel} (⌘K)`
+      : 'Ask anything (⌘K)'
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -66,13 +57,7 @@ export function Header({
     if (!msg || isStreaming || !agentAvailable) return
 
     setShowChat(true)
-    onSendMessage({
-      message: msg,
-      activeAppType,
-      activeInstanceId,
-      frameAgentUrl,
-      conversationHistory: messages,
-    })
+    onSubmit(msg)
     setInput('')
   }
 
@@ -94,12 +79,6 @@ export function Header({
     window.addEventListener('keydown', handleGlobalKey)
     return () => window.removeEventListener('keydown', handleGlobalKey)
   }, [])
-
-  const placeholder = !agentAvailable
-    ? 'Agent offline — demo mode'
-    : activeAppType
-      ? `Ask anything · ${activeAppType} (⌘K)`
-      : 'Ask anything (⌘K)'
 
   return (
     <div className="shell-header__command-area">
@@ -127,9 +106,9 @@ export function Header({
         </button>
       </form>
 
-      {lastDomain && (
-        <span className="shell-header__domain-badge" title={`Handled by ${lastDomain}`}>
-          {lastDomain}
+      {lastDomainLabel && (
+        <span className="shell-header__domain-badge" title={`Handled by ${lastDomainLabel}`}>
+          {lastDomainLabel}
         </span>
       )}
 
