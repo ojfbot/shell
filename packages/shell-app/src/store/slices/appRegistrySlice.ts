@@ -47,9 +47,9 @@ export interface AppConfig {
 
 export const APP_CONFIG: Record<AppType, AppConfig> = {
   'cv-builder': {
-    label: 'CV Builder',
+    label: 'Resume Builder',
     remoteUrl: import.meta.env.VITE_REMOTE_CV_BUILDER ?? 'http://localhost:3000',
-    defaultInstanceName: 'My CV',
+    defaultInstanceName: 'My Resume',
   },
   'tripplanner': {
     label: 'TripPlanner',
