@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react'
 import { AppSwitcher } from './AppSwitcher.js'
 import type { AppType, AppInstance, AppDisplayConfig } from '../types.js'
@@ -67,5 +68,48 @@ export const Empty: Story = {
   args: {
     instances: [],
     activeInstanceId: null,
+  },
+}
+
+/** Shows the sidebar slide-in/out animation — click the toggle button. */
+export const WithToggle: Story = {
+  render: (args) => {
+    const [open, setOpen] = useState(true)
+    return (
+      <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', minHeight: 360 }}>
+        <button
+          onClick={() => setOpen(o => !o)}
+          style={{
+            padding: '0.5rem 1rem',
+            background: 'var(--ojf-accent, #5b4de0)',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            alignSelf: 'flex-start',
+          }}
+        >
+          {open ? 'Collapse' : 'Expand'}
+        </button>
+        <div
+          style={{
+            width: open ? 256 : 0,
+            overflow: 'hidden',
+            transition: 'width 0.11s cubic-bezier(0.2, 0, 1, 0.9)',
+            background: 'var(--cds-layer-01, #f4f4f4)',
+            borderRight: '1px solid var(--cds-border-subtle-01, #e0e0e0)',
+            borderRadius: 4,
+          }}
+        >
+          <div style={{ width: 256, minWidth: 256 }}>
+            <AppSwitcher {...args} />
+          </div>
+        </div>
+      </div>
+    )
+  },
+  args: {
+    instances: BASE_INSTANCES,
+    activeInstanceId: 'i1',
   },
 }

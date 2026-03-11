@@ -1,6 +1,8 @@
 import type { Preview } from '@storybook/react'
 // Carbon styles — import from shell-app's node_modules via the workspace
 import '@carbon/styles/css/styles.css'
+// ojfbot brand tokens — --ojf-accent etc.; must load after Carbon
+import '../../shell-app/src/themes/tokens.css'
 
 const preview: Preview = {
   parameters: {
