@@ -8,7 +8,7 @@ import federation from '@originjs/vite-plugin-federation'
 // In K8s, VITE_* env vars override to cluster service URLs.
 //
 // Sub-app vite configs each need the federation REMOTE counterpart:
-//   federation({ name: 'cv_builder', filename: 'remoteEntry.js',
+//   federation({ name: 'resume_builder', filename: 'remoteEntry.js',
 //     exposes: { './Dashboard': './src/components/Dashboard' },
 //     shared: { 'react', 'react-dom', '@reduxjs/toolkit', 'react-redux', '@carbon/react' } })
 // @carbon/react MUST be in both host and remote shared lists — omitting it from the host
@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
 
   const remoteBase = {
-    cv_builder:   env.VITE_REMOTE_CV_BUILDER   ?? 'http://localhost:3000',
+    resume_builder: env.VITE_REMOTE_RESUME_BUILDER ?? 'http://localhost:3000',
     blogengine:   env.VITE_REMOTE_BLOGENGINE   ?? 'http://localhost:3005',
     tripplanner:  env.VITE_REMOTE_TRIPPLANNER  ?? 'http://localhost:3010',
     purefoy:      env.VITE_REMOTE_PUREFOY      ?? 'http://localhost:3020',
@@ -46,7 +46,7 @@ export default defineConfig(({ mode }) => {
         'react-dom':        { singleton: true, requiredVersion: '^18.3.1' },
         '@reduxjs/toolkit': { singleton: true, requiredVersion: '^2.10.1' },
         'react-redux':      { singleton: true, requiredVersion: '^9.2.0' },
-        // Must match cv-builder's shared @carbon/react entry — omitting this caused cv-builder
+        // Must match resume-builder's shared @carbon/react entry — omitting this caused resume-builder
         // to load a duplicate Carbon instance, breaking Carbon CSS class resolution in shell.
         '@carbon/react':    { singleton: true, requiredVersion: '^1.67.0' },
       },

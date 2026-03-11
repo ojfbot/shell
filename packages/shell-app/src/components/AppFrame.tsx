@@ -16,7 +16,7 @@ import { HomeScreen } from './HomeScreen.js'
 // The keys match the federation.remotes config in vite.config.ts.
 // TypeScript sees these as `any` until types are declared in remotes/types.d.ts
 const REMOTE_LOADERS: Record<AppType, () => Promise<{ default: React.ComponentType<RemoteProps> }>> = {
-  'cv-builder':  () => import('cv_builder/Dashboard' as string) as never,
+  'resume-builder': () => import('resume_builder/Dashboard' as string) as never,
   'tripplanner': () => import('tripplanner/Dashboard' as string) as never,
   'blogengine':  () => import('blogengine/Dashboard' as string) as never,
   'purefoy':     () => import('purefoy/Dashboard' as string) as never,

@@ -1,15 +1,15 @@
 import { BaseAgent, type AgentMessage } from '@ojfbot/agent-core'
-import { CvBuilderDomainAgent } from './domain-agents/cv-builder-agent.js'
+import { ResumeBuilderDomainAgent } from './domain-agents/resume-builder-agent.js'
 import { BlogEngineDomainAgent } from './domain-agents/blogengine-agent.js'
 import { TripPlannerDomainAgent } from './domain-agents/tripplanner-agent.js'
 import { PurefoyDomainAgent } from './domain-agents/purefoy-agent.js'
 import { DOMAIN_REGISTRY } from './domain-registry.js'
 
 // 'meta' = MetaOrchestrator handles directly (capability queries, shell nav, unclassified)
-export type DomainType = 'cv-builder' | 'blogengine' | 'tripplanner' | 'purefoy' | 'cross-domain' | 'meta'
+export type DomainType = 'resume-builder' | 'blogengine' | 'tripplanner' | 'purefoy' | 'cross-domain' | 'meta'
 
 export interface SubAppUrls {
-  cvBuilderApi: string
+  resumeBuilderApi: string
   blogEngineApi: string
   tripPlannerApi: string
   purefoyApi: string
@@ -42,7 +42,7 @@ interface DomainStatus {
 
 export class MetaOrchestratorAgent extends BaseAgent {
   private readonly urls: SubAppUrls
-  private readonly cvBuilder: CvBuilderDomainAgent
+  private readonly resumeBuilder: ResumeBuilderDomainAgent
   private readonly blogEngine: BlogEngineDomainAgent
   private readonly tripPlanner: TripPlannerDomainAgent
   private readonly purefoy: PurefoyDomainAgent
@@ -57,7 +57,7 @@ export class MetaOrchestratorAgent extends BaseAgent {
   constructor(apiKey: string, subAppUrls: SubAppUrls) {
     super(apiKey, 'MetaOrchestrator')
     this.urls = subAppUrls
-    this.cvBuilder = new CvBuilderDomainAgent(apiKey, subAppUrls.cvBuilderApi)
+    this.resumeBuilder = new ResumeBuilderDomainAgent(apiKey, subAppUrls.resumeBuilderApi)
     this.blogEngine = new BlogEngineDomainAgent(apiKey, subAppUrls.blogEngineApi)
     this.tripPlanner = new TripPlannerDomainAgent(apiKey, subAppUrls.tripPlannerApi)
     this.purefoy = new PurefoyDomainAgent(apiKey, subAppUrls.purefoyApi)
@@ -70,7 +70,7 @@ The Frame OS is an AI application platform that composes multiple sub-applicatio
 analogous to how a browser composes multiple web apps — but natively AI-first.
 
 You coordinate four sub-applications:
-- **cv-builder**: resume building, job applications, career development, tailoring resumes to job descriptions, skills gap analysis, cover letters, interview preparation
+- **resume-builder**: resume building, job applications, career development, tailoring resumes to job descriptions, skills gap analysis, cover letters, interview preparation
 - **blogengine**: blog post drafting and editing, publishing pipeline, Notion integration, podcast content generation, content strategy
 - **tripplanner**: trip itinerary planning, destination research, budget tracking, accommodation and transport booking, ChatGPT transcript import
 - **purefoy**: creative and knowledge projects (purefoy domain)
@@ -101,10 +101,10 @@ Confident, efficient, and context-aware. You are the control layer of a power us
   // Falls back to static stubs on timeout or HTTP error — server never fails to start.
   async init(): Promise<void> {
     const targets: Array<{ id: DomainType; url: string }> = [
-      { id: 'cv-builder',  url: this.urls.cvBuilderApi },
-      { id: 'blogengine',  url: this.urls.blogEngineApi },
-      { id: 'tripplanner', url: this.urls.tripPlannerApi },
-      { id: 'purefoy',     url: this.urls.purefoyApi },
+      { id: 'resume-builder', url: this.urls.resumeBuilderApi },
+      { id: 'blogengine',     url: this.urls.blogEngineApi },
+      { id: 'tripplanner',    url: this.urls.tripPlannerApi },
+      { id: 'purefoy',        url: this.urls.purefoyApi },
     ]
 
     await Promise.all(targets.map(async ({ id, url }) => {
@@ -142,9 +142,9 @@ Confident, efficient, and context-aware. You are the control layer of a power us
     let handledBy: string
 
     switch (domain) {
-      case 'cv-builder':
-        content = await this.cvBuilder.processMessage(message, history, context)
-        handledBy = 'CvBuilderDomainAgent'
+      case 'resume-builder':
+        content = await this.resumeBuilder.processMessage(message, history, context)
+        handledBy = 'ResumeBuilderDomainAgent'
         break
       case 'blogengine':
         content = await this.blogEngine.processMessage(message, history, context)
@@ -184,9 +184,9 @@ Confident, efficient, and context-aware. You are the control layer of a power us
     let handledBy: string
 
     switch (domain) {
-      case 'cv-builder':
-        content = await this.cvBuilder.streamMessage(message, history, context, onChunk)
-        handledBy = 'CvBuilderDomainAgent'
+      case 'resume-builder':
+        content = await this.resumeBuilder.streamMessage(message, history, context, onChunk)
+        handledBy = 'ResumeBuilderDomainAgent'
         break
       case 'blogengine':
         content = await this.blogEngine.streamMessage(message, history, context, onChunk)
@@ -262,7 +262,7 @@ Respond with ONLY the domain name, nothing else.`
       .map(b => ('text' in b ? b.text.trim().toLowerCase() : ''))
       .join('')
 
-    const validDomains: DomainType[] = ['cv-builder', 'blogengine', 'tripplanner', 'purefoy', 'cross-domain', 'meta']
+    const validDomains: DomainType[] = ['resume-builder', 'blogengine', 'tripplanner', 'purefoy', 'cross-domain', 'meta']
     return validDomains.find(d => classification.includes(d)) ?? (activeAppType ?? 'meta')
   }
 
@@ -297,7 +297,7 @@ Respond with ONLY the domain name, nothing else.`
   // R8: tool lists from discovered data (post-init) or static stubs (pre-init / offline)
   private getDomainStubs(id: DomainType): DiscoveredTool[] {
     switch (id) {
-      case 'cv-builder': return this.cvBuilder.getTools()
+      case 'resume-builder': return this.resumeBuilder.getTools()
       case 'blogengine': return this.blogEngine.getTools()
       case 'tripplanner': return this.tripPlanner.getTools()
       case 'purefoy': return this.purefoy.getTools()
@@ -307,7 +307,7 @@ Respond with ONLY the domain name, nothing else.`
 
   // R4+R8: build the tool context string for the classify prompt
   private buildClassifyToolContext(): string {
-    const domainOrder: DomainType[] = ['cv-builder', 'blogengine', 'tripplanner', 'purefoy']
+    const domainOrder: DomainType[] = ['resume-builder', 'blogengine', 'tripplanner', 'purefoy']
     const lines = domainOrder.map(id => {
       const tools = this.domainStatus.get(id)?.tools ?? this.getDomainStubs(id)
       return `${id} — ${tools.map(t => t.name).join(', ')}`
@@ -319,7 +319,7 @@ Respond with ONLY the domain name, nothing else.`
 
   private historyFor(domain: DomainType): AgentMessage[] {
     switch (domain) {
-      case 'cv-builder': return this.cvBuilder.getConversationHistory()
+      case 'resume-builder': return this.resumeBuilder.getConversationHistory()
       case 'blogengine': return this.blogEngine.getConversationHistory()
       case 'tripplanner': return this.tripPlanner.getConversationHistory()
       case 'purefoy': return this.purefoy.getConversationHistory()
@@ -337,7 +337,7 @@ Respond with ONLY the domain name, nothing else.`
     return Promise.all(involved.map(async domain => {
       let response = ''
       switch (domain) {
-        case 'cv-builder': response = await this.cvBuilder.processMessage(message, history, context); break
+        case 'resume-builder': response = await this.resumeBuilder.processMessage(message, history, context); break
         case 'blogengine': response = await this.blogEngine.processMessage(message, history, context); break
         case 'tripplanner': response = await this.tripPlanner.processMessage(message, history, context); break
         case 'purefoy': response = await this.purefoy.processMessage(message, history, context); break
@@ -401,7 +401,7 @@ Respond with ONLY the domain name, nothing else.`
       service: 'frame-agent',
       version: '0.1.0',
       domains: {
-        'cv-builder': domainEntry('cv-builder'),
+        'resume-builder': domainEntry('resume-builder'),
         blogengine: domainEntry('blogengine'),
         tripplanner: domainEntry('tripplanner'),
         purefoy: domainEntry('purefoy'),

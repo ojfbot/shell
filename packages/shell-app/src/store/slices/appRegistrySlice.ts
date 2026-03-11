@@ -1,7 +1,7 @@
 /**
  * App → Instance → Thread hierarchy.
  *
- * AppType      — the kind of application (cv-builder, tripplanner, etc.)
+ * AppType      — the kind of application (resume-builder, tripplanner, etc.)
  * AppInstance  — a named running instance of an AppType
  *                e.g. two TripPlanner instances: "Tokyo Trip" and "Berlin Trip"
  * AppThread    — a named conversation within an instance
@@ -17,7 +17,7 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-export type AppType = 'cv-builder' | 'tripplanner' | 'blogengine' | 'purefoy' | 'core-reader'
+export type AppType = 'resume-builder' | 'tripplanner' | 'blogengine' | 'purefoy' | 'core-reader'
 
 /**
  * Static metadata the shell holds for each registered app type.
@@ -46,9 +46,9 @@ export interface AppConfig {
 }
 
 export const APP_CONFIG: Record<AppType, AppConfig> = {
-  'cv-builder': {
+  'resume-builder': {
     label: 'Resume Builder',
-    remoteUrl: import.meta.env.VITE_REMOTE_CV_BUILDER ?? 'http://localhost:3000',
+    remoteUrl: import.meta.env.VITE_REMOTE_RESUME_BUILDER ?? 'http://localhost:3000',
     defaultInstanceName: 'My Resume',
   },
   'tripplanner': {
@@ -116,7 +116,7 @@ interface AppRegistryState {
 // NOTE: tripplanner GET /api/tools is Phase 1B (not done) — AppFrame handles
 // remote-load failures gracefully. Remove if first-visit errors are disruptive.
 // purefoy and core-reader are singletons — always present, no + New button.
-const DEFAULT_APP_TYPES: AppType[] = ['cv-builder', 'blogengine', 'tripplanner', 'purefoy', 'core-reader']
+const DEFAULT_APP_TYPES: AppType[] = ['resume-builder', 'blogengine', 'tripplanner', 'purefoy', 'core-reader']
 
 // Exported so store/index.ts can patch missing singleton instances into old
 // persisted state without duplicating the instance construction logic.

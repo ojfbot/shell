@@ -7,7 +7,7 @@ const noop = () => {}
 
 const SAMPLE_MESSAGES: ChatMessage[] = [
   { role: 'user', content: 'What can I build with Frame OS?' },
-  { role: 'assistant', content: 'Frame OS lets you compose micro-frontend apps into a unified shell. You can wire CV Builder, TripPlanner, BlogEngine, and more through a single agent-powered command bar.' },
+  { role: 'assistant', content: 'Frame OS lets you compose micro-frontend apps into a unified shell. You can wire Resume Builder, TripPlanner, BlogEngine, and more through a single agent-powered command bar.' },
 ]
 
 const meta: Meta<typeof Header> = {
@@ -15,7 +15,7 @@ const meta: Meta<typeof Header> = {
   component: Header,
   parameters: { layout: 'fullscreen' },
   args: {
-    activeAppType: 'cv-builder',
+    activeAppType: 'resume-builder',
     activeInstanceId: 'i1',
     isStreaming: false,
     messages: [],
@@ -88,7 +88,7 @@ export const AgentOffline: Story = {
 
 export const WithDomainBadge: Story = {
   args: {
-    lastDomain: 'cv-builder',
+    lastDomain: 'resume-builder',
     messages: SAMPLE_MESSAGES,
   },
 }

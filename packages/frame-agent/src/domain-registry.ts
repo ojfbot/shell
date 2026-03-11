@@ -17,7 +17,7 @@ export interface DomainConfig {
 
 export const DOMAIN_REGISTRY: DomainConfig[] = [
   {
-    id: 'cv-builder',
+    id: 'resume-builder',
     keywords: ['resume', 'cv', 'job', 'interview', 'cover letter', 'skills gap', 'applying', 'application'],
   },
   {

@@ -61,8 +61,8 @@ html, body {
 
 /*
  * ── Shell z-index hierarchy ───────────────────────────────────────────────────
- * Sub-apps (BlogEngine, cv-builder, TripPlanner) use position:fixed overlays
- * with z-index up to 999 (cv-builder ThreadSidebar inline style).
+ * Sub-apps (BlogEngine, resume-builder, TripPlanner) use position:fixed overlays
+ * with z-index up to 999 (resume-builder ThreadSidebar inline style).
  * Shell chrome sits above all sub-app overlays.
  *
  *   Sub-app ThreadSidebar         :  999  ← .thread-sidebar inline style
