@@ -1,3 +1,5 @@
 export { AppSwitcher } from './components/AppSwitcher.js'
 export type { AppSwitcherProps } from './components/AppSwitcher.js'
+export { Header } from './components/Header.js'
+export type { HeaderProps, ChatMessage } from './components/Header.js'
 export type { AppType, AppInstance, AppDisplayConfig } from './types.js'
