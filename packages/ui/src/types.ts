@@ -7,7 +7,7 @@
  */
 
 export type AppType =
-  | 'cv-builder'
+  | 'resume-builder'
   | 'tripplanner'
   | 'blogengine'
   | 'purefoy'

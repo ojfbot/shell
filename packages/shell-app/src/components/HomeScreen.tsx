@@ -11,7 +11,7 @@ const APPS: {
   label: string
   Icon: CarbonIconType
 }[] = [
-  { type: 'cv-builder', label: 'Resume Builder', Icon: Document },
+  { type: 'resume-builder', label: 'Resume Builder', Icon: Document },
   { type: 'tripplanner', label: 'Trip Planner', Icon: AirlineManageGates },
   { type: 'blogengine', label: 'Blog Engine', Icon: Blog },
 ]

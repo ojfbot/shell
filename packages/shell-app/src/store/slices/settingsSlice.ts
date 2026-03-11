@@ -23,14 +23,14 @@
  *   import { useAppSelector } from 'shell/store/hooks'  // or via MF shared
  *   import { selectAppSettings } from 'shell/store/slices/settingsSlice'
  *
- *   const settings = useAppSelector(s => selectAppSettings(s, 'cv-builder'))
- *   // Only 'cv-builder' namespace visible — firewall enforced by selector.
+ *   const settings = useAppSelector(s => selectAppSettings(s, 'resume-builder'))
+ *   // Only 'resume-builder' namespace visible — firewall enforced by selector.
  *
  * ── Cross-app read authorization (future) ─────────────────────────────────────
  *
- *   // To authorize TripPlanner to read CV Builder's language preference:
- *   dispatch(setCapabilities({ 'tripplanner': { canReadFrom: ['cv-builder'] } }))
- *   // Then check: canReadCrossApp(state, 'tripplanner', 'cv-builder') === true
+ *   // To authorize TripPlanner to read Resume Builder's language preference:
+ *   dispatch(setCapabilities({ 'tripplanner': { canReadFrom: ['resume-builder'] } }))
+ *   // Then check: canReadCrossApp(state, 'tripplanner', 'resume-builder') === true
  */
 
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
@@ -38,7 +38,7 @@ import type { AppType } from './appRegistrySlice.js'
 
 // ── Per-app settings interfaces ───────────────────────────────────────────────
 
-export interface CvBuilderSettings {
+export interface ResumeBuilderSettings {
   // ── Connection ──────────────────────────────────────────────────────────────
   /** Runtime API base URL override. Empty string = use VITE_API_URL env default. */
   apiBaseUrl: string
@@ -88,7 +88,7 @@ export interface CoreReaderSettings {
 // ── App settings map ──────────────────────────────────────────────────────────
 
 export interface AppsSettings {
-  'cv-builder': CvBuilderSettings
+  'resume-builder': ResumeBuilderSettings
   'tripplanner': TripPlannerSettings
   'blogengine': BlogEngineSettings
   'purefoy': PurefoySettings
@@ -124,7 +124,7 @@ export interface SettingsState {
 
 const initialState: SettingsState = {
   apps: {
-    'cv-builder': {
+    'resume-builder': {
       apiBaseUrl: '',
       defaultTemplate: 'modern',
       exportFormat: 'pdf',
@@ -162,9 +162,9 @@ export const settingsSlice = createSlice({
   name: 'settings',
   initialState,
   reducers: {
-    /** CV Builder only — sub-app panel imports this action, not cross-app ones. */
-    updateCvBuilderSettings(state, action: PayloadAction<Partial<CvBuilderSettings>>) {
-      Object.assign(state.apps['cv-builder'], action.payload)
+    /** Resume Builder only — sub-app panel imports this action, not cross-app ones. */
+    updateResumeBuilderSettings(state, action: PayloadAction<Partial<ResumeBuilderSettings>>) {
+      Object.assign(state.apps['resume-builder'], action.payload)
     },
     /** TripPlanner only. */
     updateTripPlannerSettings(state, action: PayloadAction<Partial<TripPlannerSettings>>) {
@@ -195,7 +195,7 @@ export const settingsSlice = createSlice({
 })
 
 export const {
-  updateCvBuilderSettings,
+  updateResumeBuilderSettings,
   updateTripPlannerSettings,
   updateBlogEngineSettings,
   updatePurefoySettings,

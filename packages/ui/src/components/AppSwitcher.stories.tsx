@@ -4,17 +4,17 @@ import { AppSwitcher } from './AppSwitcher.js'
 import type { AppType, AppInstance, AppDisplayConfig } from '../types.js'
 
 const APP_CONFIG: Record<AppType, AppDisplayConfig> = {
-  'cv-builder': { label: 'CV Builder' },
+  'resume-builder': { label: 'Resume Builder' },
   'tripplanner': { label: 'TripPlanner' },
   'blogengine': { label: 'BlogEngine' },
   'purefoy': { label: 'Purefoy', singleton: true },
   'core-reader': { label: 'Core Reader', singleton: true },
 }
 
-const APP_TYPES: AppType[] = ['cv-builder', 'tripplanner', 'blogengine', 'purefoy', 'core-reader']
+const APP_TYPES: AppType[] = ['resume-builder', 'tripplanner', 'blogengine', 'purefoy', 'core-reader']
 
 const BASE_INSTANCES: AppInstance[] = [
-  { id: 'i1', appType: 'cv-builder', name: 'My CV', remoteUrl: '' },
+  { id: 'i1', appType: 'resume-builder', name: 'My Resume', remoteUrl: '' },
   { id: 'i2', appType: 'tripplanner', name: 'Tokyo Trip', remoteUrl: '' },
   { id: 'i3', appType: 'tripplanner', name: 'Berlin Trip', remoteUrl: '' },
   { id: 'i4', appType: 'purefoy', name: 'Purefoy', remoteUrl: '', singleton: true },
@@ -50,8 +50,8 @@ export const MultiInstance: Story = {
   args: {
     instances: [
       ...BASE_INSTANCES,
-      { id: 'i5', appType: 'cv-builder', name: 'Berlin CV', remoteUrl: '' },
-      { id: 'i6', appType: 'cv-builder', name: 'Tokyo CV', remoteUrl: '' },
+      { id: 'i5', appType: 'resume-builder', name: 'Berlin Resume', remoteUrl: '' },
+      { id: 'i6', appType: 'resume-builder', name: 'Tokyo Resume', remoteUrl: '' },
     ],
     activeInstanceId: 'i5',
   },

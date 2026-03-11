@@ -89,7 +89,7 @@ app.listen(PORT, () => {
   console.log(`frame-agent running on port ${PORT}`)
   console.log(`CORS origin: ${process.env.CORS_ORIGIN || 'http://localhost:4000'}`)
   console.log(`Sub-app APIs:`)
-  console.log(`  cv-builder:  ${process.env.CV_BUILDER_API_URL  ?? 'http://localhost:3001'}`)
+  console.log(`  resume-builder: ${process.env.RESUME_BUILDER_API_URL ?? 'http://localhost:3001'}`)
   console.log(`  blogengine:  ${process.env.BLOGENGINE_API_URL  ?? 'http://localhost:3006'}`)
   console.log(`  tripplanner: ${process.env.TRIPPLANNER_API_URL ?? 'http://localhost:3011'}`)
   console.log(`  purefoy:     ${process.env.PUREFOY_API_URL      ?? 'http://localhost:3020'}`)

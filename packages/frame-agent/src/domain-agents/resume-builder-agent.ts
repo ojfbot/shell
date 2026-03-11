@@ -1,22 +1,22 @@
 import { BaseAgent, type AgentMessage } from '@ojfbot/agent-core'
 
-export interface CvBuilderContext {
+export interface ResumeBuilderContext {
   instanceId?: string
   threadId?: string | null
 }
 
-export class CvBuilderDomainAgent extends BaseAgent {
+export class ResumeBuilderDomainAgent extends BaseAgent {
   constructor(
     apiKey: string,
-    private cvBuilderApiUrl: string
+    private resumeBuilderApiUrl: string
   ) {
-    super(apiKey, 'CvBuilderDomain')
+    super(apiKey, 'ResumeBuilderDomain')
   }
 
   protected getSystemPrompt(): string {
-    return `You are the CV Builder Domain Agent — the AI intelligence for resume and career development tasks within the Frame OS.
+    return `You are the Resume Builder Domain Agent — the AI intelligence for resume and career development tasks within the Frame OS.
 
-You have full knowledge of the CV Builder workflow:
+You have full knowledge of the Resume Builder workflow:
 - Resume generation from bio data (work experience, education, skills, projects, certifications)
 - Job listing analysis and match score calculation
 - Resume tailoring: customizing a resume for a specific job description
@@ -27,7 +27,7 @@ You have full knowledge of the CV Builder workflow:
 
 ## Data Access
 
-You can reference data fetched from the CV Builder API:
+You can reference data fetched from the Resume Builder API:
 - Bios: resumes, work history, education, skills uploaded by the user
 - Job listings: saved job descriptions and requirements
 - Generated outputs: previously tailored resumes and analyses
@@ -59,7 +59,7 @@ Professional, direct, and action-oriented. You are helping someone advance their
   async processMessage(
     message: string,
     history: AgentMessage[],
-    _context: CvBuilderContext
+    _context: ResumeBuilderContext
   ): Promise<string> {
     this.setConversationHistory(history)
     return this.chat(message)
@@ -68,22 +68,22 @@ Professional, direct, and action-oriented. You are helping someone advance their
   async streamMessage(
     message: string,
     history: AgentMessage[],
-    _context: CvBuilderContext,
+    _context: ResumeBuilderContext,
     onChunk: (text: string) => void
   ): Promise<string> {
     this.setConversationHistory(history)
     return this.streamChat(message, onChunk)
   }
 
-  // Data delegates — call cv-builder-api CRUD (no LLM)
+  // Data delegates — call resume-builder-api CRUD (no LLM)
   async fetchBio(): Promise<unknown> {
-    const res = await fetch(`${this.cvBuilderApiUrl}/api/bios`)
+    const res = await fetch(`${this.resumeBuilderApiUrl}/api/bios`)
     if (!res.ok) return null
     return res.json()
   }
 
   async fetchJobs(): Promise<unknown[]> {
-    const res = await fetch(`${this.cvBuilderApiUrl}/api/job`)
+    const res = await fetch(`${this.resumeBuilderApiUrl}/api/job`)
     if (!res.ok) return []
     const data = await res.json() as { data?: unknown[] }
     return data.data ?? []

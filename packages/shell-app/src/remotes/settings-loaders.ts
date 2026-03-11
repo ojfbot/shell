@@ -32,7 +32,7 @@ export interface SettingsPanelProps {
 type LazyPanel = React.LazyExoticComponent<React.ComponentType<SettingsPanelProps>>
 
 export const SETTINGS_LOADERS: Partial<Record<AppType, LazyPanel>> = {
-  'cv-builder':  React.lazy(() => import('cv_builder/Settings'  as string) as never) as unknown as LazyPanel,
+  'resume-builder': React.lazy(() => import('resume_builder/Settings' as string) as never) as unknown as LazyPanel,
   'blogengine':  React.lazy(() => import('blogengine/Settings'  as string) as never) as unknown as LazyPanel,
   'tripplanner': React.lazy(() => import('tripplanner/Settings' as string) as never) as unknown as LazyPanel,
 }
@@ -54,7 +54,7 @@ export interface SettingsFieldMeta {
  * components. This is the source of truth for what's searchable.
  */
 export const SETTINGS_META: Partial<Record<AppType, SettingsFieldMeta[]>> = {
-  'cv-builder': [
+  'resume-builder': [
     { label: 'API base URL',      keywords: ['api', 'url', 'connection', 'endpoint', 'backend', 'localhost', '3001'] },
     { label: 'Default template',  keywords: ['template', 'layout', 'modern', 'classic', 'minimal', 'resume', 'cv'] },
     { label: 'Export format',     keywords: ['pdf', 'docx', 'word', 'export', 'download'] },
