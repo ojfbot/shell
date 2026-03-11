@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { TextInput, IconButton } from '@carbon/react'
+import './AppSwitcher.css'
 import { Switcher, Close } from '@carbon/icons-react'
 import type { AppType, AppInstance, AppDisplayConfig } from '../types.js'
 

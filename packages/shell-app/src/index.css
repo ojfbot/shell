@@ -336,24 +336,20 @@ html, body {
    TextInput. Override explicitly, scoped to the theme class on <html>.
    Values reference --ojf-* tokens so brand changes propagate; hardcoded fallbacks
    maintain behaviour if a token fails to resolve. */
-.cds--g100 .shell-header__input-form .cds--text-input,
-.cds--g100 .sidebar-search-container .cds--text-input {
+.cds--g100 .shell-header__input-form .cds--text-input {
   background-color: var(--ojf-surface-select, #2d2d2d);
   color: var(--ojf-text-primary, #f4f4f4);
   border-bottom-color: var(--cds-border-strong-01, #6f6f6f);
 }
-.cds--g100 .shell-header__input-form .cds--text-input::placeholder,
-.cds--g100 .sidebar-search-container .cds--text-input::placeholder {
+.cds--g100 .shell-header__input-form .cds--text-input::placeholder {
   color: var(--ojf-text-muted, #8d8d8d);
 }
-.cds--white .shell-header__input-form .cds--text-input,
-.cds--white .sidebar-search-container .cds--text-input {
+.cds--white .shell-header__input-form .cds--text-input {
   background-color: var(--ojf-surface-1, #f4f4f4);
   color: var(--ojf-text-primary, #161616);
   border-bottom-color: var(--cds-border-strong-01, #8d8d8d);
 }
-.cds--white .shell-header__input-form .cds--text-input::placeholder,
-.cds--white .sidebar-search-container .cds--text-input::placeholder {
+.cds--white .shell-header__input-form .cds--text-input::placeholder {
   color: var(--ojf-text-muted, #a8a8a8);
 }
 
@@ -447,122 +443,7 @@ html, body {
   padding: 4px 10px;
 }
 
-/* ── Sidebar app list ─────────────────────────────────────────── */
-.sidebar-search-container {
-  padding: 1rem;
-}
-
-.sidebar-search-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.sidebar-search-row .cds--form-item {
-  flex: 1;
-  margin-bottom: 0;
-}
-
-/* Sidebar switcher/home button — always brand accent with white icon.
-   Disabled = dimmed (opacity 0.4), NOT blacked out. */
-.sidebar-search-row .cds--btn--ghost {
-  background-color: var(--ojf-accent);
-  color: #ffffff;
-  flex-shrink: 0;
-}
-.sidebar-search-row .cds--btn--ghost:hover:not(:disabled) {
-  background-color: var(--ojf-accent-hover);
-  color: #ffffff;
-}
-.sidebar-search-row .cds--btn--ghost:active:not(:disabled) {
-  background-color: var(--ojf-accent-active);
-  color: #ffffff;
-}
-.sidebar-search-row .cds--btn--ghost:disabled {
-  background-color: var(--ojf-accent);
-  color: #ffffff;
-  opacity: 0.4;
-}
-
-
-.applications-list {
-  margin-top: 1rem;
-}
-
-.application-item {
-  padding: 0.75rem 1rem;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.1s;
-  user-select: none;
-  font-size: 0.875rem;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.application-item:focus {
-  outline: 2px solid var(--cds-focus);
-  outline-offset: -2px;
-}
-
-.application-item__label {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.application-item__delete {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 2px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  opacity: 0;
-  color: var(--cds-text-secondary);
-  transition: opacity 0.1s, background-color 0.1s, color 0.1s;
-}
-
-.application-item:hover .application-item__delete,
-.application-item:focus-within .application-item__delete {
-  opacity: 1;
-}
-
-.application-item__delete:hover {
-  background: var(--cds-support-error, #da1e28);
-  color: #fff;
-  opacity: 1;
-}
-
-.application-item__delete:focus {
-  outline: 2px solid var(--cds-focus);
-  outline-offset: -2px;
-  opacity: 1;
-}
-
-.no-results {
-  padding: 1rem;
-  color: var(--cds-text-secondary);
-  text-align: center;
-}
-
-/* SideNav has the same layer context issue as Header — explicit theme overrides. */
-.cds--g100 .application-item { color: #f4f4f4; }
-.cds--g100 .application-item:hover { background-color: #353535; }
-.cds--g100 .application-item:active { background-color: #474747; }
-.cds--g100 .application-item.current-app { background-color: #525252; font-weight: 600; }
-
-.cds--white .application-item { color: #161616; }
-.cds--white .application-item:hover { background-color: #e8e8e8; }
-.cds--white .application-item:active { background-color: #d1d1d1; }
-.cds--white .application-item.current-app { background-color: #e0e0e0; font-weight: 600; }
+/* AppSwitcher sidebar styles live in @ojfbot/shell — AppSwitcher.css */
 
 /* ── HomeScreen ───────────────────────────────────────────────── */
 .home-screen {
@@ -669,28 +550,6 @@ html, body {
   font-weight: 500;
 }
 
-/* ── AppSwitcher groups ───────────────────────────────────────── */
-.app-group {
-  margin-bottom: 0.5rem;
-}
-
-.app-group__label {
-  font-size: 0.65rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  padding: 0.5rem 1rem 0.25rem;
-  color: var(--cds-text-secondary);
-}
-
-.application-item--new {
-  font-size: 0.8rem;
-  opacity: 0.6;
-}
-
-.application-item--new:hover {
-  opacity: 1;
-}
 
 /* ── AppFrame states ──────────────────────────────────────────── */
 .frame-loading,
