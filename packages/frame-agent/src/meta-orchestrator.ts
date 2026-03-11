@@ -228,9 +228,13 @@ Confident, efficient, and context-aware. You are the control layer of a power us
     // R5: generic capability queries
     if (/^(help|hi|hello|hey|what can you do|what are you|capabilities?)\??$/.test(lowerMsg)) return 'meta'
 
+    // Cross-domain fast-path: keyword co-presence across 2+ domains → bypass active-app bias
+    // Must run before active-app fast-path so hero-demo queries are never mis-routed.
+    if (this.hasCrossDomainSignal(lowerMsg)) return 'cross-domain'
+
     // Fast-path: active app context + short message → stay in domain unless strong override signal
     if (activeAppType && activeAppType !== 'cross-domain' && activeAppType !== 'meta' && message.length < 200) {
-      if (!this.hasCrossDomainSignal(lowerMsg) && !this.hasStrongDomainSignal(lowerMsg, activeAppType)) {
+      if (!this.hasStrongDomainSignal(lowerMsg, activeAppType)) {
         return activeAppType
       }
     }
@@ -263,8 +267,13 @@ Respond with ONLY the domain name, nothing else.`
   }
 
   private hasCrossDomainSignal(msg: string): boolean {
-    const crossPatterns = ['and also', 'as well as', 'both', 'across', 'combine', 'together']
-    return crossPatterns.some(p => msg.includes(p))
+    // Explicit connective phrases are a strong signal
+    const connectives = ['and also', 'as well as', 'both', 'across', 'combine', 'together']
+    if (connectives.some(p => msg.includes(p))) return true
+    // Keyword co-presence across 2+ distinct domains is an implicit cross-domain signal.
+    // Catches queries like "trip plans and resume" without connective phrases.
+    const matchedDomains = DOMAIN_REGISTRY.filter(config => config.keywords.some(k => msg.includes(k)))
+    return matchedDomains.length >= 2
   }
 
   // R7+R8: uses DOMAIN_REGISTRY — single source of truth for fast-path signals

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { TextInput } from '@carbon/react'
 import { useAppDispatch, useAppSelector } from '../store/hooks.js'
 import { sendMessage, clearChat } from '../store/slices/chatSlice.js'
+import { APP_CONFIG } from '../store/slices/appRegistrySlice.js'
 
 /**
  * Renders the command input bar inside the Carbon Header flex row.
@@ -54,10 +55,11 @@ export function ShellHeader() {
     return () => window.removeEventListener('keydown', handleGlobalKey)
   }, [])
 
+  const activeLabel = activeAppType ? (APP_CONFIG[activeAppType]?.label ?? activeAppType) : null
   const placeholder = !agentAvailable
     ? 'Agent offline — demo mode'
-    : activeAppType
-      ? `Ask anything · ${activeAppType} (⌘K)`
+    : activeLabel
+      ? `Ask anything · ${activeLabel} (⌘K)`
       : 'Ask anything (⌘K)'
 
   return (
@@ -88,7 +90,7 @@ export function ShellHeader() {
 
       {lastDomain && (
         <span className="shell-header__domain-badge" title={`Handled by ${lastDomain}`}>
-          {lastDomain}
+          {APP_CONFIG[lastDomain as keyof typeof APP_CONFIG]?.label ?? lastDomain}
         </span>
       )}
 
