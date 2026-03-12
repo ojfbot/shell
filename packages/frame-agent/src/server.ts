@@ -7,6 +7,7 @@ import chatRouter from './routes/chat.js'
 import toolsRouter from './routes/tools.js'
 import healthRouter from './routes/health.js'
 import inspectRouter from './routes/inspect.js'
+import resumptionRouter from './routes/resumption.js'
 
 const app = express()
 const PORT = parseInt(process.env.PORT ?? '4001', 10)
@@ -80,6 +81,7 @@ app.use('/api/chat', chatRouter)
 app.use('/api/tools', toolsRouter)
 app.use('/api/health', healthRouter)
 app.use('/api/inspect', inspectRouter)
+app.use('/api/resumption', resumptionRouter)
 
 // 404 + error handling
 app.use(notFoundHandler)
