@@ -49,7 +49,7 @@ export interface HomeScreenProps {
 
 /** Default row config for the full Frame OS app suite. */
 export const DEFAULT_ROWS: AppRowConfig[] = [
-  { type: 'cv-builder',  label: 'Resume Builder', Icon: Document },
+  { type: 'resume-builder',  label: 'Resume Builder', Icon: Document },
   { type: 'tripplanner', label: 'Trip Planner',   Icon: AirlineManageGates },
   { type: 'blogengine',  label: 'Blog Engine',    Icon: Blog },
 ]
