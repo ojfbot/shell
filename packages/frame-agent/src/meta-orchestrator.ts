@@ -355,7 +355,9 @@ Respond with ONLY the domain name, nothing else.`
     )
   }
 
-  // R3: real cross-domain fan-out (non-streaming)
+  // R3: real cross-domain fan-out (non-streaming).
+  // The synthesis call uses a raw Anthropic client (no history mutation) — same
+  // isolation pattern as classify() so fan-out never pollutes conversation history.
   private async handleCrossDomain(
     message: string,
     history: AgentMessage[],
@@ -363,15 +365,16 @@ Respond with ONLY the domain name, nothing else.`
   ): Promise<string> {
     const involved = this.detectInvolvedDomains(message)
     if (involved.length < 2) {
+      // Fallback: not enough domain signal — let MetaOrchestrator handle directly
       this.setConversationHistory(history)
       return this.chat(`[Cross-domain request] ${message}`)
     }
     const results = await this.fanOut(involved, message, history, context)
-    this.setConversationHistory(history)
-    return this.chat(this.buildSynthesisPrompt(message, results))
+    return this.synthesize(message, results)
   }
 
-  // R2+R3: real cross-domain fan-out (streaming — domains non-streaming, synthesis streamed)
+  // R2+R3: real cross-domain fan-out (streaming — domains non-streaming, synthesis streamed).
+  // Same isolation guarantee: synthesis call does not mutate MetaOrchestrator history.
   private async handleCrossDomainStream(
     message: string,
     history: AgentMessage[],
@@ -380,12 +383,66 @@ Respond with ONLY the domain name, nothing else.`
   ): Promise<string> {
     const involved = this.detectInvolvedDomains(message)
     if (involved.length < 2) {
+      // Fallback: not enough domain signal — let MetaOrchestrator stream directly
       this.setConversationHistory(history)
       return this.streamChat(`[Cross-domain request] ${message}`, onChunk)
     }
     const results = await this.fanOut(involved, message, history, context)
-    this.setConversationHistory(history)
-    return this.streamChat(this.buildSynthesisPrompt(message, results), onChunk)
+    return this.synthesizeStream(message, results, onChunk)
+  }
+
+  // R3: ephemeral synthesis call — raw Anthropic client, no history mutation.
+  // Mirrors the isolation pattern of classify().
+  private async synthesize(
+    message: string,
+    results: Array<{ domain: DomainType; response: string }>
+  ): Promise<string> {
+    const systemPrompt =
+      'You are synthesizing responses from specialized domain agents. ' +
+      'Produce a single coherent answer that integrates both perspectives naturally. ' +
+      'Do not reference agent names or domains explicitly — just answer the question.'
+    const userContent = this.buildSynthesisPrompt(message, results)
+    const tempClient = new (await import('@anthropic-ai/sdk')).default({ apiKey: this.apiKey })
+    const response = await tempClient.messages.create({
+      model: this.model,
+      max_tokens: 4096,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userContent }],
+    })
+    return response.content
+      .filter(b => b.type === 'text')
+      .map(b => ('text' in b ? b.text : ''))
+      .join('')
+  }
+
+  // R3: ephemeral synthesis call — streaming variant, same isolation guarantee.
+  private async synthesizeStream(
+    message: string,
+    results: Array<{ domain: DomainType; response: string }>,
+    onChunk: (text: string) => void
+  ): Promise<string> {
+    const systemPrompt =
+      'You are synthesizing responses from specialized domain agents. ' +
+      'Produce a single coherent answer that integrates both perspectives naturally. ' +
+      'Do not reference agent names or domains explicitly — just answer the question.'
+    const userContent = this.buildSynthesisPrompt(message, results)
+    const tempClient = new (await import('@anthropic-ai/sdk')).default({ apiKey: this.apiKey })
+    const stream = await tempClient.messages.create({
+      model: this.model,
+      max_tokens: 4096,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userContent }],
+      stream: true,
+    })
+    let fullResponse = ''
+    for await (const event of stream) {
+      if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+        const text = event.delta.text
+        fullResponse += text
+        onChunk(text)
+      }
+    }
+    return fullResponse
   }
 
   // R9: per-domain online/offline status populated by init()
