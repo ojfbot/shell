@@ -10,7 +10,7 @@ import {
 import { Asleep, Light, Settings } from '@carbon/icons-react'
 import { AppSwitcherConnected } from './components/AppSwitcherConnected.js'
 import { AppFrame } from './components/AppFrame.js'
-import { ShellHeader } from './components/ShellHeader.js'
+import { HeaderConnected } from './components/HeaderConnected.js'
 import { SettingsModal } from './components/SettingsModal.js'
 import { useAppSelector, useAppDispatch } from './store/hooks.js'
 import { toggleTheme } from './store/slices/themeSlice.js'
@@ -54,7 +54,7 @@ export function App() {
             </>
           )}
         </HeaderName>
-        <ShellHeader />
+        <HeaderConnected />
         <HeaderGlobalBar>
           <HeaderGlobalAction
             aria-label="Settings"

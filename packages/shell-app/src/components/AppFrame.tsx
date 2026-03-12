@@ -10,7 +10,7 @@
 import React, { Suspense, useEffect, useState } from 'react'
 import { useAppSelector } from '../store/hooks.js'
 import type { AppType } from '../store/slices/appRegistrySlice.js'
-import { HomeScreen } from './HomeScreen.js'
+import { HomeScreenConnected } from './HomeScreenConnected.js'
 
 // Vite Module Federation remote imports.
 // The keys match the federation.remotes config in vite.config.ts.
@@ -81,7 +81,7 @@ export function AppFrame() {
   }, [activeInstance?.appType])
 
   if (!activeInstance) {
-    return <HomeScreen />
+    return <HomeScreenConnected />
   }
 
   if (loading) {
