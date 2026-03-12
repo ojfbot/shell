@@ -12,7 +12,7 @@ const daysAgo = (n: number) => new Date(Date.now() - n * 86400000).toISOString()
 const BASE_INSTANCES: HomeScreenInstance[] = [
   {
     id: 'i1',
-    appType: 'cv-builder',
+    appType: 'resume-builder',
     name: 'Jim Green — Senior Engineer',
     remoteUrl: '',
     threads: [1, 2, 3],
@@ -81,9 +81,9 @@ export const AllEmpty: Story = {
 export const ManyResumes: Story = {
   args: {
     instances: [
-      { id: 'r1', appType: 'cv-builder', name: 'Jim Green — Senior Engineer', remoteUrl: '', threads: [1, 2, 3], lastActivity: minsAgo(1) },
-      { id: 'r2', appType: 'cv-builder', name: 'Jim Green — Engineering Manager', remoteUrl: '', threads: [1], lastActivity: hoursAgo(5) },
-      { id: 'r3', appType: 'cv-builder', name: 'Jim Green — Staff Engineer', remoteUrl: '', threads: [1, 2], lastActivity: daysAgo(2) },
+      { id: 'r1', appType: 'resume-builder', name: 'Jim Green — Senior Engineer', remoteUrl: '', threads: [1, 2, 3], lastActivity: minsAgo(1) },
+      { id: 'r2', appType: 'resume-builder', name: 'Jim Green — Engineering Manager', remoteUrl: '', threads: [1], lastActivity: hoursAgo(5) },
+      { id: 'r3', appType: 'resume-builder', name: 'Jim Green — Staff Engineer', remoteUrl: '', threads: [1, 2], lastActivity: daysAgo(2) },
     ],
   },
 }
@@ -92,7 +92,7 @@ export const ManyResumes: Story = {
 export const SingleRowConfig: Story = {
   args: {
     instances: BASE_INSTANCES,
-    rows: [{ type: 'cv-builder', label: 'Resume Builder', Icon: DEFAULT_ROWS[0].Icon }],
+    rows: [{ type: 'resume-builder', label: 'Resume Builder', Icon: DEFAULT_ROWS[0].Icon }],
   },
 }
 
@@ -100,7 +100,7 @@ export const SingleRowConfig: Story = {
 export const RelativeTimeBadges: Story = {
   args: {
     instances: [
-      { id: 't1', appType: 'cv-builder', name: 'Just opened', remoteUrl: '', threads: [], lastActivity: now },
+      { id: 't1', appType: 'resume-builder', name: 'Just opened', remoteUrl: '', threads: [], lastActivity: now },
       { id: 't2', appType: 'tripplanner', name: '45 minutes ago', remoteUrl: '', threads: [1], lastActivity: minsAgo(45) },
       { id: 't3', appType: 'blogengine', name: '6 hours ago', remoteUrl: '', threads: [1, 2, 3], lastActivity: hoursAgo(6) },
     ],
