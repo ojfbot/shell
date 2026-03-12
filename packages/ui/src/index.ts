@@ -1,3 +1,7 @@
 export { AppSwitcher } from './components/AppSwitcher.js'
 export type { AppSwitcherProps } from './components/AppSwitcher.js'
+export { Header } from './components/Header.js'
+export type { HeaderProps, ChatMessage } from './components/Header.js'
+export { HomeScreen, DEFAULT_ROWS } from './components/HomeScreen.js'
+export type { HomeScreenProps, HomeScreenInstance, AppRowConfig } from './components/HomeScreen.js'
 export type { AppType, AppInstance, AppDisplayConfig } from './types.js'
