@@ -35,15 +35,24 @@ function loadPersistedRegistry() {
     // Redux state. This fires naturally after schema-breaking changes (e.g.
     // a new deploy adds a required field, or DEFAULT_APP_TYPES changes).
     if (!Array.isArray(parsed?.instances)) return undefined
+    // Migration: strip instances with appTypes that no longer exist (e.g. 'cv-builder'
+    // after the rename to 'resume-builder'). Without this, stale instances survive
+    // reloads and the HomeScreen filter for the new type finds zero matches.
+    const validTypes = new Set(Object.keys(APP_CONFIG))
+    parsed.instances = parsed.instances.filter((i: { appType: string }) => validTypes.has(i.appType))
     // Migration: inject any singleton instances that are missing from persisted
     // state. This covers users whose stored registry predates a singleton app
-    // type being added to DEFAULT_APP_TYPES (e.g. purefoy / core-reader).
+    // type being added to DEFAULT_APP_TYPES (e.g. purefoy / core-reader, resume-builder).
     for (const [appType, cfg] of Object.entries(APP_CONFIG)) {
       if (cfg.singleton && !parsed.instances.some((i: { appType: string }) => i.appType === appType)) {
         const def = DEFAULT_INSTANCES.find(i => i.appType === appType)
         if (def) parsed.instances.push(def)
       }
     }
+    // Always land on HomeScreen — persisted activeInstanceId may point to a
+    // now-deleted instance (e.g. after the cv-builder → resume-builder rename).
+    parsed.activeInstanceId = null
+    parsed.activeAppType = null
     return parsed
   } catch {
     return undefined

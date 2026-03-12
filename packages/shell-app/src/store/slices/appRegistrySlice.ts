@@ -50,6 +50,7 @@ export const APP_CONFIG: Record<AppType, AppConfig> = {
     label: 'Resume Builder',
     remoteUrl: import.meta.env.VITE_REMOTE_RESUME_BUILDER ?? 'http://localhost:3000',
     defaultInstanceName: 'My Resume',
+    singleton: true,
   },
   'tripplanner': {
     label: 'TripPlanner',
