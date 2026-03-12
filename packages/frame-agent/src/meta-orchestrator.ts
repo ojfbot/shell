@@ -161,7 +161,8 @@ Confident, efficient, and context-aware. You are the control layer of a power us
       case 'cross-domain':
         content = await this.handleCrossDomain(message, history, context)
         handledBy = 'MetaOrchestratorAgent'
-        break
+        // Synthesis is stateless — build clean history without mutating agent state
+        return { content, domain, handledBy, conversationHistory: [...history, { role: 'user', content: message }, { role: 'assistant', content }] }
       default:
         // 'meta' — capability queries, shell navigation, unclassified
         this.setConversationHistory(history)
@@ -203,7 +204,8 @@ Confident, efficient, and context-aware. You are the control layer of a power us
       case 'cross-domain':
         content = await this.handleCrossDomainStream(message, history, context, onChunk)
         handledBy = 'MetaOrchestratorAgent'
-        break
+        // Synthesis is stateless — build clean history without mutating agent state
+        return { content, domain, handledBy, conversationHistory: [...history, { role: 'user', content: message }, { role: 'assistant', content }] }
       default:
         // 'meta' — capability queries, shell navigation, unclassified
         this.setConversationHistory(history)
@@ -365,9 +367,16 @@ Respond with ONLY the domain name, nothing else.`
   ): Promise<string> {
     const involved = this.detectInvolvedDomains(message)
     if (involved.length < 2) {
-      // Fallback: not enough domain signal — let MetaOrchestrator handle directly
-      this.setConversationHistory(history)
-      return this.chat(`[Cross-domain request] ${message}`)
+      // Fallback: cross-domain signal fired but only one domain detected — answer directly
+      // Uses tempClient so MetaOrchestrator history is never mutated (same isolation as synthesize())
+      const tempClient = new (await import('@anthropic-ai/sdk')).default({ apiKey: this.apiKey })
+      const response = await tempClient.messages.create({
+        model: this.model,
+        max_tokens: 1024,
+        system: this.getSystemPrompt(),
+        messages: [{ role: 'user', content: `[Cross-domain request] ${message}` }],
+      })
+      return response.content.filter(b => b.type === 'text').map(b => ('text' in b ? b.text : '')).join('')
     }
     const results = await this.fanOut(involved, message, history, context)
     return this.synthesize(message, results)
@@ -383,9 +392,25 @@ Respond with ONLY the domain name, nothing else.`
   ): Promise<string> {
     const involved = this.detectInvolvedDomains(message)
     if (involved.length < 2) {
-      // Fallback: not enough domain signal — let MetaOrchestrator stream directly
-      this.setConversationHistory(history)
-      return this.streamChat(`[Cross-domain request] ${message}`, onChunk)
+      // Fallback: cross-domain signal fired but only one domain detected — stream directly
+      // Uses tempClient so MetaOrchestrator history is never mutated (same isolation as synthesizeStream())
+      const tempClient = new (await import('@anthropic-ai/sdk')).default({ apiKey: this.apiKey })
+      const stream = await tempClient.messages.create({
+        model: this.model,
+        max_tokens: 1024,
+        system: this.getSystemPrompt(),
+        messages: [{ role: 'user', content: `[Cross-domain request] ${message}` }],
+        stream: true,
+      })
+      let fullResponse = ''
+      for await (const event of stream) {
+        if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+          const text = event.delta.text
+          fullResponse += text
+          onChunk(text)
+        }
+      }
+      return fullResponse
     }
     const results = await this.fanOut(involved, message, history, context)
     return this.synthesizeStream(message, results, onChunk)
