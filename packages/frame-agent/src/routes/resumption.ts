@@ -35,9 +35,9 @@ const ResumptionRequestSchema = z.object({
   conversationHistory: z.array(
     z.object({
       role: z.enum(['user', 'assistant']),
-      content: z.string(),
+      content: z.string().max(4000),
     })
-  ).min(1, 'conversationHistory must contain at least one message'),
+  ).min(2, 'conversationHistory must contain at least two messages'),
   activeAppType: z
     .enum(['cv-builder', 'blogengine', 'tripplanner', 'purefoy', 'cross-domain', 'meta'])
     .default('meta'),
