@@ -26,6 +26,7 @@ export default defineConfig(({ mode }) => {
     tripplanner:  env.VITE_REMOTE_TRIPPLANNER  ?? 'http://localhost:3010',
     purefoy:      env.VITE_REMOTE_PUREFOY      ?? 'http://localhost:3020',
     core_reader:  env.VITE_REMOTE_CORE_READER  ?? 'http://localhost:3015',
+    lean_canvas:  env.VITE_REMOTE_LEAN_CANVAS  ?? 'http://localhost:3025',
   }
 
   return {

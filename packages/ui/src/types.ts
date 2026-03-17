@@ -12,6 +12,7 @@ export type AppType =
   | 'blogengine'
   | 'purefoy'
   | 'core-reader'
+  | 'lean-canvas'
 
 export interface AppInstance {
   id: string

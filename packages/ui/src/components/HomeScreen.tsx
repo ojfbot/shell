@@ -1,5 +1,5 @@
 import { ClickableTile } from '@carbon/react'
-import { type CarbonIconType, Document, AirlineManageGates, Blog } from '@carbon/icons-react'
+import { type CarbonIconType, Document, AirlineManageGates, Blog, Analytics } from '@carbon/icons-react'
 import type { AppInstance, AppType } from '../types.js'
 
 // ── Helper ────────────────────────────────────────────────────────────────────
@@ -52,6 +52,7 @@ export const DEFAULT_ROWS: AppRowConfig[] = [
   { type: 'resume-builder',  label: 'Resume Builder', Icon: Document },
   { type: 'tripplanner', label: 'Trip Planner',   Icon: AirlineManageGates },
   { type: 'blogengine',  label: 'Blog Engine',    Icon: Blog },
+  { type: 'lean-canvas', label: 'Lean Canvas',    Icon: Analytics },
 ]
 
 // ── Component ─────────────────────────────────────────────────────────────────

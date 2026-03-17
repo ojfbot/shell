@@ -94,7 +94,7 @@ app.listen(PORT, () => {
   console.log(`  resume-builder: ${process.env.RESUME_BUILDER_API_URL ?? 'http://localhost:3001'}`)
   console.log(`  blogengine:  ${process.env.BLOGENGINE_API_URL  ?? 'http://localhost:3006'}`)
   console.log(`  tripplanner: ${process.env.TRIPPLANNER_API_URL ?? 'http://localhost:3011'}`)
-  console.log(`  purefoy:     ${process.env.PUREFOY_API_URL      ?? 'http://localhost:3020'}`)
+  console.log(`  purefoy:     ${process.env.PUREFOY_API_URL      ?? 'http://localhost:3021'}`)
 
   // ADR-0008: fetch GET /api/tools from each sub-app after bind so the server
   // is up for K8s health checks immediately. Falls back to static stubs on failure.

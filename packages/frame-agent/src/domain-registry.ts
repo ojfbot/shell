@@ -33,4 +33,8 @@ export const DOMAIN_REGISTRY: DomainConfig[] = [
     id: 'purefoy',
     keywords: ['deakins', 'cinematography', 'roger'],
   },
+  {
+    id: 'lean-canvas',
+    keywords: ['lean canvas', 'business model', 'value proposition', 'customer segment', 'revenue stream', 'cost structure', 'key metrics', 'unfair advantage'],
+  },
 ]
