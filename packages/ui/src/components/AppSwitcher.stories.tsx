@@ -9,9 +9,10 @@ const APP_CONFIG: Record<AppType, AppDisplayConfig> = {
   'blogengine': { label: 'BlogEngine' },
   'purefoy': { label: 'Purefoy', singleton: true },
   'core-reader': { label: 'Core Reader', singleton: true },
+  'lean-canvas': { label: 'Lean Canvas' },
 }
 
-const APP_TYPES: AppType[] = ['resume-builder', 'tripplanner', 'blogengine', 'purefoy', 'core-reader']
+const APP_TYPES: AppType[] = ['resume-builder', 'tripplanner', 'blogengine', 'purefoy', 'core-reader', 'lean-canvas']
 
 const BASE_INSTANCES: AppInstance[] = [
   { id: 'i1', appType: 'resume-builder', name: 'My Resume', remoteUrl: '' },
