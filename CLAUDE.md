@@ -6,7 +6,7 @@
 
 **Architecture: Module Federation (Vite) + K8s pod cluster + frame-agent LLM gateway**
 
-Each sub-app (cv-builder, BlogEngine, TripPlanner, purefoy, core-reader) runs as an independent pod exposing its `Dashboard` component as a Vite Module Federation remote. The shell is the host that loads those remotes dynamically — no iframes, no page reloads, shared React/Redux singleton.
+Each sub-app (cv-builder, BlogEngine, TripPlanner, purefoy, core-reader, lean-canvas) runs as an independent pod exposing its `Dashboard` component as a Vite Module Federation remote. The shell is the host that loads those remotes dynamically — no iframes, no page reloads, shared React/Redux singleton.
 
 The K8s topology maps directly to the "browser as OS" metaphor:
 - Each sub-app pod ≈ a browser process (isolated, independently deployable)
@@ -32,7 +32,8 @@ shell-app (UI)
         ├── MetaOrchestratorAgent — classifies + routes NL to domain
         ├── CvBuilderDomainAgent  — resume, jobs, tailoring, interview
         ├── BlogEngineDomainAgent — posts, drafts, Notion, podcast
-        └── TripPlannerDomainAgent — trips, itineraries, budget, transport
+        ├── TripPlannerDomainAgent — trips, itineraries, budget, transport
+        └── (cross-domain fan-out via fanOut() — ADR-0019 isolation: scoped history per domain)
 
   ↓ delegates CRUD/data to:
   cv-builder-api (port 3001)  — domain data service
@@ -55,11 +56,11 @@ Each sub-app imports this instead of duplicating the pattern.
 ## Data model
 
 App → Instance → Thread (see `appRegistrySlice.ts`):
-- **App** (type): cv-builder, tripplanner, blogengine, purefoy, core-reader
+- **App** (type): cv-builder, tripplanner, blogengine, purefoy, core-reader, lean-canvas
 - **Instance**: a named running context of an app type ("Tokyo Trip", "Berlin Trip")
 - **Thread**: a named conversation within an instance ("Flights", "Hotels")
 
-Multiple instances of the same app type are supported, except for singleton app types (purefoy, core-reader) which enforce a single instance.
+Multiple instances of the same app type are supported (e.g. lean-canvas), except for singleton app types (purefoy, core-reader) which enforce a single instance.
 
 `activeAppType` from the Redux store is passed to frame-agent as context with every chat message, enabling domain routing.
 
