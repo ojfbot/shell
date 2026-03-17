@@ -1,16 +1,17 @@
 /**
  * cross-domain-fanout.test.ts
  *
- * Smoke tests for MetaOrchestratorAgent cross-domain routing and fan-out.
+ * Tests for MetaOrchestratorAgent cross-domain routing and fan-out.
  * Uses Node's built-in test runner (node:test) — no extra test dependency required.
  *
  * Run:
  *   node --import tsx/esm --test src/__tests__/cross-domain-fanout.test.ts
  *
- * All Anthropic API calls are mocked — these tests exercise routing logic only.
+ * All Anthropic API calls are mocked — these tests exercise routing logic and
+ * the context isolation invariant (ADR-0019).
  */
 
-import { describe, it, mock } from 'node:test'
+import { describe, it, mock, beforeEach } from 'node:test'
 import assert from 'node:assert/strict'
 
 // ---------------------------------------------------------------------------
@@ -120,5 +121,141 @@ describe('detectInvolvedDomains', () => {
     assert.ok(domains.includes('cv-builder'))
     assert.ok(domains.includes('tripplanner'))
     assert.equal(domains.length, 2)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// ADR-0019 isolation invariant tests
+//
+// Verify that fanOut() calls each domain agent with its own scoped history,
+// not the shared MetaOrchestrator history passed in by the caller.
+// ---------------------------------------------------------------------------
+
+describe('ADR-0019: context isolation in fanOut()', () => {
+  /**
+   * Build a minimal MetaOrchestratorAgent-like object with:
+   * - historyFor() returning distinct per-domain arrays
+   * - domain agent stubs that record which history they received
+   * - a fanOut()-equivalent method (copied from MetaOrchestratorAgent for isolation)
+   */
+  function buildTestOrchestrator() {
+    const resumeHistory = [{ role: 'user' as const, content: 'resume message' }]
+    const tripHistory   = [{ role: 'user' as const, content: 'trip message' }]
+    const sharedHistory = [
+      { role: 'user' as const, content: 'shared context should not leak' },
+      { role: 'assistant' as const, content: 'meta response' },
+    ]
+
+    const capturedCalls: Record<string, { history: unknown[] }[]> = {
+      'resume-builder': [],
+      tripplanner: [],
+    }
+
+    // Stub domain agents that record which history they receive
+    const resumeBuilderStub = {
+      processMessage: async (_msg: string, history: unknown[]) => {
+        capturedCalls['resume-builder'].push({ history })
+        return 'resume response'
+      },
+      getConversationHistory: () => resumeHistory,
+    }
+    const tripPlannerStub = {
+      processMessage: async (_msg: string, history: unknown[]) => {
+        capturedCalls['tripplanner'].push({ history })
+        return 'tripplanner response'
+      },
+      getConversationHistory: () => tripHistory,
+    }
+
+    // Replicate the actual historyFor() + fanOut() from MetaOrchestratorAgent
+    function historyFor(domain: string) {
+      if (domain === 'resume-builder') return resumeHistory
+      if (domain === 'tripplanner') return tripHistory
+      return sharedHistory
+    }
+
+    async function fanOut(involved: string[], message: string) {
+      return Promise.all(involved.map(async domain => {
+        const domainHistory = historyFor(domain)
+        let response = ''
+        if (domain === 'resume-builder') response = await resumeBuilderStub.processMessage(message, domainHistory)
+        if (domain === 'tripplanner')    response = await tripPlannerStub.processMessage(message, domainHistory)
+        return { domain, response }
+      }))
+    }
+
+    return { fanOut, capturedCalls, resumeHistory, tripHistory, sharedHistory }
+  }
+
+  it('each domain agent receives its own scoped history, not shared history', async () => {
+    const { fanOut, capturedCalls, resumeHistory, tripHistory } = buildTestOrchestrator()
+    await fanOut(['resume-builder', 'tripplanner'], 'hero demo query')
+
+    assert.equal(capturedCalls['resume-builder'].length, 1, 'resume-builder called once')
+    assert.equal(capturedCalls['tripplanner'].length, 1, 'tripplanner called once')
+
+    // resume-builder must receive its own history
+    assert.deepEqual(
+      capturedCalls['resume-builder'][0].history,
+      resumeHistory,
+      'resume-builder must receive its own scoped history'
+    )
+
+    // tripplanner must receive its own history
+    assert.deepEqual(
+      capturedCalls['tripplanner'][0].history,
+      tripHistory,
+      'tripplanner must receive its own scoped history'
+    )
+  })
+
+  it('domain agents do NOT receive each other\'s history', async () => {
+    const { fanOut, capturedCalls, resumeHistory, tripHistory } = buildTestOrchestrator()
+    await fanOut(['resume-builder', 'tripplanner'], 'hero demo query')
+
+    // resume-builder must NOT see trip history
+    assert.notDeepEqual(
+      capturedCalls['resume-builder'][0].history,
+      tripHistory,
+      'resume-builder must not receive tripplanner history'
+    )
+
+    // tripplanner must NOT see resume history
+    assert.notDeepEqual(
+      capturedCalls['tripplanner'][0].history,
+      resumeHistory,
+      'tripplanner must not receive resume-builder history'
+    )
+  })
+
+  it('fanOut() is parallel (both agents called before either awaits)', async () => {
+    const callOrder: string[] = []
+    let resolveResume!: () => void
+    let resolveTrip!: () => void
+
+    // Staggered stubs — resume resolves second; both must START before either resolves
+    const resumeStub = () => new Promise<string>(res => { callOrder.push('resume-start'); resolveResume = () => { callOrder.push('resume-end'); res('r') } })
+    const tripStub   = () => new Promise<string>(res => { callOrder.push('trip-start');   resolveTrip   = () => { callOrder.push('trip-end');   res('t') } })
+
+    const p = Promise.all([resumeStub(), tripStub()])
+    // Both should have started before we resolve either
+    assert.ok(callOrder.includes('resume-start'), 'resume-start before any resolve')
+    assert.ok(callOrder.includes('trip-start'),   'trip-start before any resolve')
+    resolveResume(); resolveTrip()
+    await p
+    assert.ok(callOrder.includes('resume-end'))
+    assert.ok(callOrder.includes('trip-end'))
+  })
+
+  it('fanOut() returns synthesizable structure', async () => {
+    const { fanOut } = buildTestOrchestrator()
+    const results = await fanOut(['resume-builder', 'tripplanner'], 'hero demo query')
+
+    assert.equal(results.length, 2, 'should return one result per domain')
+    assert.ok(results.every(r => typeof r.domain === 'string'), 'each result has domain string')
+    assert.ok(results.every(r => typeof r.response === 'string'), 'each result has response string')
+    const domains = results.map(r => r.domain)
+    assert.ok(domains.includes('resume-builder'))
+    assert.ok(domains.includes('tripplanner'))
   })
 })

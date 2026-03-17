@@ -333,16 +333,19 @@ Respond with ONLY the domain name, nothing else.`
   private async fanOut(
     involved: DomainType[],
     message: string,
-    history: AgentMessage[],
+    _history: AgentMessage[],
     context: RoutingContext
   ): Promise<Array<{ domain: DomainType; response: string }>> {
     return Promise.all(involved.map(async domain => {
+      // Use each domain agent's own isolated history — not the shared MetaOrchestrator history.
+      // This enforces the ADR-0019 invariant: no domain agent receives another domain's context.
+      const domainHistory = this.historyFor(domain)
       let response = ''
       switch (domain) {
-        case 'resume-builder': response = await this.resumeBuilder.processMessage(message, history, context); break
-        case 'blogengine': response = await this.blogEngine.processMessage(message, history, context); break
-        case 'tripplanner': response = await this.tripPlanner.processMessage(message, history, context); break
-        case 'purefoy': response = await this.purefoy.processMessage(message, history, context); break
+        case 'resume-builder': response = await this.resumeBuilder.processMessage(message, domainHistory, context); break
+        case 'blogengine': response = await this.blogEngine.processMessage(message, domainHistory, context); break
+        case 'tripplanner': response = await this.tripPlanner.processMessage(message, domainHistory, context); break
+        case 'purefoy': response = await this.purefoy.processMessage(message, domainHistory, context); break
       }
       return { domain, response }
     }))
