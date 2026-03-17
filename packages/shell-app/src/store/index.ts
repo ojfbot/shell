@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit'
-import appRegistryReducer, { APP_CONFIG, DEFAULT_INSTANCES } from './slices/appRegistrySlice.js'
+import appRegistryReducer, { APP_CONFIG, DEFAULT_APP_TYPES, DEFAULT_INSTANCES } from './slices/appRegistrySlice.js'
 import chatReducer from './slices/chatSlice.js'
 import themeReducer from './slices/themeSlice.js'
 import settingsReducer from './slices/settingsSlice.js'
@@ -40,11 +40,11 @@ function loadPersistedRegistry() {
     // reloads and the HomeScreen filter for the new type finds zero matches.
     const validTypes = new Set(Object.keys(APP_CONFIG))
     parsed.instances = parsed.instances.filter((i: { appType: string }) => validTypes.has(i.appType))
-    // Migration: inject any singleton instances that are missing from persisted
-    // state. This covers users whose stored registry predates a singleton app
-    // type being added to DEFAULT_APP_TYPES (e.g. purefoy / core-reader, resume-builder).
-    for (const [appType, cfg] of Object.entries(APP_CONFIG)) {
-      if (cfg.singleton && !parsed.instances.some((i: { appType: string }) => i.appType === appType)) {
+    // Migration: inject any missing default instances (singleton or not).
+    // This covers users whose stored registry predates an app type being added
+    // to DEFAULT_APP_TYPES — regardless of whether it is a singleton.
+    for (const appType of DEFAULT_APP_TYPES) {
+      if (!parsed.instances.some((i: { appType: string }) => i.appType === appType)) {
         const def = DEFAULT_INSTANCES.find(i => i.appType === appType)
         if (def) parsed.instances.push(def)
       }

@@ -123,7 +123,7 @@ interface AppRegistryState {
 // NOTE: tripplanner GET /api/tools is Phase 1B (not done) — AppFrame handles
 // remote-load failures gracefully. Remove if first-visit errors are disruptive.
 // purefoy and core-reader are singletons — always present, no + New button.
-const DEFAULT_APP_TYPES: AppType[] = ['resume-builder', 'blogengine', 'tripplanner', 'purefoy', 'core-reader', 'lean-canvas']
+export const DEFAULT_APP_TYPES: AppType[] = ['resume-builder', 'blogengine', 'tripplanner', 'purefoy', 'core-reader', 'lean-canvas']
 
 // Exported so store/index.ts can patch missing singleton instances into old
 // persisted state without duplicating the instance construction logic.
