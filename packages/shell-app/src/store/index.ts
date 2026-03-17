@@ -49,6 +49,12 @@ function loadPersistedRegistry() {
         if (def) parsed.instances.push(def)
       }
     }
+    // Migration: rename legacy 'My Resume' → 'Start Fresh' for resume-builder instances.
+    for (const inst of parsed.instances) {
+      if (inst.appType === 'resume-builder' && inst.name === 'My Resume') {
+        inst.name = 'Start Fresh'
+      }
+    }
     // Always land on HomeScreen — persisted activeInstanceId may point to a
     // now-deleted instance (e.g. after the cv-builder → resume-builder rename).
     parsed.activeInstanceId = null
