@@ -35,6 +35,7 @@ export const SETTINGS_LOADERS: Partial<Record<AppType, LazyPanel>> = {
   'resume-builder': React.lazy(() => import('resume_builder/Settings' as string) as never) as unknown as LazyPanel,
   'blogengine':  React.lazy(() => import('blogengine/Settings'  as string) as never) as unknown as LazyPanel,
   'tripplanner': React.lazy(() => import('tripplanner/Settings' as string) as never) as unknown as LazyPanel,
+  'lean-canvas': React.lazy(() => import('lean_canvas/Settings'  as string) as never) as unknown as LazyPanel,
 }
 
 // ── Settings field metadata for search ───────────────────────────────────────
@@ -80,5 +81,9 @@ export const SETTINGS_META: Partial<Record<AppType, SettingsFieldMeta[]>> = {
   ],
   'core-reader': [
     { label: 'API base URL', keywords: ['api', 'url', 'connection', 'endpoint', 'backend', 'localhost', '3015', 'reader'] },
+  ],
+  'lean-canvas': [
+    { label: 'API base URL', keywords: ['api', 'url', 'connection', 'endpoint', 'backend', 'localhost', '3026', 'canvas'] },
+    { label: 'Frame agent URL', keywords: ['agent', 'frame', 'llm', 'ai', 'localhost', '4001'] },
   ],
 }

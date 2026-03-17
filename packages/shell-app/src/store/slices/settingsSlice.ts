@@ -85,6 +85,14 @@ export interface CoreReaderSettings {
   apiBaseUrl: string
 }
 
+export interface LeanCanvasSettings {
+  // ── Connection ──────────────────────────────────────────────────────────────
+  /** Runtime API base URL override. Empty string = use VITE_REMOTE_LEAN_CANVAS env default. */
+  apiBaseUrl: string
+  /** Frame agent URL override. */
+  frameAgentUrl: string
+}
+
 // ── App settings map ──────────────────────────────────────────────────────────
 
 export interface AppsSettings {
@@ -93,6 +101,7 @@ export interface AppsSettings {
   'blogengine': BlogEngineSettings
   'purefoy': PurefoySettings
   'core-reader': CoreReaderSettings
+  'lean-canvas': LeanCanvasSettings
 }
 
 // ── Capability manifest (firewall) ────────────────────────────────────────────
@@ -151,6 +160,10 @@ const initialState: SettingsState = {
     'core-reader': {
       apiBaseUrl: '',
     },
+    'lean-canvas': {
+      apiBaseUrl: '',
+      frameAgentUrl: '',
+    },
   },
   // Firewall-closed by default. Add explicit entries to authorize cross-reads.
   capabilities: {},
@@ -182,6 +195,10 @@ export const settingsSlice = createSlice({
     updateCoreReaderSettings(state, action: PayloadAction<Partial<CoreReaderSettings>>) {
       Object.assign(state.apps['core-reader'], action.payload)
     },
+    /** Lean Canvas only. */
+    updateLeanCanvasSettings(state, action: PayloadAction<Partial<LeanCanvasSettings>>) {
+      Object.assign(state.apps['lean-canvas'], action.payload)
+    },
     /**
      * Shell-only: update the capability manifest.
      * Only the shell operator (SettingsModal, frame-agent) should dispatch this.
@@ -200,6 +217,7 @@ export const {
   updateBlogEngineSettings,
   updatePurefoySettings,
   updateCoreReaderSettings,
+  updateLeanCanvasSettings,
   setCapabilities,
 } = settingsSlice.actions
 

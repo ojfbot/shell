@@ -17,7 +17,7 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-export type AppType = 'resume-builder' | 'tripplanner' | 'blogengine' | 'purefoy' | 'core-reader'
+export type AppType = 'resume-builder' | 'tripplanner' | 'blogengine' | 'purefoy' | 'core-reader' | 'lean-canvas'
 
 /**
  * Static metadata the shell holds for each registered app type.
@@ -74,6 +74,12 @@ export const APP_CONFIG: Record<AppType, AppConfig> = {
     defaultInstanceName: 'CoreReader',
     singleton: true,
   },
+  'lean-canvas': {
+    label: 'Lean Canvas',
+    remoteUrl: import.meta.env.VITE_REMOTE_LEAN_CANVAS ?? 'http://localhost:3025',
+    defaultInstanceName: 'My Canvas',
+    singleton: false,
+  },
 }
 
 /** Derived — do NOT add entries here; update APP_CONFIG above instead. */
@@ -117,7 +123,7 @@ interface AppRegistryState {
 // NOTE: tripplanner GET /api/tools is Phase 1B (not done) — AppFrame handles
 // remote-load failures gracefully. Remove if first-visit errors are disruptive.
 // purefoy and core-reader are singletons — always present, no + New button.
-const DEFAULT_APP_TYPES: AppType[] = ['resume-builder', 'blogengine', 'tripplanner', 'purefoy', 'core-reader']
+const DEFAULT_APP_TYPES: AppType[] = ['resume-builder', 'blogengine', 'tripplanner', 'purefoy', 'core-reader', 'lean-canvas']
 
 // Exported so store/index.ts can patch missing singleton instances into old
 // persisted state without duplicating the instance construction logic.

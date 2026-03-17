@@ -15,7 +15,8 @@ export function initializeFrameAgent(): void {
       resumeBuilderApi: process.env.RESUME_BUILDER_API_URL ?? 'http://localhost:3001',
       blogEngineApi: process.env.BLOGENGINE_API_URL  ?? 'http://localhost:3006',
       tripPlannerApi: process.env.TRIPPLANNER_API_URL ?? 'http://localhost:3011',
-      purefoyApi:    process.env.PUREFOY_API_URL      ?? 'http://localhost:3020',
+      // SCAFFOLD: port 3021 = purefoy-api (Express). 3020 = purefoy browser-app (MF remote).
+      purefoyApi:    process.env.PUREFOY_API_URL      ?? 'http://localhost:3021',
     }),
     inspectAgent: new InspectAgent(apiKey),
   }))
