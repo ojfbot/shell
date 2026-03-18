@@ -13,6 +13,7 @@ export type AppType =
   | 'purefoy'
   | 'core-reader'
   | 'lean-canvas'
+  | 'gastown-pilot'
 
 export interface AppInstance {
   id: string
