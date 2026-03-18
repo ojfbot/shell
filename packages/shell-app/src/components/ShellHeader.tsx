@@ -10,8 +10,11 @@ import { APP_CONFIG } from '../store/slices/appRegistrySlice.js'
  */
 export function ShellHeader() {
   const dispatch = useAppDispatch()
-  const { activeAppType, activeInstanceId } = useAppSelector(s => s.appRegistry)
+  const { activeAppType, activeInstanceId, instances } = useAppSelector(s => s.appRegistry)
   const { isStreaming, messages, error, lastDomain } = useAppSelector(s => s.chat)
+
+  const activeInstance = instances.find(i => i.id === activeInstanceId)
+  const activeThreadId = activeInstance?.activeThreadId ?? null
 
   const [input, setInput] = useState('')
   const [showChat, setShowChat] = useState(false)
@@ -30,6 +33,7 @@ export function ShellHeader() {
       message: msg,
       activeAppType,
       activeInstanceId,
+      activeThreadId,
       frameAgentUrl,
       conversationHistory: messages,
     }))
@@ -61,6 +65,8 @@ export function ShellHeader() {
     : activeLabel
       ? `Ask anything · ${activeLabel} (⌘K)`
       : 'Ask anything (⌘K)'
+
+  const hasChatContent = messages.length > 0
 
   return (
     <div className="shell-header__command-area">
@@ -94,7 +100,7 @@ export function ShellHeader() {
         </span>
       )}
 
-      {showChat && messages.length > 0 && (
+      {showChat && hasChatContent && (
         <div className="shell-chat-overlay">
           <div className="shell-chat-overlay__messages">
             {messages.map((msg, i) => (

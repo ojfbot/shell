@@ -3,6 +3,7 @@ import appRegistryReducer, { APP_CONFIG, DEFAULT_APP_TYPES, DEFAULT_INSTANCES } 
 import chatReducer from './slices/chatSlice.js'
 import themeReducer from './slices/themeSlice.js'
 import settingsReducer from './slices/settingsSlice.js'
+import approvalQueueReducer from './slices/approvalQueueSlice.js'
 
 // ── Settings persistence ──────────────────────────────────────────────────────
 //
@@ -74,6 +75,7 @@ export const store = configureStore({
     chat: chatReducer,
     theme: themeReducer,
     settings: settingsReducer,
+    approvalQueue: approvalQueueReducer,
   },
   preloadedState: {
     ...(persistedSettings ? { settings: persistedSettings } : {}),

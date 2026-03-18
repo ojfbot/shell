@@ -18,8 +18,11 @@ import { APP_CONFIG } from '../store/slices/appRegistrySlice.js'
 
 export function HeaderConnected() {
   const dispatch = useAppDispatch()
-  const { activeAppType, activeInstanceId } = useAppSelector(s => s.appRegistry)
+  const { activeAppType, activeInstanceId, instances } = useAppSelector(s => s.appRegistry)
   const { isStreaming, messages, error, lastDomain } = useAppSelector(s => s.chat)
+
+  const activeInstance = instances.find(i => i.id === activeInstanceId)
+  const activeThreadId = activeInstance?.activeThreadId ?? null
 
   const frameAgentUrl = import.meta.env.VITE_FRAME_AGENT_URL ?? 'http://localhost:4001'
   const agentAvailable = Boolean(frameAgentUrl)
@@ -32,6 +35,7 @@ export function HeaderConnected() {
       message,
       activeAppType,
       activeInstanceId,
+      activeThreadId,
       frameAgentUrl,
       conversationHistory: messages,
     }))

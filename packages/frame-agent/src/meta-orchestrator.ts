@@ -6,7 +6,13 @@ import { PurefoyDomainAgent } from './domain-agents/purefoy-agent.js'
 import { DOMAIN_REGISTRY } from './domain-registry.js'
 
 // 'meta' = MetaOrchestrator handles directly (capability queries, shell nav, unclassified)
-export type DomainType = 'resume-builder' | 'blogengine' | 'tripplanner' | 'purefoy' | 'cross-domain' | 'meta'
+export type DomainType = 'resume-builder' | 'blogengine' | 'tripplanner' | 'purefoy' | 'lean-canvas' | 'cross-domain' | 'meta'
+
+export interface SpawnInstanceAction {
+  type: 'spawn_instance'
+  appType: DomainType
+  instanceName: string
+}
 
 export interface SubAppUrls {
   resumeBuilderApi: string
@@ -27,6 +33,7 @@ export interface FrameAgentResponse {
   handledBy: string
   conversationHistory: AgentMessage[]
   suggestions?: unknown[]
+  action?: SpawnInstanceAction
 }
 
 // Minimal tool shape — subset of ADR-0007 that classify() and the manifest need
@@ -136,7 +143,11 @@ Confident, efficient, and context-aware. You are the control layer of a power us
     context: RoutingContext,
     history: AgentMessage[]
   ): Promise<FrameAgentResponse> {
-    const domain = await this.classify(message, context.activeAppType)
+    // Detect spawn intent in parallel with classify — no extra latency on the happy path
+    const [domain, action] = await Promise.all([
+      this.classify(message, context.activeAppType),
+      this.detectSpawnIntent(message),
+    ])
 
     let content: string
     let handledBy: string
@@ -161,16 +172,22 @@ Confident, efficient, and context-aware. You are the control layer of a power us
       case 'cross-domain':
         content = await this.handleCrossDomain(message, history, context)
         handledBy = 'MetaOrchestratorAgent'
-        // Synthesis is stateless — build clean history without mutating agent state
-        return { content, domain, handledBy, conversationHistory: [...history, { role: 'user', content: message }, { role: 'assistant', content }] }
+        return {
+          content, domain, handledBy,
+          conversationHistory: [...history, { role: 'user', content: message }, { role: 'assistant', content }],
+          ...(action ? { action } : {}),
+        }
       default:
-        // 'meta' — capability queries, shell navigation, unclassified
         this.setConversationHistory(history)
         content = await this.chat(message)
         handledBy = 'MetaOrchestratorAgent'
     }
 
-    return { content, domain, handledBy, conversationHistory: this.historyFor(domain) }
+    return {
+      content, domain, handledBy,
+      conversationHistory: this.historyFor(domain),
+      ...(action ? { action } : {}),
+    }
   }
 
   async routeStream(
@@ -179,7 +196,10 @@ Confident, efficient, and context-aware. You are the control layer of a power us
     history: AgentMessage[],
     onChunk: (text: string) => void
   ): Promise<FrameAgentResponse> {
-    const domain = await this.classify(message, context.activeAppType)
+    const [domain, action] = await Promise.all([
+      this.classify(message, context.activeAppType),
+      this.detectSpawnIntent(message),
+    ])
 
     let content: string
     let handledBy: string
@@ -204,16 +224,22 @@ Confident, efficient, and context-aware. You are the control layer of a power us
       case 'cross-domain':
         content = await this.handleCrossDomainStream(message, history, context, onChunk)
         handledBy = 'MetaOrchestratorAgent'
-        // Synthesis is stateless — build clean history without mutating agent state
-        return { content, domain, handledBy, conversationHistory: [...history, { role: 'user', content: message }, { role: 'assistant', content }] }
+        return {
+          content, domain, handledBy,
+          conversationHistory: [...history, { role: 'user', content: message }, { role: 'assistant', content }],
+          ...(action ? { action } : {}),
+        }
       default:
-        // 'meta' — capability queries, shell navigation, unclassified
         this.setConversationHistory(history)
         content = await this.streamChat(message, onChunk)
         handledBy = 'MetaOrchestratorAgent'
     }
 
-    return { content, domain, handledBy, conversationHistory: this.historyFor(domain) }
+    return {
+      content, domain, handledBy,
+      conversationHistory: this.historyFor(domain),
+      ...(action ? { action } : {}),
+    }
   }
 
   // Lightweight classification — separate Anthropic call; never pollutes domain agent history
@@ -317,6 +343,67 @@ Respond with ONLY the domain name, nothing else.`
     lines.push('cross-domain — request clearly spans two or more of the above')
     lines.push('meta — shell navigation, capability questions, or cannot determine domain')
     return lines.join('\n')
+  }
+
+  /**
+   * Detects whether the message is asking to spawn a new app instance.
+   * Fast-path: returns null immediately if no spawn keywords are present.
+   * When keywords are detected, makes a cheap Claude call to extract
+   * appType + instanceName as structured JSON.
+   *
+   * Runs in parallel with classify() — adds zero latency on non-spawn messages.
+   */
+  private async detectSpawnIntent(message: string): Promise<SpawnInstanceAction | null> {
+    const lower = message.toLowerCase()
+    const spawnKeywords = [
+      'new trip', 'start a trip', 'plan a trip', 'add a trip',
+      'new blog', 'start a blog', 'new post', 'draft a post',
+      'new resume', 'start a resume', 'new cv',
+      'new canvas', 'start a canvas', 'new lean canvas',
+      'open a new', 'create a new', 'start a new', 'launch a new', 'add a new',
+      'new instance',
+    ]
+    if (!spawnKeywords.some(k => lower.includes(k))) return null
+
+    const validAppTypes: DomainType[] = ['resume-builder', 'blogengine', 'tripplanner', 'purefoy', 'lean-canvas']
+    const appTypeDescriptions = [
+      'resume-builder — resume and job applications',
+      'blogengine — blog posts and publishing',
+      'tripplanner — trip itineraries and travel',
+      'purefoy — cinematography knowledge',
+      'lean-canvas — business model canvas',
+    ].join('\n')
+
+    const prompt = `The user wants to create a new application instance.
+Identify which app type and what the instance should be named.
+
+App types:
+${appTypeDescriptions}
+
+User message: "${message}"
+
+Respond with JSON only: { "appType": "<one of the app type ids>", "instanceName": "<short descriptive name, 2-4 words max>" }
+If you cannot determine the intent, respond: { "appType": null, "instanceName": null }`
+
+    try {
+      const tempClient = new (await import('@anthropic-ai/sdk')).default({ apiKey: this.apiKey })
+      const response = await tempClient.messages.create({
+        model: this.model,
+        max_tokens: 60,
+        messages: [{ role: 'user', content: prompt }],
+      })
+      const raw = response.content
+        .filter(b => b.type === 'text')
+        .map(b => ('text' in b ? b.text.trim() : ''))
+        .join('')
+      const parsed = JSON.parse(raw) as { appType?: unknown; instanceName?: unknown }
+      const appType = parsed.appType as string
+      const instanceName = parsed.instanceName as string
+      if (!appType || !instanceName || !validAppTypes.includes(appType as DomainType)) return null
+      return { type: 'spawn_instance', appType: appType as DomainType, instanceName }
+    } catch {
+      return null
+    }
   }
 
   private historyFor(domain: DomainType): AgentMessage[] {
