@@ -10,9 +10,10 @@ const APP_CONFIG: Record<AppType, AppDisplayConfig> = {
   'purefoy': { label: 'Purefoy', singleton: true },
   'core-reader': { label: 'Core Reader', singleton: true },
   'lean-canvas': { label: 'Lean Canvas' },
+  'gastown-pilot': { label: 'Gas Town' },
 }
 
-const APP_TYPES: AppType[] = ['resume-builder', 'tripplanner', 'blogengine', 'purefoy', 'core-reader', 'lean-canvas']
+const APP_TYPES: AppType[] = ['resume-builder', 'tripplanner', 'blogengine', 'purefoy', 'core-reader', 'lean-canvas', 'gastown-pilot']
 
 const BASE_INSTANCES: AppInstance[] = [
   { id: 'i1', appType: 'resume-builder', name: 'My Resume', remoteUrl: '' },
