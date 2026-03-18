@@ -38,9 +38,7 @@ const ResumptionRequestSchema = z.object({
       content: z.string().max(4000),
     })
   ).min(2, 'conversationHistory must contain at least two messages'),
-  activeAppType: z
-    .enum(['cv-builder', 'blogengine', 'tripplanner', 'purefoy', 'cross-domain', 'meta'])
-    .default('meta'),
+  activeAppType: z.string().default('meta'),
 })
 
 router.post(
@@ -59,9 +57,15 @@ router.post(
 
       const { conversationHistory, activeAppType } = req.body
 
-      const resumption = await synthesizeResumption(requireApiKey(), conversationHistory, activeAppType)
+      const result = await synthesizeResumption(requireApiKey(), conversationHistory, activeAppType)
 
-      res.json({ success: true, data: { resumption } })
+      res.json({
+        success: true,
+        data: {
+          resumption: result?.summary ?? null,
+          suggestions: result?.suggestions ?? [],
+        },
+      })
     } catch (err) {
       next(err)
     }

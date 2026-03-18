@@ -1,8 +1,16 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit'
+import { saveThreadHistory } from '../../lib/threadHistoryStore.js'
+import { spawnInstance, activateInstance, APP_CONFIG, type AppType } from './appRegistrySlice.js'
 
 export interface ChatMessage {
   role: 'user' | 'assistant'
   content: string
+}
+
+export interface SpawnInstanceAction {
+  type: 'spawn_instance'
+  appType: string
+  instanceName: string
 }
 
 export interface FrameAgentResponse {
@@ -10,6 +18,7 @@ export interface FrameAgentResponse {
   domain: string
   handledBy: string
   conversationHistory: ChatMessage[]
+  action?: SpawnInstanceAction
 }
 
 interface ChatState {
@@ -18,6 +27,10 @@ interface ChatState {
   error: string | null
   lastDomain: string | null
   lastHandledBy: string | null
+  /** Set when returning to a thread — cleared on the next user message. */
+  resumptionSummary: string | null
+  /** Contextual follow-up suggestions surfaced alongside the resumption toast. */
+  resumptionSuggestions: string[]
 }
 
 const initialState: ChatState = {
@@ -26,6 +39,8 @@ const initialState: ChatState = {
   error: null,
   lastDomain: null,
   lastHandledBy: null,
+  resumptionSummary: null,
+  resumptionSuggestions: [],
 }
 
 export const sendMessage = createAsyncThunk(
@@ -34,9 +49,10 @@ export const sendMessage = createAsyncThunk(
     message: string
     activeAppType: string | null
     activeInstanceId: string | null
+    activeThreadId: string | null
     frameAgentUrl: string
     conversationHistory: ChatMessage[]
-  }) => {
+  }, { dispatch }) => {
     const res = await fetch(`${payload.frameAgentUrl}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -55,7 +71,65 @@ export const sendMessage = createAsyncThunk(
     }
 
     const json = await res.json() as { success: boolean; data: FrameAgentResponse }
+
+    // Persist updated history for this thread so it survives navigation + reload
+    if (payload.activeInstanceId && payload.activeThreadId) {
+      saveThreadHistory(
+        payload.activeInstanceId,
+        payload.activeThreadId,
+        json.data.conversationHistory,
+      )
+    }
+
+    // Handle spawn_instance action — frame-agent detected NL intent to create a new instance
+    if (json.data.action?.type === 'spawn_instance') {
+      const { appType, instanceName } = json.data.action
+      if (appType in APP_CONFIG) {
+        const spawned = dispatch(spawnInstance({
+          appType: appType as AppType,
+          name: instanceName,
+          remoteUrl: APP_CONFIG[appType as AppType].remoteUrl,
+        }))
+        // activateInstance needs the new instance id — spawnInstance sets activeInstanceId
+        // directly in the reducer, so we just need to find it after the dispatch.
+        // The reducer sets activeInstanceId to the new instance, so no extra dispatch needed.
+        void spawned
+      }
+    }
+
     return json.data
+  }
+)
+
+/**
+ * Request a thread resumption synthesis from frame-agent.
+ * Fires once per session per thread when returning to a thread with history.
+ */
+export const requestResumption = createAsyncThunk(
+  'chat/requestResumption',
+  async (payload: {
+    conversationHistory: ChatMessage[]
+    activeAppType: string
+    frameAgentUrl: string
+  }): Promise<{ summary: string | null; suggestions: string[] }> => {
+    try {
+      const res = await fetch(`${payload.frameAgentUrl}/api/resumption`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          conversationHistory: payload.conversationHistory,
+          activeAppType: payload.activeAppType,
+        }),
+      })
+      if (!res.ok) return { summary: null, suggestions: [] }
+      const json = await res.json() as {
+        success: boolean
+        data: { resumption: string | null; suggestions: string[] }
+      }
+      return { summary: json.data.resumption ?? null, suggestions: json.data.suggestions ?? [] }
+    } catch {
+      return { summary: null, suggestions: [] }
+    }
   }
 )
 
@@ -79,9 +153,20 @@ export const chatSlice = createSlice({
       state.error = null
       state.lastDomain = null
       state.lastHandledBy = null
+      state.resumptionSummary = null
+      state.resumptionSuggestions = []
     },
     clearError(state) {
       state.error = null
+    },
+    /** Load saved messages from localStorage without triggering an API call. */
+    loadSavedHistory(state, action: PayloadAction<ChatMessage[]>) {
+      state.messages = action.payload
+      state.resumptionSummary = null
+    },
+    clearResumptionSummary(state) {
+      state.resumptionSummary = null
+      state.resumptionSuggestions = []
     },
   },
   extraReducers: (builder) => {
@@ -89,6 +174,8 @@ export const chatSlice = createSlice({
       .addCase(sendMessage.pending, (state) => {
         state.isStreaming = true
         state.error = null
+        state.resumptionSummary = null
+        state.resumptionSuggestions = []
       })
       .addCase(sendMessage.fulfilled, (state, action) => {
         state.messages = action.payload.conversationHistory
@@ -100,8 +187,21 @@ export const chatSlice = createSlice({
         state.error = action.error.message ?? 'Failed to reach frame-agent'
         state.isStreaming = false
       })
+      .addCase(requestResumption.fulfilled, (state, action) => {
+        if (action.payload.summary) {
+          state.resumptionSummary = action.payload.summary
+          state.resumptionSuggestions = action.payload.suggestions
+        }
+      })
   },
 })
 
-export const { appendAssistantChunk, setStreaming, clearChat, clearError } = chatSlice.actions
+export const {
+  appendAssistantChunk,
+  setStreaming,
+  clearChat,
+  clearError,
+  loadSavedHistory,
+  clearResumptionSummary,
+} = chatSlice.actions
 export default chatSlice.reducer

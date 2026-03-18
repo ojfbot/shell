@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import {
   Theme,
   Header,
@@ -12,16 +12,66 @@ import { AppSwitcherConnected } from './components/AppSwitcherConnected.js'
 import { AppFrame } from './components/AppFrame.js'
 import { HeaderConnected } from './components/HeaderConnected.js'
 import { SettingsModal } from './components/SettingsModal.js'
+import { ResumptionToast } from './components/ResumptionToast.js'
+import { ApprovalQueue } from './components/ApprovalQueue.js'
 import { useAppSelector, useAppDispatch } from './store/hooks.js'
 import { toggleTheme } from './store/slices/themeSlice.js'
 import { APP_LABELS } from './store/slices/appRegistrySlice.js'
+import { clearChat, loadSavedHistory, requestResumption } from './store/slices/chatSlice.js'
+import {
+  loadThreadHistory,
+  isFirstVisitThisSession,
+  markResumedThisSession,
+} from './lib/threadHistoryStore.js'
 
 export function App() {
   const [sideNavExpanded, setSideNavExpanded] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const isDark = useAppSelector(s => s.theme.isDark)
-  const { activeAppType } = useAppSelector(s => s.appRegistry)
+  const { activeAppType, activeInstanceId, instances } = useAppSelector(s => s.appRegistry)
   const dispatch = useAppDispatch()
+
+  const frameAgentUrl = import.meta.env.VITE_FRAME_AGENT_URL ?? 'http://localhost:4001'
+
+  // Derive a stable key that changes whenever the active thread changes.
+  // Using a combined string avoids two separate useEffect deps.
+  const activeInstance = useMemo(
+    () => instances.find(i => i.id === activeInstanceId),
+    [instances, activeInstanceId]
+  )
+  const activeThreadId = activeInstance?.activeThreadId ?? null
+  const threadContextKey = activeInstanceId && activeThreadId
+    ? `${activeInstanceId}:${activeThreadId}`
+    : null
+
+  // On every instance/thread switch: load saved history and, if this is the
+  // first visit to this thread this session and there is enough history,
+  // request a resumption synthesis from frame-agent.
+  useEffect(() => {
+    if (!activeInstanceId || !activeThreadId) {
+      dispatch(clearChat())
+      return
+    }
+
+    const saved = loadThreadHistory(activeInstanceId, activeThreadId)
+
+    if (!saved || saved.length === 0) {
+      dispatch(clearChat())
+      return
+    }
+
+    dispatch(loadSavedHistory(saved))
+
+    if (isFirstVisitThisSession(activeInstanceId, activeThreadId)) {
+      markResumedThisSession(activeInstanceId, activeThreadId)
+      dispatch(requestResumption({
+        conversationHistory: saved,
+        activeAppType: activeInstance?.appType ?? 'meta',
+        frameAgentUrl,
+      }))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [threadContextKey])
 
   // Push theme class to <html> so body + :root-resolved tokens change with the theme
   useEffect(() => {
@@ -99,6 +149,9 @@ export function App() {
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
       />
+
+      <ResumptionToast />
+      <ApprovalQueue />
     </Theme>
   )
 }

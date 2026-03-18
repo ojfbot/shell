@@ -65,6 +65,7 @@ router.post(
         domain: result.domain,
         handledBy: result.handledBy,
         conversationHistory: result.conversationHistory,
+        ...(result.action ? { action: result.action } : {}),
       })}\n\n`)
 
       res.end()

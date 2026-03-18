@@ -54,12 +54,12 @@ describe('cross-domain routing', () => {
     )
   })
 
-  it('hero demo query fans out to cv-builder AND tripplanner', () => {
+  it('hero demo query fans out to resume-builder AND tripplanner', () => {
     const query = "I'm applying for Berlin jobs, how does this affect my trip plans and resume?"
     const domains = detectInvolvedDomains(query)
     assert.ok(
-      domains.includes('cv-builder'),
-      `Expected cv-builder in fan-out domains, got: ${domains.join(', ')}`
+      domains.includes('resume-builder'),
+      `Expected resume-builder in fan-out domains, got: ${domains.join(', ')}`
     )
     assert.ok(
       domains.includes('tripplanner'),
@@ -92,12 +92,12 @@ describe('cross-domain routing', () => {
   })
 
   it('two distinct domain keywords without connective trigger cross-domain', () => {
-    // 'resume' (cv-builder) + 'trip' (tripplanner) co-present → cross-domain
+    // 'resume' (resume-builder) + 'trip' (tripplanner) co-present → cross-domain
     assert.equal(hasCrossDomainSignal('update my resume before the trip'), true)
   })
 
   it('keyword co-presence within same domain does NOT trigger cross-domain', () => {
-    // 'resume' + 'cover letter' are both cv-builder — only 1 domain matched
+    // 'resume' + 'cover letter' are both resume-builder — only 1 domain matched
     assert.equal(hasCrossDomainSignal('write a cover letter to go with my resume'), false)
   })
 })
@@ -110,15 +110,15 @@ describe('detectInvolvedDomains', () => {
 
   it('returns single domain for unambiguous messages', () => {
     const domains = detectInvolvedDomains('tailor my resume for this job')
-    assert.deepEqual(domains, ['cv-builder'])
+    assert.deepEqual(domains, ['resume-builder'])
   })
 
   it('returns both domains for hero demo query', () => {
     const domains = detectInvolvedDomains(
       "I'm applying for Berlin jobs, how does this affect my trip plans and resume?"
     )
-    // Order determined by DOMAIN_REGISTRY order: cv-builder before tripplanner
-    assert.ok(domains.includes('cv-builder'))
+    // Order determined by DOMAIN_REGISTRY order: resume-builder before tripplanner
+    assert.ok(domains.includes('resume-builder'))
     assert.ok(domains.includes('tripplanner'))
     assert.equal(domains.length, 2)
   })
