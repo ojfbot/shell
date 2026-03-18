@@ -36,6 +36,7 @@ export const SETTINGS_LOADERS: Partial<Record<AppType, LazyPanel>> = {
   'blogengine':  React.lazy(() => import('blogengine/Settings'  as string) as never) as unknown as LazyPanel,
   'tripplanner': React.lazy(() => import('tripplanner/Settings' as string) as never) as unknown as LazyPanel,
   'lean-canvas': React.lazy(() => import('lean_canvas/Settings'  as string) as never) as unknown as LazyPanel,
+  'gastown-pilot': React.lazy(() => import('gastown_pilot/Settings' as string) as never) as unknown as LazyPanel,
 }
 
 // ── Settings field metadata for search ───────────────────────────────────────
@@ -85,5 +86,12 @@ export const SETTINGS_META: Partial<Record<AppType, SettingsFieldMeta[]>> = {
   'lean-canvas': [
     { label: 'API base URL', keywords: ['api', 'url', 'connection', 'endpoint', 'backend', 'localhost', '3026', 'canvas'] },
     { label: 'Frame agent URL', keywords: ['agent', 'frame', 'llm', 'ai', 'localhost', '4001'] },
+  ],
+  'gastown-pilot': [
+    { label: 'API base URL', keywords: ['api', 'url', 'connection', 'endpoint', 'backend', 'localhost', '3018', 'gastown', 'gas town'] },
+    { label: 'SSE relay URL', keywords: ['sse', 'relay', 'realtime', 'real-time', 'events', 'stream'] },
+    { label: 'Dolt endpoint', keywords: ['dolt', 'sql', 'database', 'db', 'endpoint'] },
+    { label: 'Show Wasteland tab', keywords: ['wasteland', 'tab', 'wanted', 'stamps', 'federation'] },
+    { label: 'Polling interval', keywords: ['poll', 'polling', 'interval', 'refresh', 'seconds', 'frequency'] },
   ],
 }

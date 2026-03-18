@@ -22,6 +22,7 @@ const REMOTE_LOADERS: Record<AppType, () => Promise<{ default: React.ComponentTy
   'purefoy':     () => import('purefoy/Dashboard' as string) as never,
   'core-reader': () => import('core_reader/Dashboard' as string) as never,
   'lean-canvas': () => import('lean_canvas/Dashboard' as string) as never,
+  'gastown-pilot': () => import('gastown_pilot/Dashboard' as string) as never,
 }
 
 interface RemoteProps {

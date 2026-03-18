@@ -17,7 +17,7 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-export type AppType = 'resume-builder' | 'tripplanner' | 'blogengine' | 'purefoy' | 'core-reader' | 'lean-canvas'
+export type AppType = 'resume-builder' | 'tripplanner' | 'blogengine' | 'purefoy' | 'core-reader' | 'lean-canvas' | 'gastown-pilot'
 
 /**
  * Static metadata the shell holds for each registered app type.
@@ -80,6 +80,12 @@ export const APP_CONFIG: Record<AppType, AppConfig> = {
     defaultInstanceName: 'My Canvas',
     singleton: false,
   },
+  'gastown-pilot': {
+    label: 'Gas Town',
+    remoteUrl: import.meta.env.VITE_REMOTE_GASTOWN_PILOT ?? 'http://localhost:3017',
+    defaultInstanceName: 'Gas Town',
+    singleton: false,
+  },
 }
 
 /** Derived — do NOT add entries here; update APP_CONFIG above instead. */
@@ -123,7 +129,7 @@ interface AppRegistryState {
 // NOTE: tripplanner GET /api/tools is Phase 1B (not done) — AppFrame handles
 // remote-load failures gracefully. Remove if first-visit errors are disruptive.
 // purefoy and core-reader are singletons — always present, no + New button.
-export const DEFAULT_APP_TYPES: AppType[] = ['resume-builder', 'blogengine', 'tripplanner', 'purefoy', 'core-reader', 'lean-canvas']
+export const DEFAULT_APP_TYPES: AppType[] = ['resume-builder', 'blogengine', 'tripplanner', 'purefoy', 'core-reader', 'lean-canvas', 'gastown-pilot']
 
 // Exported so store/index.ts can patch missing singleton instances into old
 // persisted state without duplicating the instance construction logic.
