@@ -17,6 +17,7 @@ export function initializeFrameAgent(): void {
       tripPlannerApi: process.env.TRIPPLANNER_API_URL ?? 'http://localhost:3011',
       // SCAFFOLD: port 3021 = purefoy-api (Express). 3020 = purefoy browser-app (MF remote).
       purefoyApi:    process.env.PUREFOY_API_URL      ?? 'http://localhost:3021',
+      gastownPilotApi: process.env.GASTOWN_PILOT_API_URL ?? 'http://localhost:3018',
     }),
     inspectAgent: new InspectAgent(apiKey),
   }))
