@@ -37,4 +37,8 @@ export const DOMAIN_REGISTRY: DomainConfig[] = [
     id: 'lean-canvas',
     keywords: ['lean canvas', 'business model', 'value proposition', 'customer segment', 'revenue stream', 'cost structure', 'key metrics', 'unfair advantage'],
   },
+  {
+    id: 'gastown-pilot',
+    keywords: ['gas town', 'gastown', 'agent tree', 'convoy', 'bead', 'formula', 'rig', 'wasteland', 'wanted board', 'sling', 'nudge', 'handoff'],
+  },
 ]

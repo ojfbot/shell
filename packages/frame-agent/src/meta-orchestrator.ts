@@ -3,10 +3,11 @@ import { ResumeBuilderDomainAgent } from './domain-agents/resume-builder-agent.j
 import { BlogEngineDomainAgent } from './domain-agents/blogengine-agent.js'
 import { TripPlannerDomainAgent } from './domain-agents/tripplanner-agent.js'
 import { PurefoyDomainAgent } from './domain-agents/purefoy-agent.js'
+import { GasTownPilotDomainAgent } from './domain-agents/gastown-pilot-agent.js'
 import { DOMAIN_REGISTRY } from './domain-registry.js'
 
 // 'meta' = MetaOrchestrator handles directly (capability queries, shell nav, unclassified)
-export type DomainType = 'resume-builder' | 'blogengine' | 'tripplanner' | 'purefoy' | 'lean-canvas' | 'cross-domain' | 'meta'
+export type DomainType = 'resume-builder' | 'blogengine' | 'tripplanner' | 'purefoy' | 'lean-canvas' | 'gastown-pilot' | 'cross-domain' | 'meta'
 
 export interface SpawnInstanceAction {
   type: 'spawn_instance'
@@ -19,6 +20,7 @@ export interface SubAppUrls {
   blogEngineApi: string
   tripPlannerApi: string
   purefoyApi: string
+  gastownPilotApi: string
 }
 
 export interface RoutingContext {
@@ -53,6 +55,7 @@ export class MetaOrchestratorAgent extends BaseAgent {
   private readonly blogEngine: BlogEngineDomainAgent
   private readonly tripPlanner: TripPlannerDomainAgent
   private readonly purefoy: PurefoyDomainAgent
+  private readonly gastownPilot: GasTownPilotDomainAgent
 
   // R8: populated by init() — empty until first init() call
   private readonly domainStatus = new Map<string, DomainStatus>()
@@ -68,6 +71,7 @@ export class MetaOrchestratorAgent extends BaseAgent {
     this.blogEngine = new BlogEngineDomainAgent(apiKey, subAppUrls.blogEngineApi)
     this.tripPlanner = new TripPlannerDomainAgent(apiKey, subAppUrls.tripPlannerApi)
     this.purefoy = new PurefoyDomainAgent(apiKey, subAppUrls.purefoyApi)
+    this.gastownPilot = new GasTownPilotDomainAgent(apiKey, subAppUrls.gastownPilotApi)
   }
 
   protected getSystemPrompt(): string {
@@ -81,6 +85,7 @@ You coordinate four sub-applications:
 - **blogengine**: blog post drafting and editing, publishing pipeline, Notion integration, podcast content generation, content strategy
 - **tripplanner**: trip itinerary planning, destination research, budget tracking, accommodation and transport booking, ChatGPT transcript import
 - **purefoy**: creative and knowledge projects (purefoy domain)
+- **gastown-pilot**: multi-agent coordination, observability, rigs, convoys, beads, formulas, wasteland federation
 
 ## Classification Rules
 
@@ -112,6 +117,7 @@ Confident, efficient, and context-aware. You are the control layer of a power us
       { id: 'blogengine',     url: this.urls.blogEngineApi },
       { id: 'tripplanner',    url: this.urls.tripPlannerApi },
       { id: 'purefoy',        url: this.urls.purefoyApi },
+      { id: 'gastown-pilot',  url: this.urls.gastownPilotApi },
     ]
 
     await Promise.all(targets.map(async ({ id, url }) => {
@@ -169,6 +175,10 @@ Confident, efficient, and context-aware. You are the control layer of a power us
         content = await this.purefoy.processMessage(message, history, context)
         handledBy = 'PurefoyDomainAgent'
         break
+      case 'gastown-pilot':
+        content = await this.gastownPilot.processMessage(message, history, context)
+        handledBy = 'GasTownPilotDomainAgent'
+        break
       case 'cross-domain':
         content = await this.handleCrossDomain(message, history, context)
         handledBy = 'MetaOrchestratorAgent'
@@ -220,6 +230,10 @@ Confident, efficient, and context-aware. You are the control layer of a power us
       case 'purefoy':
         content = await this.purefoy.streamMessage(message, history, context, onChunk)
         handledBy = 'PurefoyDomainAgent'
+        break
+      case 'gastown-pilot':
+        content = await this.gastownPilot.streamMessage(message, history, context, onChunk)
+        handledBy = 'GasTownPilotDomainAgent'
         break
       case 'cross-domain':
         content = await this.handleCrossDomainStream(message, history, context, onChunk)
@@ -290,7 +304,7 @@ Respond with ONLY the domain name, nothing else.`
       .map(b => ('text' in b ? b.text.trim().toLowerCase() : ''))
       .join('')
 
-    const validDomains: DomainType[] = ['resume-builder', 'blogengine', 'tripplanner', 'purefoy', 'cross-domain', 'meta']
+    const validDomains: DomainType[] = ['resume-builder', 'blogengine', 'tripplanner', 'purefoy', 'gastown-pilot', 'cross-domain', 'meta']
     return validDomains.find(d => classification.includes(d)) ?? (activeAppType ?? 'meta')
   }
 
@@ -329,13 +343,14 @@ Respond with ONLY the domain name, nothing else.`
       case 'blogengine': return this.blogEngine.getTools()
       case 'tripplanner': return this.tripPlanner.getTools()
       case 'purefoy': return this.purefoy.getTools()
+      case 'gastown-pilot': return this.gastownPilot.getTools()
       default: return []
     }
   }
 
   // R4+R8: build the tool context string for the classify prompt
   private buildClassifyToolContext(): string {
-    const domainOrder: DomainType[] = ['resume-builder', 'blogengine', 'tripplanner', 'purefoy']
+    const domainOrder: DomainType[] = ['resume-builder', 'blogengine', 'tripplanner', 'purefoy', 'gastown-pilot']
     const lines = domainOrder.map(id => {
       const tools = this.domainStatus.get(id)?.tools ?? this.getDomainStubs(id)
       return `${id} — ${tools.map(t => t.name).join(', ')}`
@@ -365,13 +380,14 @@ Respond with ONLY the domain name, nothing else.`
     ]
     if (!spawnKeywords.some(k => lower.includes(k))) return null
 
-    const validAppTypes: DomainType[] = ['resume-builder', 'blogengine', 'tripplanner', 'purefoy', 'lean-canvas']
+    const validAppTypes: DomainType[] = ['resume-builder', 'blogengine', 'tripplanner', 'purefoy', 'lean-canvas', 'gastown-pilot']
     const appTypeDescriptions = [
       'resume-builder — resume and job applications',
       'blogengine — blog posts and publishing',
       'tripplanner — trip itineraries and travel',
       'purefoy — cinematography knowledge',
       'lean-canvas — business model canvas',
+      'gastown-pilot — multi-agent coordination, rigs, convoys, beads, wasteland',
     ].join('\n')
 
     const prompt = `The user wants to create a new application instance.
@@ -412,6 +428,7 @@ If you cannot determine the intent, respond: { "appType": null, "instanceName": 
       case 'blogengine': return this.blogEngine.getConversationHistory()
       case 'tripplanner': return this.tripPlanner.getConversationHistory()
       case 'purefoy': return this.purefoy.getConversationHistory()
+      case 'gastown-pilot': return this.gastownPilot.getConversationHistory()
       default: return this.getConversationHistory()
     }
   }
@@ -433,6 +450,7 @@ If you cannot determine the intent, respond: { "appType": null, "instanceName": 
         case 'blogengine': response = await this.blogEngine.processMessage(message, domainHistory, context); break
         case 'tripplanner': response = await this.tripPlanner.processMessage(message, domainHistory, context); break
         case 'purefoy': response = await this.purefoy.processMessage(message, domainHistory, context); break
+        case 'gastown-pilot': response = await this.gastownPilot.processMessage(message, domainHistory, context); break
       }
       return { domain, response }
     }))
@@ -577,6 +595,7 @@ If you cannot determine the intent, respond: { "appType": null, "instanceName": 
         blogengine: domainEntry('blogengine'),
         tripplanner: domainEntry('tripplanner'),
         purefoy: domainEntry('purefoy'),
+        'gastown-pilot': domainEntry('gastown-pilot'),
       },
     }
   }
