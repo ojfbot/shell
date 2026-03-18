@@ -29,7 +29,7 @@ The K8s topology maps directly to the "browser as OS" metaphor:
 ```
 shell-app (UI)
   └── frame-agent (port 4001) — ONE Anthropic API key
-        ├── MetaOrchestratorAgent — classifies + routes NL to domain
+        ├── ShellAgent — classifies + routes NL to domain, spawns instances, manages approval queue
         ├── CvBuilderDomainAgent  — resume, jobs, tailoring, interview
         ├── BlogEngineDomainAgent — posts, drafts, Notion, podcast
         ├── TripPlannerDomainAgent — trips, itineraries, budget, transport
@@ -156,7 +156,9 @@ The visual regression pipeline lives in cv-builder. The shell itself is not yet 
 - [x] Sub-app SettingsPanel: live connection status probe in each sub-app (cv-builder, TripPlanner, BlogEngine)
 - [x] Branch protection rulesets: all 4 repos, PR-required, rebase-only
 - [x] Vercel production deployment: frame.jim.software live — ADR-0013/ADR-0014
-- [ ] `spawnInstance` wired to frame-agent NL command ("new trip to Berlin") — Phase 4
+- [x] `spawnInstance` wired to frame-agent NL command ("new trip to Berlin") — Phase 4
+- [x] Thread resumption: paused/backgrounded sessions resumed by name or recency (Redux state side; MrPlug relay context re-injection tracked in #24)
+- [x] G3 Approval Queue: structured diff + user-editable plan for high-impact cross-app actions (merged, cross-domain fan-out verification outstanding)
 - [x] Multi-instance UI: session persistence, close button on extra instances, singleton enforcement for purefoy/core-reader
 - [ ] Sub-app API migration: remove direct Anthropic calls, delegate to frame-agent — Phase 2
 - [ ] Shell visual regression tests
