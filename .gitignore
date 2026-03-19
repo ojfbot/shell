@@ -13,3 +13,4 @@ decisions/core
 personal-knowledge/
 personal-knowledge
 .claude/settings.json
+.vercel

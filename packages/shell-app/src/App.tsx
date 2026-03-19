@@ -11,9 +11,9 @@ import { Asleep, Light, Settings } from '@carbon/icons-react'
 import { AppSwitcherConnected } from './components/AppSwitcherConnected.js'
 import { AppFrame } from './components/AppFrame.js'
 import { HeaderConnected } from './components/HeaderConnected.js'
-import { SettingsModal } from './components/SettingsModal.js'
-import { ResumptionToast } from './components/ResumptionToast.js'
-import { ApprovalQueue } from './components/ApprovalQueue.js'
+import { SettingsModalConnected } from './components/SettingsModalConnected.js'
+import { ResumptionToastConnected } from './components/ResumptionToastConnected.js'
+import { ApprovalQueueConnected } from './components/ApprovalQueueConnected.js'
 import { useAppSelector, useAppDispatch } from './store/hooks.js'
 import { toggleTheme } from './store/slices/themeSlice.js'
 import { APP_LABELS } from './store/slices/appRegistrySlice.js'
@@ -145,13 +145,13 @@ export function App() {
         <AppFrame />
       </div>
 
-      <SettingsModal
+      <SettingsModalConnected
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
       />
 
-      <ResumptionToast />
-      <ApprovalQueue />
+      <ResumptionToastConnected />
+      <ApprovalQueueConnected />
     </Theme>
   )
 }
