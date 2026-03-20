@@ -311,52 +311,71 @@ html, body {
   top: 0;
   bottom: 0;
   transform: translateX(-50%);
-  width: 560px;
-  max-width: 55vw;
+  width: 320px;
+  max-width: 35vw;
   display: flex;
   align-items: center;
   z-index: 1;
   padding: 0 0.5rem;
+  transition: width 200ms cubic-bezier(0.2, 0, 0.38, 0.9),
+              max-width 200ms cubic-bezier(0.2, 0, 0.38, 0.9);
+}
+
+/* Expanded state: on focus or when input has content */
+.shell-header__command-area--expanded {
+  width: 560px;
+  max-width: 55vw;
 }
 
 .shell-header__input-form {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   width: 100%;
   gap: 0.5rem;
 }
 
-/* Carbon TextInput constrained to fit inside the 48px header */
+/* Carbon TextArea constrained to fit inside the 48px header (compact mode) */
 .shell-header__input-form .cds--form-item {
   flex: 1;
   margin-bottom: 0;
 }
 
-.shell-header__input-form .cds--text-input-wrapper,
-.shell-header__input-form .cds--text-input {
+/* TextArea: compact single-line default, grows on content */
+.shell-header__input-form .cds--text-area__wrapper {
+  min-height: 32px;
+}
+
+.shell-header__input-form .cds--text-area {
   height: 32px;
   min-height: 32px;
+  max-height: 96px; /* 3 lines */
+  resize: none;
+  overflow-y: auto;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  line-height: 20px;
+  transition: height 150ms cubic-bezier(0.2, 0, 0.38, 0.9);
 }
 
 /* Carbon's <Header> and <SideNav> both create their own layer contexts, preventing
    the parent .cds--g100/.cds--white scope from cascading --cds-field tokens into
-   TextInput. Override explicitly, scoped to the theme class on <html>.
+   TextArea. Override explicitly, scoped to the theme class on <html>.
    Values reference --ojf-* tokens so brand changes propagate; hardcoded fallbacks
    maintain behaviour if a token fails to resolve. */
-.cds--g100 .shell-header__input-form .cds--text-input {
+.cds--g100 .shell-header__input-form .cds--text-area {
   background-color: var(--ojf-surface-select, #2d2d2d);
   color: var(--ojf-text-primary, #f4f4f4);
   border-bottom-color: var(--cds-border-strong-01, #6f6f6f);
 }
-.cds--g100 .shell-header__input-form .cds--text-input::placeholder {
+.cds--g100 .shell-header__input-form .cds--text-area::placeholder {
   color: var(--ojf-text-muted, #8d8d8d);
 }
-.cds--white .shell-header__input-form .cds--text-input {
+.cds--white .shell-header__input-form .cds--text-area {
   background-color: var(--ojf-surface-1, #f4f4f4);
   color: var(--ojf-text-primary, #161616);
   border-bottom-color: var(--cds-border-strong-01, #8d8d8d);
 }
-.cds--white .shell-header__input-form .cds--text-input::placeholder {
+.cds--white .shell-header__input-form .cds--text-area::placeholder {
   color: var(--ojf-text-muted, #a8a8a8);
 }
 

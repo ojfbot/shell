@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react'
-import { TextInput } from '@carbon/react'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
+import { TextArea } from '@carbon/react'
 
 export interface ChatMessage {
   role: 'user' | 'assistant'
@@ -19,6 +19,8 @@ export interface HeaderProps {
   error: string | null
   /** Domain badge label for the last routed domain. Null when no message has been sent. */
   lastDomainLabel: string | null
+  /** When true, the last response included an instance action (spawn or focus). */
+  lastActionExecuted: boolean
   /** Called when the user submits a message. Shell-app dispatches to Redux. */
   onSubmit: (message: string) => void
   /** Called when the user clicks "Clear" in the chat overlay. */
@@ -27,7 +29,14 @@ export interface HeaderProps {
 
 /**
  * Command input bar for the Frame OS Shell header.
- * Renders a Carbon TextInput, submit button, domain badge, and chat overlay.
+ * Renders an expanding Carbon TextArea, submit button, domain badge, and chat overlay.
+ *
+ * Expanding behavior:
+ * - Default: compact single-line (32px height, collapsed width)
+ * - On focus: expands to full width (480px)
+ * - On multi-line content: grows vertically up to 3 lines (96px)
+ * - On blur when empty: collapses back
+ * - Enter submits, Shift+Enter adds newline
  *
  * Pure component — no Redux imports. Wire via a connected wrapper in shell-app.
  */
@@ -38,12 +47,14 @@ export function Header({
   messages,
   error,
   lastDomainLabel,
+  lastActionExecuted,
   onSubmit,
   onClearChat,
 }: HeaderProps) {
   const [input, setInput] = useState('')
   const [showChat, setShowChat] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const [isFocused, setIsFocused] = useState(false)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
 
   const placeholder = !agentAvailable
     ? 'Agent offline — demo mode'
@@ -51,14 +62,20 @@ export function Header({
       ? `Ask anything · ${activeAppLabel} (⌘K)`
       : 'Ask anything (⌘K)'
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
+  const isExpanded = isFocused || input.length > 0
+
+  function handleSubmit(e?: React.FormEvent) {
+    e?.preventDefault()
     const msg = input.trim()
     if (!msg || isStreaming || !agentAvailable) return
 
     setShowChat(true)
     onSubmit(msg)
     setInput('')
+    // Reset textarea height after submit
+    if (inputRef.current) {
+      inputRef.current.style.height = ''
+    }
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -66,7 +83,42 @@ export function Header({
       setShowChat(false)
       inputRef.current?.blur()
     }
+    // Enter submits, Shift+Enter adds newline
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSubmit()
+    }
   }
+
+  // Auto-resize textarea height based on content (up to 3 lines / 96px)
+  const autoResize = useCallback(() => {
+    const el = inputRef.current
+    if (!el) return
+    el.style.height = '32px'
+    el.style.height = `${Math.min(el.scrollHeight, 96)}px`
+  }, [])
+
+  function handleChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    setInput(e.target.value)
+    autoResize()
+  }
+
+  function handleFocus() {
+    setIsFocused(true)
+    setShowChat(true)
+  }
+
+  function handleBlur() {
+    setIsFocused(false)
+  }
+
+  // Auto-close overlay briefly after an action executes so the user sees the app switch
+  useEffect(() => {
+    if (lastActionExecuted && showChat) {
+      const timer = setTimeout(() => setShowChat(false), 1200)
+      return () => clearTimeout(timer)
+    }
+  }, [lastActionExecuted, showChat])
 
   useEffect(() => {
     function handleGlobalKey(e: KeyboardEvent) {
@@ -81,20 +133,21 @@ export function Header({
   }, [])
 
   return (
-    <div className="shell-header__command-area">
+    <div className={`shell-header__command-area${isExpanded ? ' shell-header__command-area--expanded' : ''}`}>
       <form className="shell-header__input-form" onSubmit={handleSubmit}>
-        <TextInput
+        <TextArea
           ref={inputRef}
           id="frame-command"
           labelText="Frame command"
           hideLabel
-          size="sm"
           value={input}
-          onChange={e => setInput(e.target.value)}
+          onChange={handleChange}
           onKeyDown={handleKeyDown}
-          onFocus={() => setShowChat(true)}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
           placeholder={placeholder}
           disabled={isStreaming || !agentAvailable}
+          rows={1}
         />
         <button
           type="submit"

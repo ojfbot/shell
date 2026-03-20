@@ -13,12 +13,20 @@ export interface SpawnInstanceAction {
   instanceName: string
 }
 
+export interface FocusInstanceAction {
+  type: 'focus_instance'
+  appType: string
+  instanceId: string
+}
+
+export type InstanceAction = SpawnInstanceAction | FocusInstanceAction
+
 export interface FrameAgentResponse {
   content: string
   domain: string
   handledBy: string
   conversationHistory: ChatMessage[]
-  action?: SpawnInstanceAction
+  action?: InstanceAction
 }
 
 interface ChatState {
@@ -27,6 +35,8 @@ interface ChatState {
   error: string | null
   lastDomain: string | null
   lastHandledBy: string | null
+  /** True when the last response triggered an instance action (spawn/focus). Cleared on next message. */
+  lastActionExecuted: boolean
   /** Set when returning to a thread — cleared on the next user message. */
   resumptionSummary: string | null
   /** Contextual follow-up suggestions surfaced alongside the resumption toast. */
@@ -39,6 +49,7 @@ const initialState: ChatState = {
   error: null,
   lastDomain: null,
   lastHandledBy: null,
+  lastActionExecuted: false,
   resumptionSummary: null,
   resumptionSuggestions: [],
 }
@@ -52,7 +63,9 @@ export const sendMessage = createAsyncThunk(
     activeThreadId: string | null
     frameAgentUrl: string
     conversationHistory: ChatMessage[]
-  }, { dispatch }) => {
+    /** Instance list for spawn-vs-focus matching on the server. */
+    instances: Array<{ id: string; appType: string; name: string }>
+  }, { dispatch, getState }) => {
     const res = await fetch(`${payload.frameAgentUrl}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -61,6 +74,7 @@ export const sendMessage = createAsyncThunk(
         context: {
           activeAppType: payload.activeAppType ?? undefined,
           instanceId: payload.activeInstanceId ?? undefined,
+          instances: payload.instances,
         },
         conversationHistory: payload.conversationHistory,
       }),
@@ -81,19 +95,26 @@ export const sendMessage = createAsyncThunk(
       )
     }
 
-    // Handle spawn_instance action — frame-agent detected NL intent to create a new instance
-    if (json.data.action?.type === 'spawn_instance') {
-      const { appType, instanceName } = json.data.action
-      if (appType in APP_CONFIG) {
-        const spawned = dispatch(spawnInstance({
-          appType: appType as AppType,
-          name: instanceName,
-          remoteUrl: APP_CONFIG[appType as AppType].remoteUrl,
-        }))
-        // activateInstance needs the new instance id — spawnInstance sets activeInstanceId
-        // directly in the reducer, so we just need to find it after the dispatch.
-        // The reducer sets activeInstanceId to the new instance, so no extra dispatch needed.
-        void spawned
+    // Handle instance actions — frame-agent detected NL intent
+    if (json.data.action) {
+      const action = json.data.action
+
+      if (action.type === 'spawn_instance') {
+        const { appType, instanceName } = action
+        if (appType in APP_CONFIG) {
+          dispatch(spawnInstance({
+            appType: appType as AppType,
+            name: instanceName,
+            remoteUrl: APP_CONFIG[appType as AppType].remoteUrl,
+          }))
+        }
+      } else if (action.type === 'focus_instance') {
+        // Re-validate instanceId against current state to avoid stale references
+        const state = getState() as { appRegistry: { instances: Array<{ id: string }> } }
+        const exists = state.appRegistry.instances.some(i => i.id === action.instanceId)
+        if (exists) {
+          dispatch(activateInstance(action.instanceId))
+        }
       }
     }
 
@@ -174,6 +195,7 @@ export const chatSlice = createSlice({
       .addCase(sendMessage.pending, (state) => {
         state.isStreaming = true
         state.error = null
+        state.lastActionExecuted = false
         state.resumptionSummary = null
         state.resumptionSuggestions = []
       })
@@ -182,6 +204,7 @@ export const chatSlice = createSlice({
         state.isStreaming = false
         state.lastDomain = action.payload.domain
         state.lastHandledBy = action.payload.handledBy
+        state.lastActionExecuted = Boolean(action.payload.action)
       })
       .addCase(sendMessage.rejected, (state, action) => {
         state.error = action.error.message ?? 'Failed to reach frame-agent'

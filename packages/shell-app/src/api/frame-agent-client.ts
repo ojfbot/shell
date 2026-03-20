@@ -3,12 +3,19 @@ export interface ChatMessage {
   content: string
 }
 
+export interface InstanceSummary {
+  id: string
+  appType: string
+  name: string
+}
+
 export interface FrameAgentChatRequest {
   message: string
   context?: {
     activeAppType?: string
     instanceId?: string
     threadId?: string | null
+    instances?: InstanceSummary[]
   }
   conversationHistory?: ChatMessage[]
 }
@@ -19,6 +26,14 @@ export interface SpawnInstanceAction {
   instanceName: string
 }
 
+export interface FocusInstanceAction {
+  type: 'focus_instance'
+  appType: string
+  instanceId: string
+}
+
+export type InstanceAction = SpawnInstanceAction | FocusInstanceAction
+
 export interface FrameAgentChatResponse {
   success: boolean
   data: {
@@ -26,7 +41,7 @@ export interface FrameAgentChatResponse {
     domain: string
     handledBy: string
     conversationHistory: ChatMessage[]
-    action?: SpawnInstanceAction
+    action?: InstanceAction
   }
 }
 
@@ -47,7 +62,7 @@ export const frameAgentClient = {
   async streamChat(
     req: FrameAgentChatRequest,
     onChunk: (text: string) => void,
-    onDone: (meta: { domain: string; conversationHistory: ChatMessage[]; action?: SpawnInstanceAction }) => void,
+    onDone: (meta: { domain: string; conversationHistory: ChatMessage[]; action?: InstanceAction }) => void,
     onError: (err: string) => void
   ): Promise<void> {
     const res = await fetch(`${BASE_URL}/api/chat/stream`, {
@@ -86,7 +101,7 @@ export const frameAgentClient = {
             onDone({
               domain: event.domain as string,
               conversationHistory: event.conversationHistory as ChatMessage[],
-              action: event.action as SpawnInstanceAction | undefined,
+              action: event.action as InstanceAction | undefined,
             })
           } else if (event.type === 'error') {
             onError(event.error as string)
