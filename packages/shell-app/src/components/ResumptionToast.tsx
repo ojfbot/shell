@@ -28,6 +28,7 @@ export function ResumptionToast() {
       activeThreadId,
       frameAgentUrl,
       conversationHistory: messages,
+      instances: instances.map(i => ({ id: i.id, appType: i.appType, name: i.name })),
     }))
   }
 

@@ -8,9 +8,14 @@ const router: Router = Router()
 const ChatRequestSchema = z.object({
   message: z.string().min(1, 'Message cannot be empty'),
   context: z.object({
-    activeAppType: z.enum(['resume-builder', 'blogengine', 'tripplanner', 'purefoy', 'cross-domain', 'meta']).optional(),
+    activeAppType: z.enum(['resume-builder', 'blogengine', 'tripplanner', 'purefoy', 'lean-canvas', 'gastown-pilot', 'core-reader', 'cross-domain', 'meta']).optional(),
     instanceId: z.string().optional(),
     threadId: z.string().nullable().optional(),
+    instances: z.array(z.object({
+      id: z.string(),
+      appType: z.string(),
+      name: z.string(),
+    })).optional(),
   }).optional(),
   conversationHistory: z.array(z.object({
     role: z.enum(['user', 'assistant']),

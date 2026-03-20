@@ -19,7 +19,7 @@ import { APP_CONFIG } from '../store/slices/appRegistrySlice.js'
 export function HeaderConnected() {
   const dispatch = useAppDispatch()
   const { activeAppType, activeInstanceId, instances } = useAppSelector(s => s.appRegistry)
-  const { isStreaming, messages, error, lastDomain } = useAppSelector(s => s.chat)
+  const { isStreaming, messages, error, lastDomain, lastActionExecuted } = useAppSelector(s => s.chat)
 
   const activeInstance = instances.find(i => i.id === activeInstanceId)
   const activeThreadId = activeInstance?.activeThreadId ?? null
@@ -38,6 +38,7 @@ export function HeaderConnected() {
       activeThreadId,
       frameAgentUrl,
       conversationHistory: messages,
+      instances: instances.map(i => ({ id: i.id, appType: i.appType, name: i.name })),
     }))
   }
 
@@ -49,6 +50,7 @@ export function HeaderConnected() {
       messages={messages}
       error={error}
       lastDomainLabel={lastDomainLabel}
+      lastActionExecuted={lastActionExecuted}
       onSubmit={handleSubmit}
       onClearChat={() => dispatch(clearChat())}
     />

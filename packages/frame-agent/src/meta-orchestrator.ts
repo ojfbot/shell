@@ -15,6 +15,14 @@ export interface SpawnInstanceAction {
   instanceName: string
 }
 
+export interface FocusInstanceAction {
+  type: 'focus_instance'
+  appType: DomainType
+  instanceId: string
+}
+
+export type InstanceAction = SpawnInstanceAction | FocusInstanceAction
+
 export interface SubAppUrls {
   resumeBuilderApi: string
   blogEngineApi: string
@@ -23,10 +31,19 @@ export interface SubAppUrls {
   gastownPilotApi: string
 }
 
+/** Minimal instance summary passed from the shell for spawn-vs-focus matching. */
+export interface InstanceSummary {
+  id: string
+  appType: string
+  name: string
+}
+
 export interface RoutingContext {
   activeAppType?: DomainType
   instanceId?: string
   threadId?: string | null
+  /** Current instance list — used by detectAction() to decide spawn vs. focus. */
+  instances?: InstanceSummary[]
 }
 
 export interface FrameAgentResponse {
@@ -35,7 +52,7 @@ export interface FrameAgentResponse {
   handledBy: string
   conversationHistory: AgentMessage[]
   suggestions?: unknown[]
-  action?: SpawnInstanceAction
+  action?: InstanceAction
 }
 
 // Minimal tool shape — subset of ADR-0007 that classify() and the manifest need
@@ -149,10 +166,10 @@ Confident, efficient, and context-aware. You are the control layer of a power us
     context: RoutingContext,
     history: AgentMessage[]
   ): Promise<FrameAgentResponse> {
-    // Detect spawn intent in parallel with classify — no extra latency on the happy path
+    // Detect instance action in parallel with classify — no extra latency on the happy path
     const [domain, action] = await Promise.all([
       this.classify(message, context.activeAppType),
-      this.detectSpawnIntent(message),
+      this.detectAction(message, context.instances),
     ])
 
     let content: string
@@ -208,7 +225,7 @@ Confident, efficient, and context-aware. You are the control layer of a power us
   ): Promise<FrameAgentResponse> {
     const [domain, action] = await Promise.all([
       this.classify(message, context.activeAppType),
-      this.detectSpawnIntent(message),
+      this.detectAction(message, context.instances),
     ])
 
     let content: string
@@ -361,24 +378,35 @@ Respond with ONLY the domain name, nothing else.`
   }
 
   /**
-   * Detects whether the message is asking to spawn a new app instance.
-   * Fast-path: returns null immediately if no spawn keywords are present.
-   * When keywords are detected, makes a cheap Claude call to extract
-   * appType + instanceName as structured JSON.
+   * Detects whether the message implies an app instance action (spawn or focus).
    *
-   * Runs in parallel with classify() — adds zero latency on non-spawn messages.
+   * Fast-path: returns null immediately if no action keywords are present.
+   * When keywords are detected, checks existing instances for a match before
+   * asking the LLM to extract appType + instanceName.
+   *
+   * Instance matching: substring match on instance names (case-insensitive).
+   * If a match is found → focus_instance. Otherwise → spawn_instance.
+   *
+   * Runs in parallel with classify() — adds zero latency on non-action messages.
    */
-  private async detectSpawnIntent(message: string): Promise<SpawnInstanceAction | null> {
+  private async detectAction(
+    message: string,
+    instances: InstanceSummary[] = []
+  ): Promise<InstanceAction | null> {
     const lower = message.toLowerCase()
-    const spawnKeywords = [
+
+    const actionKeywords = [
+      // Spawn signals
       'new trip', 'start a trip', 'plan a trip', 'add a trip',
       'new blog', 'start a blog', 'new post', 'draft a post',
       'new resume', 'start a resume', 'new cv',
       'new canvas', 'start a canvas', 'new lean canvas',
       'open a new', 'create a new', 'start a new', 'launch a new', 'add a new',
       'new instance',
+      // Focus signals
+      'show my', 'open my', 'switch to', 'go to', 'back to',
     ]
-    if (!spawnKeywords.some(k => lower.includes(k))) return null
+    if (!actionKeywords.some(k => lower.includes(k))) return null
 
     const validAppTypes: DomainType[] = ['resume-builder', 'blogengine', 'tripplanner', 'purefoy', 'lean-canvas', 'gastown-pilot']
     const appTypeDescriptions = [
@@ -390,33 +418,70 @@ Respond with ONLY the domain name, nothing else.`
       'gastown-pilot — multi-agent coordination, rigs, convoys, beads, wasteland',
     ].join('\n')
 
-    const prompt = `The user wants to create a new application instance.
-Identify which app type and what the instance should be named.
+    const instanceList = instances.length > 0
+      ? `\n\nExisting instances:\n${instances.map(i => `- "${i.name}" (${i.appType}, id: ${i.id})`).join('\n')}`
+      : ''
+
+    const prompt = `The user wants to interact with an application instance.
+Determine: (1) which app type, (2) a short name for a new instance, and (3) whether an existing instance matches.
 
 App types:
 ${appTypeDescriptions}
+${instanceList}
 
 User message: "${message}"
 
-Respond with JSON only: { "appType": "<one of the app type ids>", "instanceName": "<short descriptive name, 2-4 words max>" }
-If you cannot determine the intent, respond: { "appType": null, "instanceName": null }`
+Respond with JSON only:
+- If the user wants a NEW instance: { "action": "spawn", "appType": "<id>", "instanceName": "<2-4 words>" }
+- If an existing instance matches: { "action": "focus", "appType": "<id>", "instanceId": "<id from list>" }
+- If you cannot determine: { "action": null }`
 
     try {
       const tempClient = new (await import('@anthropic-ai/sdk')).default({ apiKey: this.apiKey })
       const response = await tempClient.messages.create({
         model: this.model,
-        max_tokens: 60,
+        max_tokens: 80,
         messages: [{ role: 'user', content: prompt }],
       })
       const raw = response.content
         .filter(b => b.type === 'text')
         .map(b => ('text' in b ? b.text.trim() : ''))
         .join('')
-      const parsed = JSON.parse(raw) as { appType?: unknown; instanceName?: unknown }
-      const appType = parsed.appType as string
-      const instanceName = parsed.instanceName as string
-      if (!appType || !instanceName || !validAppTypes.includes(appType as DomainType)) return null
-      return { type: 'spawn_instance', appType: appType as DomainType, instanceName }
+      const parsed = JSON.parse(raw) as {
+        action?: string | null
+        appType?: string
+        instanceName?: string
+        instanceId?: string
+      }
+
+      if (!parsed.action || !parsed.appType) return null
+      if (!validAppTypes.includes(parsed.appType as DomainType)) return null
+
+      if (parsed.action === 'focus' && parsed.instanceId) {
+        // Validate the instanceId actually exists in the provided list
+        const exists = instances.some(i => i.id === parsed.instanceId)
+        if (exists) {
+          return { type: 'focus_instance', appType: parsed.appType as DomainType, instanceId: parsed.instanceId }
+        }
+        // LLM hallucinated an ID — fall through to spawn
+      }
+
+      if (parsed.action === 'spawn' && parsed.instanceName) {
+        // Before spawning, do a quick substring match against existing instances
+        // to prevent duplicates (e.g. "New trip to Berlin" when "Berlin Interviews" exists)
+        const matchingInstance = instances.find(i =>
+          i.appType === parsed.appType &&
+          (i.name.toLowerCase().includes(lower.replace(/^(new|start|plan|open|create|add|launch)\s+(a\s+)?(new\s+)?/i, '').split(/\s+/)[0]) ||
+           lower.includes(i.name.toLowerCase().split(/\s+/)[0]))
+        )
+        if (matchingInstance) {
+          return { type: 'focus_instance', appType: parsed.appType as DomainType, instanceId: matchingInstance.id }
+        }
+
+        return { type: 'spawn_instance', appType: parsed.appType as DomainType, instanceName: parsed.instanceName }
+      }
+
+      return null
     } catch {
       return null
     }

@@ -30,6 +30,7 @@ export function ResumptionToastConnected() {
           activeThreadId,
           frameAgentUrl,
           conversationHistory: messages,
+          instances: instances.map(i => ({ id: i.id, appType: i.appType, name: i.name })),
         }))
       }}
       onDismiss={() => dispatch(clearResumptionSummary())}
