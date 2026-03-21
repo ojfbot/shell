@@ -140,9 +140,11 @@ Ingress routes:
 - `trips.jim.software` → TripPlanner
 - `api.jim.software` → unified API routing
 
-## Visual regression CI
+## Storybook & Visual regression CI
 
-The visual regression pipeline lives in cv-builder. The shell itself is not yet covered. This is tracked as a known gap.
+All three sub-apps (cv-builder, BlogEngine, TripPlanner) now have Storybook (`~8.4.0`) with CI build gates that block merge on broken stories. The shell repo itself has stories (including `SettingsModal.stories.tsx`). Visual regression testing (pixelmatch / Playwright) is the next layer — not yet implemented. The correct sequence is: (1) get components into Storybook ✅, (2) enforce that Storybook builds in CI ✅, (3) add visual baselines once the build is stable (not yet started).
+
+ADR-0029 formalises the prop-only container/presenter boundary that makes stories trivial to write.
 
 ## Roadmap
 
@@ -162,6 +164,9 @@ The visual regression pipeline lives in cv-builder. The shell itself is not yet 
 - [x] G3 Approval Queue: structured diff + user-editable plan for high-impact cross-app actions (merged, cross-domain fan-out verification outstanding)
 - [x] Multi-instance UI: session persistence, close button on extra instances, singleton enforcement for purefoy/core-reader
 - [ ] Sub-app API migration: remove direct Anthropic calls, delegate to frame-agent — Phase 2
-- [ ] Shell visual regression tests
+- [x] Storybook stories + CI build gates: shell, cv-builder, BlogEngine, TripPlanner — ADR-0029 prop-only boundary
+- [ ] Visual regression baselines (pixelmatch / Playwright) on top of Storybook builds
+- [ ] `@ojfbot/shell` npm publish — Phase 1 gate (unstarted)
+- [ ] Figma MCP integration — Phase 1 gate (unstarted)
 - [ ] TripPlanner GET /api/tools endpoint — Phase 1B
 - [ ] BlogEngine GET /api/tools fix (currently routes all tools to POST /api/v2/chat) — Phase 1B
