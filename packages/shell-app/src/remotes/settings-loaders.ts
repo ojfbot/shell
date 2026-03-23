@@ -37,6 +37,7 @@ export const SETTINGS_LOADERS: Partial<Record<AppType, LazyPanel>> = {
   'tripplanner': React.lazy(() => import('tripplanner/Settings' as string) as never) as unknown as LazyPanel,
   'lean-canvas': React.lazy(() => import('lean_canvas/Settings'  as string) as never) as unknown as LazyPanel,
   'gastown-pilot': React.lazy(() => import('gastown_pilot/Settings' as string) as never) as unknown as LazyPanel,
+  'seh-study': React.lazy(() => import('seh_study/Settings' as string) as never) as unknown as LazyPanel,
 }
 
 // ── Settings field metadata for search ───────────────────────────────────────
@@ -93,5 +94,10 @@ export const SETTINGS_META: Partial<Record<AppType, SettingsFieldMeta[]>> = {
     { label: 'Dolt endpoint', keywords: ['dolt', 'sql', 'database', 'db', 'endpoint'] },
     { label: 'Show Wasteland tab', keywords: ['wasteland', 'tab', 'wanted', 'stamps', 'federation'] },
     { label: 'Polling interval', keywords: ['poll', 'polling', 'interval', 'refresh', 'seconds', 'frequency'] },
+  ],
+  'seh-study': [
+    { label: 'API base URL', keywords: ['api', 'url', 'connection', 'endpoint', 'backend', 'localhost', '3031', 'seh', 'study'] },
+    { label: 'Card orientation', keywords: ['card', 'orientation', 'term', 'definition', 'flashcard', 'flip'] },
+    { label: 'Quiz count', keywords: ['quiz', 'count', 'questions', 'number'] },
   ],
 }

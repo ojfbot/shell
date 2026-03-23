@@ -4,10 +4,11 @@ import { BlogEngineDomainAgent } from './domain-agents/blogengine-agent.js'
 import { TripPlannerDomainAgent } from './domain-agents/tripplanner-agent.js'
 import { PurefoyDomainAgent } from './domain-agents/purefoy-agent.js'
 import { GasTownPilotDomainAgent } from './domain-agents/gastown-pilot-agent.js'
+import { SehStudyDomainAgent } from './domain-agents/seh-study-agent.js'
 import { DOMAIN_REGISTRY } from './domain-registry.js'
 
 // 'meta' = MetaOrchestrator handles directly (capability queries, shell nav, unclassified)
-export type DomainType = 'resume-builder' | 'blogengine' | 'tripplanner' | 'purefoy' | 'lean-canvas' | 'gastown-pilot' | 'cross-domain' | 'meta'
+export type DomainType = 'resume-builder' | 'blogengine' | 'tripplanner' | 'purefoy' | 'lean-canvas' | 'gastown-pilot' | 'seh-study' | 'cross-domain' | 'meta'
 
 export interface SpawnInstanceAction {
   type: 'spawn_instance'
@@ -29,6 +30,7 @@ export interface SubAppUrls {
   tripPlannerApi: string
   purefoyApi: string
   gastownPilotApi: string
+  sehStudyApi: string
 }
 
 /** Minimal instance summary passed from the shell for spawn-vs-focus matching. */
@@ -73,6 +75,7 @@ export class MetaOrchestratorAgent extends BaseAgent {
   private readonly tripPlanner: TripPlannerDomainAgent
   private readonly purefoy: PurefoyDomainAgent
   private readonly gastownPilot: GasTownPilotDomainAgent
+  private readonly sehStudy: SehStudyDomainAgent
 
   // R8: populated by init() — empty until first init() call
   private readonly domainStatus = new Map<string, DomainStatus>()
@@ -89,6 +92,7 @@ export class MetaOrchestratorAgent extends BaseAgent {
     this.tripPlanner = new TripPlannerDomainAgent(apiKey, subAppUrls.tripPlannerApi)
     this.purefoy = new PurefoyDomainAgent(apiKey, subAppUrls.purefoyApi)
     this.gastownPilot = new GasTownPilotDomainAgent(apiKey, subAppUrls.gastownPilotApi)
+    this.sehStudy = new SehStudyDomainAgent(apiKey, subAppUrls.sehStudyApi)
   }
 
   protected getSystemPrompt(): string {
@@ -103,6 +107,7 @@ You coordinate four sub-applications:
 - **tripplanner**: trip itinerary planning, destination research, budget tracking, accommodation and transport booking, ChatGPT transcript import
 - **purefoy**: creative and knowledge projects (purefoy domain)
 - **gastown-pilot**: multi-agent coordination, observability, rigs, convoys, beads, formulas, wasteland federation
+- **seh-study**: NASA Systems Engineering Handbook flashcards, quizzes, spaced repetition, glossary terms
 
 ## Classification Rules
 
@@ -135,6 +140,7 @@ Confident, efficient, and context-aware. You are the control layer of a power us
       { id: 'tripplanner',    url: this.urls.tripPlannerApi },
       { id: 'purefoy',        url: this.urls.purefoyApi },
       { id: 'gastown-pilot',  url: this.urls.gastownPilotApi },
+      { id: 'seh-study',      url: this.urls.sehStudyApi },
     ]
 
     await Promise.all(targets.map(async ({ id, url }) => {
@@ -196,6 +202,10 @@ Confident, efficient, and context-aware. You are the control layer of a power us
         content = await this.gastownPilot.processMessage(message, history, context)
         handledBy = 'GasTownPilotDomainAgent'
         break
+      case 'seh-study':
+        content = await this.sehStudy.processMessage(message, history, context)
+        handledBy = 'SehStudyDomainAgent'
+        break
       case 'cross-domain':
         content = await this.handleCrossDomain(message, history, context)
         handledBy = 'MetaOrchestratorAgent'
@@ -251,6 +261,10 @@ Confident, efficient, and context-aware. You are the control layer of a power us
       case 'gastown-pilot':
         content = await this.gastownPilot.streamMessage(message, history, context, onChunk)
         handledBy = 'GasTownPilotDomainAgent'
+        break
+      case 'seh-study':
+        content = await this.sehStudy.streamMessage(message, history, context, onChunk)
+        handledBy = 'SehStudyDomainAgent'
         break
       case 'cross-domain':
         content = await this.handleCrossDomainStream(message, history, context, onChunk)
@@ -321,7 +335,7 @@ Respond with ONLY the domain name, nothing else.`
       .map(b => ('text' in b ? b.text.trim().toLowerCase() : ''))
       .join('')
 
-    const validDomains: DomainType[] = ['resume-builder', 'blogengine', 'tripplanner', 'purefoy', 'gastown-pilot', 'cross-domain', 'meta']
+    const validDomains: DomainType[] = ['resume-builder', 'blogengine', 'tripplanner', 'purefoy', 'gastown-pilot', 'seh-study', 'cross-domain', 'meta']
     return validDomains.find(d => classification.includes(d)) ?? (activeAppType ?? 'meta')
   }
 
@@ -361,13 +375,14 @@ Respond with ONLY the domain name, nothing else.`
       case 'tripplanner': return this.tripPlanner.getTools()
       case 'purefoy': return this.purefoy.getTools()
       case 'gastown-pilot': return this.gastownPilot.getTools()
+      case 'seh-study': return this.sehStudy.getTools()
       default: return []
     }
   }
 
   // R4+R8: build the tool context string for the classify prompt
   private buildClassifyToolContext(): string {
-    const domainOrder: DomainType[] = ['resume-builder', 'blogengine', 'tripplanner', 'purefoy', 'gastown-pilot']
+    const domainOrder: DomainType[] = ['resume-builder', 'blogengine', 'tripplanner', 'purefoy', 'gastown-pilot', 'seh-study']
     const lines = domainOrder.map(id => {
       const tools = this.domainStatus.get(id)?.tools ?? this.getDomainStubs(id)
       return `${id} — ${tools.map(t => t.name).join(', ')}`
@@ -408,7 +423,7 @@ Respond with ONLY the domain name, nothing else.`
     ]
     if (!actionKeywords.some(k => lower.includes(k))) return null
 
-    const validAppTypes: DomainType[] = ['resume-builder', 'blogengine', 'tripplanner', 'purefoy', 'lean-canvas', 'gastown-pilot']
+    const validAppTypes: DomainType[] = ['resume-builder', 'blogengine', 'tripplanner', 'purefoy', 'lean-canvas', 'gastown-pilot', 'seh-study']
     const appTypeDescriptions = [
       'resume-builder — resume and job applications',
       'blogengine — blog posts and publishing',
@@ -416,6 +431,7 @@ Respond with ONLY the domain name, nothing else.`
       'purefoy — cinematography knowledge',
       'lean-canvas — business model canvas',
       'gastown-pilot — multi-agent coordination, rigs, convoys, beads, wasteland',
+      'seh-study — NASA systems engineering handbook, flashcards, quizzes, spaced repetition',
     ].join('\n')
 
     const instanceList = instances.length > 0
@@ -494,6 +510,7 @@ Respond with JSON only:
       case 'tripplanner': return this.tripPlanner.getConversationHistory()
       case 'purefoy': return this.purefoy.getConversationHistory()
       case 'gastown-pilot': return this.gastownPilot.getConversationHistory()
+      case 'seh-study': return this.sehStudy.getConversationHistory()
       default: return this.getConversationHistory()
     }
   }
@@ -516,6 +533,7 @@ Respond with JSON only:
         case 'tripplanner': response = await this.tripPlanner.processMessage(message, domainHistory, context); break
         case 'purefoy': response = await this.purefoy.processMessage(message, domainHistory, context); break
         case 'gastown-pilot': response = await this.gastownPilot.processMessage(message, domainHistory, context); break
+        case 'seh-study': response = await this.sehStudy.processMessage(message, domainHistory, context); break
       }
       return { domain, response }
     }))
@@ -661,6 +679,7 @@ Respond with JSON only:
         tripplanner: domainEntry('tripplanner'),
         purefoy: domainEntry('purefoy'),
         'gastown-pilot': domainEntry('gastown-pilot'),
+        'seh-study': domainEntry('seh-study'),
       },
     }
   }
