@@ -120,6 +120,8 @@ interface AppRegistryState {
   activeInstanceId: string | null
   // Convenience: which appType is currently foregrounded (for ShellAgent routing)
   activeAppType: AppType | null
+  /** Set when spawnInstance creates a new instance; cleared after animation completes. */
+  lastSpawnedInstanceId: string | null
 }
 
 // ── Default instances (one per app type on first load) ────────────────────────
@@ -148,6 +150,7 @@ const initialState: AppRegistryState = {
   instances: DEFAULT_INSTANCES,
   activeInstanceId: null,  // HomeScreen shown until user picks an app
   activeAppType: null,
+  lastSpawnedInstanceId: null,
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -194,6 +197,7 @@ export const appRegistrySlice = createSlice({
       state.instances.push(instance)
       state.activeInstanceId = instance.id
       state.activeAppType = appType
+      state.lastSpawnedInstanceId = instance.id
     },
 
     // Close an instance (cannot close the last instance of an app type)
@@ -261,6 +265,11 @@ export const appRegistrySlice = createSlice({
       if (inst) inst.lastActivity = now()
     },
 
+    // Clear the spawn animation flag after animation completes
+    clearLastSpawned(state) {
+      state.lastSpawnedInstanceId = null
+    },
+
     // Return to HomeScreen — clears the active instance without closing it
     goHome(state) {
       state.activeInstanceId = null
@@ -278,6 +287,7 @@ export const {
   renameThread,
   removeThread,
   bumpThreadActivity,
+  clearLastSpawned,
   goHome,
 } = appRegistrySlice.actions
 

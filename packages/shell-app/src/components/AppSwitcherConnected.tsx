@@ -9,6 +9,7 @@ import {
   activateInstance,
   closeInstance,
   spawnInstance,
+  clearLastSpawned,
   goHome,
   APP_CONFIG,
   APP_TYPES,
@@ -26,7 +27,7 @@ const displayConfig = Object.fromEntries(
 
 export function AppSwitcherConnected() {
   const dispatch = useAppDispatch()
-  const { instances, activeInstanceId } = useAppSelector(s => s.appRegistry)
+  const { instances, activeInstanceId, lastSpawnedInstanceId } = useAppSelector(s => s.appRegistry)
 
   function handleSpawnNew(appType: AppType) {
     const base = APP_CONFIG[appType].defaultInstanceName
@@ -44,12 +45,14 @@ export function AppSwitcherConnected() {
     <AppSwitcher
       instances={instances}
       activeInstanceId={activeInstanceId}
+      lastSpawnedInstanceId={lastSpawnedInstanceId}
       appConfig={displayConfig}
       appTypes={APP_TYPES}
       onActivate={id => dispatch(activateInstance(id))}
       onClose={id => dispatch(closeInstance(id))}
       onSpawnNew={handleSpawnNew}
       onGoHome={() => dispatch(goHome())}
+      onSpawnAnimationEnd={() => dispatch(clearLastSpawned())}
     />
   )
 }

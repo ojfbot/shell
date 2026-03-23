@@ -7,6 +7,8 @@ import type { AppType, AppInstance, AppDisplayConfig } from '../types.js'
 export interface AppSwitcherProps {
   instances: AppInstance[]
   activeInstanceId: string | null
+  /** Instance ID that was just spawned — triggers entry animation. Null when idle. */
+  lastSpawnedInstanceId: string | null
   /** Display config keyed by AppType — labels, singleton flags. */
   appConfig: Record<AppType, AppDisplayConfig>
   /** Ordered list of app types, controls group render order. */
@@ -15,6 +17,8 @@ export interface AppSwitcherProps {
   onClose: (instanceId: string) => void
   onSpawnNew: (appType: AppType) => void
   onGoHome: () => void
+  /** Called after spawn animation completes to clear the flag. */
+  onSpawnAnimationEnd?: () => void
 }
 
 /**
@@ -28,12 +32,14 @@ export interface AppSwitcherProps {
 export function AppSwitcher({
   instances,
   activeInstanceId,
+  lastSpawnedInstanceId,
   appConfig,
   appTypes,
   onActivate,
   onClose,
   onSpawnNew,
   onGoHome,
+  onSpawnAnimationEnd,
 }: AppSwitcherProps) {
   const [search, setSearch] = useState('')
   const q = search.toLowerCase()
@@ -92,11 +98,13 @@ export function AppSwitcher({
                 {typeInstances.map(inst => {
                   const isDeletable = totalOfType > 1
                   const isCurrent = activeInstanceId === inst.id
+                  const isJustSpawned = inst.id === lastSpawnedInstanceId
                   return (
                     <div
                       key={inst.id}
-                      className={`application-item${isCurrent ? ' current-app' : ''}`}
+                      className={`application-item${isCurrent ? ' current-app' : ''}${isJustSpawned ? ' application-item--spawned' : ''}`}
                       onClick={() => onActivate(inst.id)}
+                      onAnimationEnd={isJustSpawned ? onSpawnAnimationEnd : undefined}
                       role="button"
                       tabIndex={0}
                       onKeyDown={e => {
