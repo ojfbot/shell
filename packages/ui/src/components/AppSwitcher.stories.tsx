@@ -31,10 +31,12 @@ const meta: Meta<typeof AppSwitcher> = {
   args: {
     appConfig: APP_CONFIG,
     appTypes: APP_TYPES,
+    lastSpawnedInstanceId: null,
     onActivate: noop,
     onClose: noop,
     onSpawnNew: noop,
     onGoHome: noop,
+    onSpawnAnimationEnd: noop,
   },
 }
 
@@ -70,6 +72,18 @@ export const Empty: Story = {
   args: {
     instances: [],
     activeInstanceId: null,
+  },
+}
+
+/** Shows the spawn pulse animation on "Berlin Trip" instance. */
+export const SpawnAnimation: Story = {
+  args: {
+    instances: [
+      ...BASE_INSTANCES,
+      { id: 'i7', appType: 'tripplanner', name: 'Tokyo Interviews', remoteUrl: '' },
+    ],
+    activeInstanceId: 'i7',
+    lastSpawnedInstanceId: 'i7',
   },
 }
 
