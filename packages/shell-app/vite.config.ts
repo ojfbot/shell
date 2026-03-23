@@ -28,6 +28,7 @@ export default defineConfig(({ mode }) => {
     core_reader:  env.VITE_REMOTE_CORE_READER  ?? 'http://localhost:3015',
     lean_canvas:  env.VITE_REMOTE_LEAN_CANVAS  ?? 'http://localhost:3025',
     gastown_pilot: env.VITE_REMOTE_GASTOWN_PILOT ?? 'http://localhost:3017',
+    seh_study:     env.VITE_REMOTE_SEH_STUDY     ?? 'http://localhost:3030',
   }
 
   return {

@@ -41,4 +41,8 @@ export const DOMAIN_REGISTRY: DomainConfig[] = [
     id: 'gastown-pilot',
     keywords: ['gas town', 'gastown', 'agent tree', 'convoy', 'bead', 'formula', 'rig', 'wasteland', 'wanted board', 'sling', 'nudge', 'handoff'],
   },
+  {
+    id: 'seh-study',
+    keywords: ['systems engineering', 'seh', 'nasa handbook', 'flashcard', 'quiz me', 'spaced repetition', 'glossary', 'leitner'],
+  },
 ]

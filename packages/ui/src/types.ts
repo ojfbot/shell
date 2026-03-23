@@ -14,6 +14,7 @@ export type AppType =
   | 'core-reader'
   | 'lean-canvas'
   | 'gastown-pilot'
+  | 'seh-study'
 
 export interface AppInstance {
   id: string
