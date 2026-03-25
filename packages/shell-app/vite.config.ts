@@ -55,9 +55,18 @@ export default defineConfig(({ mode }) => {
       },
     }),
   ],
+  // Treat the shared UI library as source code (not a pre-built dep).
+  // The file: link resolves to .ts/.tsx — Vite must process it through
+  // the React plugin rather than trying to pre-bundle it.
+  optimizeDeps: {
+    exclude: ['@ojfbot/frame-ui-components'],
+  },
   server: {
     port: 4000,   // Shell runs on 4000 to avoid clashing with sub-apps
     cors: true,
+    fs: {
+      allow: ['../../..'],  // Allow serving files from frame-ui-components sibling repo
+    },
   },
   css: {
     preprocessorOptions: {
