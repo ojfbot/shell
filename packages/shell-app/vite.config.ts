@@ -60,6 +60,14 @@ export default defineConfig(({ mode }) => {
   // the React plugin rather than trying to pre-bundle it.
   optimizeDeps: {
     exclude: ['@ojfbot/frame-ui-components'],
+    // CJS transitive deps of the excluded package must be explicitly included
+    // so Vite pre-bundles them into ESM — otherwise browsers get CJS/ESM mismatch.
+    include: [
+      '@ojfbot/frame-ui-components > react-markdown',
+      '@ojfbot/frame-ui-components > hast-util-to-jsx-runtime',
+      '@ojfbot/frame-ui-components > style-to-js',
+      '@ojfbot/frame-ui-components > style-to-object',
+    ],
   },
   server: {
     port: 4000,   // Shell runs on 4000 to avoid clashing with sub-apps
