@@ -8,6 +8,7 @@
  */
 
 import React, { Suspense, useEffect, useState } from 'react'
+import { ErrorBoundary } from '@ojfbot/frame-ui-components'
 import { useAppSelector } from '../store/hooks.js'
 import type { AppType } from '../store/slices/appRegistrySlice.js'
 import { HomeScreenConnected } from './HomeScreenConnected.js'
@@ -32,28 +33,6 @@ interface RemoteProps {
   /** Tells the remote to suppress its standalone chrome (title heading, standalone margins).
    *  Shell provides its own Header + breadcrumb; remotes should render their AppPanel only. */
   shellMode: boolean
-}
-
-function RemoteErrorBoundary({ appType, children }: { appType: AppType; children: React.ReactNode }) {
-  // Simple class component error boundary (hooks can't catch render errors)
-  return <RemoteEB appType={appType}>{children}</RemoteEB>
-}
-
-class RemoteEB extends React.Component<{ appType: AppType; children: React.ReactNode }, { error: Error | null }> {
-  state = { error: null }
-  static getDerivedStateFromError(error: Error) { return { error } }
-  render() {
-    if (this.state.error) {
-      return (
-        <div className="remote-error">
-          <p>Could not load {this.props.appType}</p>
-          <p className="remote-error-detail">{(this.state.error as Error).message}</p>
-          <p className="remote-error-hint">Is the {this.props.appType} service running?</p>
-        </div>
-      )
-    }
-    return this.props.children
-  }
 }
 
 export function AppFrame() {
@@ -101,7 +80,17 @@ export function AppFrame() {
   }
 
   return (
-    <RemoteErrorBoundary appType={activeInstance.appType}>
+    <ErrorBoundary
+      appName={activeInstance.appType}
+      boundaryName="remote-loader"
+      fallback={(error: Error) => (
+        <div className="remote-error">
+          <p>Could not load {activeInstance.appType}</p>
+          <p className="remote-error-detail">{error.message}</p>
+          <p className="remote-error-hint">Is the {activeInstance.appType} service running?</p>
+        </div>
+      )}
+    >
       <Suspense fallback={<div className="frame-loading">Loading…</div>}>
         <div className="frame-fade-in" key={activeInstance.id} data-mf-remote={activeInstance.appType}>
           <RemoteComponent
@@ -111,6 +100,6 @@ export function AppFrame() {
           />
         </div>
       </Suspense>
-    </RemoteErrorBoundary>
+    </ErrorBoundary>
   )
 }
