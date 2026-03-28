@@ -9,8 +9,12 @@
 # Managed by core — do not commit (these are symlinks/dirs to ../../core/…)
 domain-knowledge
 .claude/commands/
+.claude/skills/
 decisions/core
 personal-knowledge/
 personal-knowledge
 .claude/settings.json
+.claude/settings.local.json
 .vercel
+storybook-static/
+*.tsbuildinfo
