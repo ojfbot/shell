@@ -14,9 +14,10 @@ import { HeaderConnected } from './components/HeaderConnected.js'
 import { SettingsModalConnected } from './components/SettingsModalConnected.js'
 import { ResumptionToastConnected } from './components/ResumptionToastConnected.js'
 import { ApprovalQueueConnected } from './components/ApprovalQueueConnected.js'
+import { SmallViewportNotice } from './components/SmallViewportNotice.js'
 import { useAppSelector, useAppDispatch } from './store/hooks.js'
 import { toggleTheme } from './store/slices/themeSlice.js'
-import { APP_LABELS } from './store/slices/appRegistrySlice.js'
+import { APP_LABELS, APP_CONFIG, activateInstance, type AppType } from './store/slices/appRegistrySlice.js'
 import { clearChat, loadSavedHistory, requestResumption } from './store/slices/chatSlice.js'
 import {
   loadThreadHistory,
@@ -72,6 +73,18 @@ export function App() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [threadContextKey])
+
+  // Deep-link: ?app=blogengine opens that app on load
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const appParam = params.get('app') as AppType | null
+    if (appParam && appParam in APP_CONFIG) {
+      const instanceId = `default-${appParam}`
+      if (instances.some(i => i.id === instanceId)) {
+        dispatch(activateInstance(instanceId))
+      }
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Push theme class to <html> so body + :root-resolved tokens change with the theme
   useEffect(() => {
@@ -152,6 +165,7 @@ export function App() {
 
       <ResumptionToastConnected />
       <ApprovalQueueConnected />
+      <SmallViewportNotice />
     </Theme>
   )
 }
