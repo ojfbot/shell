@@ -170,3 +170,10 @@ ADR-0029 formalises the prop-only container/presenter boundary that makes storie
 - [ ] Figma MCP integration — Phase 1 gate (unstarted)
 - [ ] TripPlanner GET /api/tools endpoint — Phase 1B
 - [ ] BlogEngine GET /api/tools fix (currently routes all tools to POST /api/v2/chat) — Phase 1B
+
+## Deployment
+
+**NEVER deploy directly to production** via CLI (`vercel deploy --prod`, `vercel promote`, etc.).
+All production deployments go through the GitHub PR → CI → merge → automated deploy pipeline.
+The only exception is `workflow_dispatch` for manual CI triggers.
+Local Vercel CLI usage is restricted to preview deploys only.
