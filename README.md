@@ -4,6 +4,8 @@
 
 Frame OS treats the browser like an operating system. Each application runs as an independent Module Federation remote (no iframes, no page reloads) while sharing a single React/Redux runtime. A central LLM gateway (`frame-agent`) routes natural-language intent to domain-specific agents, so every app in the ecosystem gets AI capabilities through one API key.
 
+**Why Module Federation:** Each sub-app is a true React remote — shared singletons for Redux and Carbon tokens, independent deployment per app, and the shell provides the window chrome. This is the same compositional pattern that powers Figma plugins, Shopify extensions, and browser-based OS environments. The alternative (iframes) means duplicated runtimes, broken accessibility trees, and no shared state.
+
 ## Features
 
 - **Module Federation host** — sub-apps load as true React remotes with shared singletons
@@ -104,6 +106,12 @@ Ingress routes: `app.jim.software` (shell), `cv.jim.software` (cv-builder), `blo
 
 ## Roadmap
 
+- [ ] Sub-app API migration: remove direct Anthropic calls, delegate to frame-agent
+- [ ] Visual regression baselines (pixelmatch / Playwright)
+
+<details>
+<summary>Completed milestones</summary>
+
 - [x] frame-agent: MetaOrchestratorAgent + domain agents
 - [x] @ojfbot/agent-core: shared BaseAgent + middleware
 - [x] ShellHeader with chat input routed to frame-agent
@@ -115,8 +123,8 @@ Ingress routes: `app.jim.software` (shell), `cv.jim.software` (cv-builder), `blo
 - [x] G3 Approval Queue for high-impact cross-app actions
 - [x] Multi-instance UI with session persistence and singleton enforcement
 - [x] Storybook stories + CI build gates
-- [ ] Sub-app API migration: remove direct Anthropic calls, delegate to frame-agent
-- [ ] Visual regression baselines (pixelmatch / Playwright)
+
+</details>
 
 ## License
 
