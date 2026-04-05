@@ -4,6 +4,7 @@ import chatReducer from './slices/chatSlice.js'
 import themeReducer from './slices/themeSlice.js'
 import settingsReducer from './slices/settingsSlice.js'
 import approvalQueueReducer from './slices/approvalQueueSlice.js'
+import { frameBusMiddleware } from './frameBusMiddleware.js'
 
 // ── Settings persistence ──────────────────────────────────────────────────────
 //
@@ -77,6 +78,8 @@ export const store = configureStore({
     settings: settingsReducer,
     approvalQueue: approvalQueueReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(frameBusMiddleware),
   preloadedState: {
     ...(persistedSettings ? { settings: persistedSettings } : {}),
     ...(persistedRegistry ? { appRegistry: persistedRegistry } : {}),
