@@ -4,14 +4,18 @@
   "private": true,
   "type": "module",
   "packageManager": "pnpm@9.15.4",
-  "engines": { "node": ">=24.0.0" },
+  "engines": {
+    "node": ">=24.0.0"
+  },
   "scripts": {
     "dev": "concurrently \"pnpm --filter @ojfbot/shell-app dev\" \"pnpm --filter @ojfbot/frame-agent dev\"",
     "dev:all": "concurrently \"pnpm --filter @ojfbot/shell-app dev\" \"pnpm --filter @ojfbot/frame-agent dev\"",
     "build": "pnpm --recursive --if-present build",
-    "type-check": "pnpm --recursive --if-present type-check"
+    "type-check": "pnpm --recursive --if-present type-check",
+    "e2e": "playwright test"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "concurrently": "^9.0.0"
   }
 }
