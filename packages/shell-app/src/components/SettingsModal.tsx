@@ -130,9 +130,6 @@ export function SettingsModal({ open, onClose }: Props) {
     onClose()
   }
 
-  const activeAppType = visibleApps[safeTab] ?? null
-  const Panel = activeAppType ? SETTINGS_LOADERS[activeAppType] : undefined
-
   return (
     <ComposedModal
       open={open}

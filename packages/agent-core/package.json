@@ -18,6 +18,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@frame/tsconfig": "file:../../../cv-builder/packages/tsconfig",
     "@types/express": "catalog:",
     "@types/node": "catalog:",
     "tsx": "catalog:",

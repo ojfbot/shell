@@ -18,13 +18,14 @@
     "react-dom": ">=18"
   },
   "devDependencies": {
+    "@frame/tsconfig": "file:../../../cv-builder/packages/tsconfig",
+    "@storybook/addon-essentials": "^8.0.0",
     "@storybook/react": "^8.0.0",
     "@storybook/react-vite": "^8.0.0",
-    "@storybook/addon-essentials": "^8.0.0",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
     "typescript": "catalog:",
-    "vite": "catalog:",
-    "@vitejs/plugin-react": "catalog:"
+    "vite": "catalog:"
   }
 }

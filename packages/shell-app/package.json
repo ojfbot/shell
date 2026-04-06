@@ -21,6 +21,7 @@
     "react-redux": "catalog:"
   },
   "devDependencies": {
+    "@frame/tsconfig": "file:../../../cv-builder/packages/tsconfig",
     "@originjs/vite-plugin-federation": "^1.3.6",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
