@@ -12,11 +12,15 @@
     "dev:all": "concurrently \"pnpm --filter @ojfbot/shell-app dev\" \"pnpm --filter @ojfbot/frame-agent dev\"",
     "build": "pnpm --recursive --if-present build",
     "type-check": "pnpm --recursive --if-present type-check",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "devDependencies": {
     "@frame/tsconfig": "file:../cv-builder/packages/tsconfig",
     "@playwright/test": "^1.59.1",
-    "concurrently": "^9.0.0"
+    "concurrently": "^9.0.0",
+    "eslint": "^9.0.0",
+    "typescript-eslint": "^8.0.0"
   }
 }
