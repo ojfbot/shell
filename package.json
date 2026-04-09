@@ -12,6 +12,7 @@
     "dev:all": "concurrently \"pnpm --filter @ojfbot/shell-app dev\" \"pnpm --filter @ojfbot/frame-agent dev\"",
     "build": "pnpm --recursive --if-present build",
     "type-check": "pnpm --recursive --if-present type-check",
+    "test": "pnpm --recursive --if-present test",
     "e2e": "playwright test",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
