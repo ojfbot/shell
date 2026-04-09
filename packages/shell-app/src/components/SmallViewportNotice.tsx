@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@carbon/react'
+import { tokens } from '@ojfbot/shell'
 
-const BREAKPOINT = '(max-width: 768px)'
+const BREAKPOINT = `(max-width: ${tokens.breakpointSmall})`
 const STORAGE_KEY = 'frame-viewport-notice-dismissed'
 
 export function SmallViewportNotice() {
