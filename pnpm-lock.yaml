@@ -167,8 +167,8 @@ importers:
         specifier: ^1.100.0
         version: 1.103.0(sass@1.98.0)
       '@ojfbot/frame-ui-components':
-        specifier: file:../../../frame-ui-components
-        version: file:../frame-ui-components(@carbon/react@1.104.1(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(sass@1.98.0))(@carbon/styles@1.103.0(sass@1.98.0))(react-dom@18.3.1(react@18.3.1))(react-markdown@10.1.0(@types/react@18.3.28)(react@18.3.1))(react@18.3.1)(remark-gfm@4.0.1)
+        specifier: ^1.0.1
+        version: 1.0.1(@carbon/react@1.104.1(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(sass@1.98.0))(@carbon/styles@1.103.0(sass@1.98.0))(react-dom@18.3.1(react@18.3.1))(react-markdown@10.1.0(@types/react@18.3.28)(react@18.3.1))(react@18.3.1)(remark-gfm@4.0.1)
       '@ojfbot/shell':
         specifier: workspace:*
         version: link:../ui
@@ -219,8 +219,8 @@ importers:
         specifier: '>=1'
         version: 1.104.1(react-dom@19.2.4(react@19.2.4))(react-is@18.2.0)(react@19.2.4)(sass@1.98.0)
       '@ojfbot/frame-ui-components':
-        specifier: file:../../../frame-ui-components
-        version: file:../frame-ui-components(@carbon/react@1.104.1(react-dom@19.2.4(react@19.2.4))(react-is@18.2.0)(react@19.2.4)(sass@1.98.0))(@carbon/styles@1.103.0(sass@1.98.0))(react-dom@19.2.4(react@19.2.4))(react-markdown@10.1.0(@types/react@18.3.28)(react@19.2.4))(react@19.2.4)(remark-gfm@4.0.1)
+        specifier: ^1.0.1
+        version: 1.0.1(@carbon/react@1.104.1(react-dom@19.2.4(react@19.2.4))(react-is@18.2.0)(react@19.2.4)(sass@1.98.0))(@carbon/styles@1.103.0(sass@1.98.0))(react-dom@19.2.4(react@19.2.4))(react-markdown@10.1.0(@types/react@18.3.28)(react@19.2.4))(react@19.2.4)(remark-gfm@4.0.1)
       react:
         specifier: '>=18'
         version: 19.2.4
@@ -994,8 +994,8 @@ packages:
       '@types/react': '>=16'
       react: '>=16'
 
-  '@ojfbot/frame-ui-components@file:../frame-ui-components':
-    resolution: {directory: ../frame-ui-components, type: directory}
+  '@ojfbot/frame-ui-components@1.0.1':
+    resolution: {integrity: sha512-LZydBJ2tcpPDo2Y2TNm9Au0SvbcZM31GxvX4rvHQpEFYLsfgG/VJtLgvfECEaXr36gk4dYe5N1spCT9pe9c/oA==}
     peerDependencies:
       '@carbon/react': '>=1'
       '@carbon/styles': '>=1'
@@ -1699,8 +1699,8 @@ packages:
     resolution: {integrity: sha512-Sp1ablJ0ivDkSzjcaJdxEunN5/XvksFJ2sMBFfq6x0ryhQV/2b/KwFe21cMpmHtPOSij8K99/wSfoEuTObmuMQ==}
     engines: {node: '>= 0.4'}
 
-  call-bind@1.0.8:
-    resolution: {integrity: sha512-oKlSFMcMwpUg2ednkhQ454wfWiU/ul3CkJe/PEHcTKuiX6RpbehUiFMXu13HalGZxfUwCQzZG747YXBn1im9ww==}
+  call-bind@1.0.9:
+    resolution: {integrity: sha512-a/hy+pNsFUTR+Iz8TCJvXudKVLAnz/DyeSUo10I5yvFDQJBFU2s9uqQpoSrJlroHUKoKqzg+epxyP9lqFdzfBQ==}
     engines: {node: '>= 0.4'}
 
   call-bound@1.0.4:
@@ -3875,7 +3875,7 @@ snapshots:
       '@types/react': 18.3.28
       react: 19.2.4
 
-  '@ojfbot/frame-ui-components@file:../frame-ui-components(@carbon/react@1.104.1(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(sass@1.98.0))(@carbon/styles@1.103.0(sass@1.98.0))(react-dom@18.3.1(react@18.3.1))(react-markdown@10.1.0(@types/react@18.3.28)(react@18.3.1))(react@18.3.1)(remark-gfm@4.0.1)':
+  '@ojfbot/frame-ui-components@1.0.1(@carbon/react@1.104.1(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(sass@1.98.0))(@carbon/styles@1.103.0(sass@1.98.0))(react-dom@18.3.1(react@18.3.1))(react-markdown@10.1.0(@types/react@18.3.28)(react@18.3.1))(react@18.3.1)(remark-gfm@4.0.1)':
     dependencies:
       '@carbon/react': 1.104.1(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(sass@1.98.0)
       '@carbon/styles': 1.103.0(sass@1.98.0)
@@ -3884,7 +3884,7 @@ snapshots:
       react-markdown: 10.1.0(@types/react@18.3.28)(react@18.3.1)
       remark-gfm: 4.0.1
 
-  '@ojfbot/frame-ui-components@file:../frame-ui-components(@carbon/react@1.104.1(react-dom@19.2.4(react@19.2.4))(react-is@18.2.0)(react@19.2.4)(sass@1.98.0))(@carbon/styles@1.103.0(sass@1.98.0))(react-dom@19.2.4(react@19.2.4))(react-markdown@10.1.0(@types/react@18.3.28)(react@19.2.4))(react@19.2.4)(remark-gfm@4.0.1)':
+  '@ojfbot/frame-ui-components@1.0.1(@carbon/react@1.104.1(react-dom@19.2.4(react@19.2.4))(react-is@18.2.0)(react@19.2.4)(sass@1.98.0))(@carbon/styles@1.103.0(sass@1.98.0))(react-dom@19.2.4(react@19.2.4))(react-markdown@10.1.0(@types/react@18.3.28)(react@19.2.4))(react@19.2.4)(remark-gfm@4.0.1)':
     dependencies:
       '@carbon/react': 1.104.1(react-dom@19.2.4(react@19.2.4))(react-is@18.2.0)(react@19.2.4)(sass@1.98.0)
       '@carbon/styles': 1.103.0(sass@1.98.0)
@@ -4609,7 +4609,7 @@ snapshots:
       es-errors: 1.3.0
       function-bind: 1.1.2
 
-  call-bind@1.0.8:
+  call-bind@1.0.9:
     dependencies:
       call-bind-apply-helpers: 1.0.2
       es-define-property: 1.0.1
@@ -6413,7 +6413,7 @@ snapshots:
   which-typed-array@1.1.20:
     dependencies:
       available-typed-arrays: 1.0.7
-      call-bind: 1.0.8
+      call-bind: 1.0.9
       call-bound: 1.0.4
       for-each: 0.3.5
       get-proto: 1.0.1
