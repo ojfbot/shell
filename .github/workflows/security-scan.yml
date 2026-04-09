@@ -54,6 +54,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Clone cv-builder (tsconfig dependency)
+        run: git clone --depth 1 https://github.com/ojfbot/cv-builder.git ../cv-builder
+
       - uses: pnpm/action-setup@v4
 
       - uses: actions/setup-node@v4
