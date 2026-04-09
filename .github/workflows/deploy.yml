@@ -30,21 +30,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Clone frame-ui-components (file protocol dep)
-        run: git clone --depth 1 https://github.com/ojfbot/frame-ui-components.git ../frame-ui-components
-
-      - name: Clone cv-builder (file protocol dep)
-        run: git clone --depth 1 https://github.com/ojfbot/cv-builder.git ../cv-builder
-
       - uses: pnpm/action-setup@v4
 
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
           cache: 'pnpm'
-
-      - name: Install frame-ui-components deps (peer deps needed for source resolution)
-        run: cd ../frame-ui-components && pnpm install --frozen-lockfile
 
       - name: Install Vercel CLI
         run: npm install -g vercel@latest

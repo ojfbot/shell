@@ -12,7 +12,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@ojfbot/frame-ui-components": "file:../../../frame-ui-components"
+    "@ojfbot/frame-ui-components": "^1.0.1"
   },
   "peerDependencies": {
     "@carbon/icons-react": ">=11",

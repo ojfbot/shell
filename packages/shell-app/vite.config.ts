@@ -1,5 +1,4 @@
 import { defineConfig, loadEnv } from 'vite'
-import { resolve } from 'path'
 import react from '@vitejs/plugin-react'
 import federation from '@originjs/vite-plugin-federation'
 
@@ -33,15 +32,6 @@ export default defineConfig(({ mode }) => {
   }
 
   return {
-  resolve: {
-    // Force Vite to resolve frame-ui-components from TypeScript source.
-    // The file: protocol dep doesn't have dist/ in CI — alias ensures
-    // both dev server and production build use the same source path.
-    alias: {
-      '@ojfbot/frame-ui-components/tokens': resolve(__dirname, '../../../frame-ui-components/src/tokens.ts'),
-      '@ojfbot/frame-ui-components': resolve(__dirname, '../../../frame-ui-components/src/index.ts'),
-    },
-  },
   plugins: [
     react(),
     federation({
@@ -65,26 +55,9 @@ export default defineConfig(({ mode }) => {
       },
     }),
   ],
-  // Treat the shared UI library as source code (not a pre-built dep).
-  // The file: link resolves to .ts/.tsx — Vite must process it through
-  // the React plugin rather than trying to pre-bundle it.
-  optimizeDeps: {
-    exclude: ['@ojfbot/frame-ui-components'],
-    // CJS transitive deps of the excluded package must be explicitly included
-    // so Vite pre-bundles them into ESM — otherwise browsers get CJS/ESM mismatch.
-    include: [
-      '@ojfbot/frame-ui-components > react-markdown',
-      '@ojfbot/frame-ui-components > hast-util-to-jsx-runtime',
-      '@ojfbot/frame-ui-components > style-to-js',
-      '@ojfbot/frame-ui-components > style-to-object',
-    ],
-  },
   server: {
-    port: 4000,   // Shell runs on 4000 to avoid clashing with sub-apps
+    port: 4000,
     cors: true,
-    fs: {
-      allow: ['../../..'],  // Allow serving files from frame-ui-components sibling repo
-    },
   },
   css: {
     preprocessorOptions: {
