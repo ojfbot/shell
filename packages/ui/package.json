@@ -11,6 +11,9 @@
     "build-storybook": "storybook build",
     "type-check": "tsc --noEmit"
   },
+  "dependencies": {
+    "@ojfbot/frame-ui-components": "file:../../../frame-ui-components"
+  },
   "peerDependencies": {
     "@carbon/icons-react": ">=11",
     "@carbon/react": ">=1",

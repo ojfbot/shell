@@ -1,55 +1,9 @@
 /**
- * Frame OS design tokens — TypeScript surface for the --ojf-* CSS custom properties
- * defined in packages/shell-app/src/themes/tokens.css.
+ * Frame OS design tokens — re-exported from @ojfbot/frame-ui-components.
  *
- * These are references to CSS variables, not hardcoded values. Swap themes by
- * updating tokens.css — nothing in component code needs to change.
+ * Single source of truth lives in frame-ui-components/src/tokens.ts.
+ * Shell components import from here for convenience; the underlying
+ * values are identical.
  */
 
-export const tokens = {
-  // ── Brand ─────────────────────────────────────────────────────────────────
-  colorAccent:       'var(--ojf-accent)',
-  colorAccentHover:  'var(--ojf-accent-hover)',
-  colorAccentActive: 'var(--ojf-accent-active)',
-  colorAccentSubtle: 'var(--ojf-accent-subtle)',
-
-  // ── Surfaces ──────────────────────────────────────────────────────────────
-  colorBackground: 'var(--ojf-bg)',
-  colorSurface1:   'var(--ojf-surface-1)',
-  colorSurface2:   'var(--ojf-surface-2)',
-  colorSurface3:   'var(--ojf-surface-3)',
-
-  // ── Borders ───────────────────────────────────────────────────────────────
-  colorBorder:       'var(--ojf-border)',
-  colorBorderSubtle: 'var(--ojf-border-subtle)',
-
-  // ── Text ──────────────────────────────────────────────────────────────────
-  colorTextPrimary:   'var(--ojf-text-primary)',
-  colorTextSecondary: 'var(--ojf-text-secondary)',
-  colorTextMuted:     'var(--ojf-text-muted)',
-
-  // ── Typography ────────────────────────────────────────────────────────────
-  fontSans: "var(--ojf-font-sans, 'IBM Plex Sans', sans-serif)",
-  fontMono: "var(--ojf-font-mono, 'IBM Plex Mono', monospace)",
-
-  // ── Spacing (Carbon 8px grid) ─────────────────────────────────────────────
-  spacingXs:  '4px',
-  spacingSm:  '8px',
-  spacingMd:  '16px',
-  spacingLg:  '24px',
-  spacingXl:  '32px',
-  spacing2xl: '48px',
-
-  // ── Layout constraints ─────────────────────────────────────────────────────
-  headerInputMinHeight: '32px',
-  headerInputMaxHeight: '96px',
-  breakpointSmall:      '768px',
-
-  // ── Motion ────────────────────────────────────────────────────────────────
-  easeStandard:   'var(--ojf-ease, cubic-bezier(0.16, 1, 0.3, 1))',
-  easeExpressive: 'cubic-bezier(0.2, 0, 0.38, 0.9)',
-  durationFast:   'var(--ojf-duration-fast, 120ms)',
-  durationBase:   'var(--ojf-duration-base, 200ms)',
-} as const
-
-export type TokenKey = keyof typeof tokens
+export { tokens, type TokenKey } from '@ojfbot/frame-ui-components/tokens'
