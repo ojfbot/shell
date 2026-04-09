@@ -32,6 +32,12 @@ export default defineConfig(({ mode }) => {
   }
 
   return {
+  resolve: {
+    // Prefer 'source' condition so Vite resolves @ojfbot/frame-ui-components
+    // from src/ (TypeScript source) rather than dist/ (which may not exist
+    // when consumed via file: protocol without a build step).
+    conditions: ['source', 'import', 'module', 'browser', 'default'],
+  },
   plugins: [
     react(),
     federation({
