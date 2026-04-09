@@ -8,6 +8,24 @@ const config: StorybookConfig = {
     name: '@storybook/react-vite',
     options: {},
   },
+  refs: {
+    'frame-ui-components': {
+      title: 'Frame UI Components',
+      url: 'http://localhost:6007',
+    },
+    'cv-builder': {
+      title: 'CV Builder',
+      url: 'http://localhost:6008',
+    },
+    'blogengine': {
+      title: 'BlogEngine',
+      url: 'http://localhost:6009',
+    },
+    'tripplanner': {
+      title: 'TripPlanner',
+      url: 'http://localhost:6010',
+    },
+  },
   viteFinal: async (config) =>
     mergeConfig(config, {
       resolve: {
