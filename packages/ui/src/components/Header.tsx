@@ -1,6 +1,7 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react'
-import { TextArea } from '@carbon/react'
-import { tokens } from '../tokens.js'
+import { useState, useRef, useEffect } from 'react'
+import { HeaderInput } from './HeaderInput.js'
+import { ChatHistoryOverlay } from './ChatHistoryOverlay.js'
+import { DomainBadge } from './DomainBadge.js'
 
 export interface ChatMessage {
   role: 'user' | 'assistant'
@@ -8,39 +9,17 @@ export interface ChatMessage {
 }
 
 export interface HeaderProps {
-  /** Label for the active app — shown in placeholder text. Null when no app is active. */
   activeAppLabel: string | null
-  /** Whether the frame-agent is available (controls disabled state and placeholder). */
   agentAvailable: boolean
-  /** Whether a message is currently streaming. */
   isStreaming: boolean
-  /** Current conversation history to render in the chat overlay. */
   messages: ChatMessage[]
-  /** Non-null when the last response had an error. */
   error: string | null
-  /** Domain badge label for the last routed domain. Null when no message has been sent. */
   lastDomainLabel: string | null
-  /** When true, the last response included an instance action (spawn or focus). */
   lastActionExecuted: boolean
-  /** Called when the user submits a message. Shell-app dispatches to Redux. */
   onSubmit: (message: string) => void
-  /** Called when the user clicks "Clear" in the chat overlay. */
   onClearChat: () => void
 }
 
-/**
- * Command input bar for the Frame OS Shell header.
- * Renders an expanding Carbon TextArea, submit button, domain badge, and chat overlay.
- *
- * Expanding behavior:
- * - Default: compact single-line (32px height, collapsed width)
- * - On focus: expands to full width (480px)
- * - On multi-line content: grows vertically up to 3 lines (96px)
- * - On blur when empty: collapses back
- * - Enter submits, Shift+Enter adds newline
- *
- * Pure component — no Redux imports. Wire via a connected wrapper in shell-app.
- */
 export function Header({
   activeAppLabel,
   agentAvailable,
@@ -65,52 +44,13 @@ export function Header({
 
   const isExpanded = isFocused || input.length > 0
 
-  function handleSubmit(e?: React.FormEvent) {
-    e?.preventDefault()
+  function handleSubmit() {
     const msg = input.trim()
     if (!msg || isStreaming || !agentAvailable) return
-
     setShowChat(true)
     onSubmit(msg)
     setInput('')
-    // Reset textarea height after submit
-    if (inputRef.current) {
-      inputRef.current.style.height = ''
-    }
-  }
-
-  function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === 'Escape') {
-      setShowChat(false)
-      inputRef.current?.blur()
-    }
-    // Enter submits, Shift+Enter adds newline
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSubmit()
-    }
-  }
-
-  // Auto-resize textarea height based on content (up to 3 lines / 96px)
-  const autoResize = useCallback(() => {
-    const el = inputRef.current
-    if (!el) return
-    el.style.height = tokens.headerInputMinHeight
-    el.style.height = `${Math.min(el.scrollHeight, parseInt(tokens.headerInputMaxHeight))}px`
-  }, [])
-
-  function handleChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
-    setInput(e.target.value)
-    autoResize()
-  }
-
-  function handleFocus() {
-    setIsFocused(true)
-    setShowChat(true)
-  }
-
-  function handleBlur() {
-    setIsFocused(false)
+    if (inputRef.current) inputRef.current.style.height = ''
   }
 
   // Auto-close overlay briefly after an action executes so the user sees the app switch
@@ -121,6 +61,7 @@ export function Header({
     }
   }, [lastActionExecuted, showChat])
 
+  // Global Cmd+K shortcut
   useEffect(() => {
     function handleGlobalKey(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -135,70 +76,29 @@ export function Header({
 
   return (
     <div className={`shell-header__command-area${isExpanded ? ' shell-header__command-area--expanded' : ''}`}>
-      <form className="shell-header__input-form" onSubmit={handleSubmit}>
-        <TextArea
-          ref={inputRef}
-          id="frame-command"
-          labelText="Frame command"
-          hideLabel
-          value={input}
-          onChange={handleChange}
-          onKeyDown={handleKeyDown}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          placeholder={placeholder}
-          disabled={isStreaming || !agentAvailable}
-          rows={1}
-        />
-        <button
-          type="submit"
-          className="shell-header__submit"
-          disabled={isStreaming || !input.trim() || !agentAvailable}
-          aria-label="Send"
-        >
-          {isStreaming ? '…' : '↑'}
-        </button>
-      </form>
+      <HeaderInput
+        ref={inputRef}
+        value={input}
+        onChange={setInput}
+        onSubmit={handleSubmit}
+        onEscape={() => { setShowChat(false) }}
+        onFocus={() => { setIsFocused(true); setShowChat(true) }}
+        onBlur={() => setIsFocused(false)}
+        placeholder={placeholder}
+        disabled={isStreaming || !agentAvailable}
+        isStreaming={isStreaming}
+      />
 
-      {lastDomainLabel && (
-        <span className="shell-header__domain-badge" title={`Handled by ${lastDomainLabel}`}>
-          {lastDomainLabel}
-        </span>
-      )}
+      <DomainBadge label={lastDomainLabel} />
 
       {showChat && messages.length > 0 && (
-        <div className="shell-chat-overlay">
-          <div className="shell-chat-overlay__messages">
-            {messages.map((msg, i) => (
-              <div key={i} className={`shell-chat-msg shell-chat-msg--${msg.role}`}>
-                <span className="shell-chat-msg__role">{msg.role === 'user' ? 'You' : 'Frame'}</span>
-                <span className="shell-chat-msg__content">{msg.content}</span>
-              </div>
-            ))}
-            {isStreaming && (
-              <div className="shell-chat-msg shell-chat-msg--assistant shell-chat-msg--streaming">
-                <span className="shell-chat-msg__role">Frame</span>
-                <span className="shell-chat-msg__content">thinking…</span>
-              </div>
-            )}
-            {error && (
-              <div className="shell-chat-msg shell-chat-msg--error">
-                <span className="shell-chat-msg__content">Error: {error}</span>
-              </div>
-            )}
-          </div>
-          <div className="shell-chat-overlay__actions">
-            <button
-              onClick={() => { onClearChat(); setShowChat(false) }}
-              className="shell-chat-clear"
-            >
-              Clear
-            </button>
-            <button onClick={() => setShowChat(false)} className="shell-chat-close">
-              Close esc
-            </button>
-          </div>
-        </div>
+        <ChatHistoryOverlay
+          messages={messages}
+          isStreaming={isStreaming}
+          error={error}
+          onClearChat={onClearChat}
+          onClose={() => setShowChat(false)}
+        />
       )}
     </div>
   )
