@@ -40,6 +40,11 @@ export const tokens = {
   spacingXl:  '32px',
   spacing2xl: '48px',
 
+  // ── Layout constraints ─────────────────────────────────────────────────────
+  headerInputMinHeight: '32px',
+  headerInputMaxHeight: '96px',
+  breakpointSmall:      '768px',
+
   // ── Motion ────────────────────────────────────────────────────────────────
   easeStandard:   'var(--ojf-ease, cubic-bezier(0.16, 1, 0.3, 1))',
   easeExpressive: 'cubic-bezier(0.2, 0, 0.38, 0.9)',

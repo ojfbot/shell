@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { TextArea } from '@carbon/react'
+import { tokens } from '../tokens.js'
 
 export interface ChatMessage {
   role: 'user' | 'assistant'
@@ -94,8 +95,8 @@ export function Header({
   const autoResize = useCallback(() => {
     const el = inputRef.current
     if (!el) return
-    el.style.height = '32px'
-    el.style.height = `${Math.min(el.scrollHeight, 96)}px`
+    el.style.height = tokens.headerInputMinHeight
+    el.style.height = `${Math.min(el.scrollHeight, parseInt(tokens.headerInputMaxHeight))}px`
   }, [])
 
   function handleChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
