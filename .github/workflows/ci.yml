@@ -39,6 +39,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-
 
+      - name: Install frame-ui-components deps (peer deps needed for source resolution)
+        run: cd ../frame-ui-components && pnpm install --frozen-lockfile
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
