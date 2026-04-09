@@ -1,4 +1,5 @@
 import { defineConfig, loadEnv } from 'vite'
+import { resolve } from 'path'
 import react from '@vitejs/plugin-react'
 import federation from '@originjs/vite-plugin-federation'
 
@@ -33,10 +34,13 @@ export default defineConfig(({ mode }) => {
 
   return {
   resolve: {
-    // Prefer 'source' condition so Vite resolves @ojfbot/frame-ui-components
-    // from src/ (TypeScript source) rather than dist/ (which may not exist
-    // when consumed via file: protocol without a build step).
-    conditions: ['source', 'import', 'module', 'browser', 'default'],
+    // Force Vite to resolve frame-ui-components from TypeScript source.
+    // The file: protocol dep doesn't have dist/ in CI — alias ensures
+    // both dev server and production build use the same source path.
+    alias: {
+      '@ojfbot/frame-ui-components/tokens': resolve(__dirname, '../../../frame-ui-components/src/tokens.ts'),
+      '@ojfbot/frame-ui-components': resolve(__dirname, '../../../frame-ui-components/src/index.ts'),
+    },
   },
   plugins: [
     react(),

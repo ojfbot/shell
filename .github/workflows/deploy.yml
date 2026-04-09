@@ -43,9 +43,6 @@ jobs:
           node-version: '24'
           cache: 'pnpm'
 
-      - name: Build frame-ui-components (file protocol dep needs dist/)
-        run: cd ../frame-ui-components && pnpm install --frozen-lockfile && pnpm build
-
       - name: Install Vercel CLI
         run: npm install -g vercel@latest
 
