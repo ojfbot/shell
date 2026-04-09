@@ -39,6 +39,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-
 
+      - name: Build frame-ui-components (file protocol dep needs dist/)
+        run: cd ../frame-ui-components && pnpm install --frozen-lockfile && pnpm build
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
