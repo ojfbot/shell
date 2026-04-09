@@ -43,6 +43,9 @@ jobs:
           node-version: '24'
           cache: 'pnpm'
 
+      - name: Install frame-ui-components deps (peer deps needed for source resolution)
+        run: cd ../frame-ui-components && pnpm install --frozen-lockfile
+
       - name: Install Vercel CLI
         run: npm install -g vercel@latest
 
