@@ -10,6 +10,7 @@ import inspectRouter from './routes/inspect.js'
 import resumptionRouter from './routes/resumption.js'
 import approvalsRouter from './routes/approvals.js'
 import techdebtRouter from './routes/techdebt.js'
+import beadsRouter from './routes/beads.js'
 
 const app = express()
 const PORT = parseInt(process.env.PORT ?? '4001', 10)
@@ -85,6 +86,7 @@ app.use('/api/health', healthRouter)
 app.use('/api/inspect', inspectRouter)
 app.use('/api/resumption', resumptionRouter)
 app.use('/api/approvals', approvalsRouter)
+app.use('/api/beads', beadsRouter)
 app.use('/api/techdebt', techdebtRouter)
 
 // 404 + error handling
