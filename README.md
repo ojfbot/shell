@@ -26,7 +26,7 @@ shell-app (port 4000)
         ├── BlogEngineDomainAgent
         ├── TripPlannerDomainAgent
         ├── GastownPilotDomainAgent
-        └── (cross-domain fan-out — ADR-0019 scoped history per domain)
+         └── (cross-domain fan-out — ADR-0013 scoped history per domain)
 
         ↓ delegates CRUD to:
         cv-builder-api (:3001)  blogengine-api (:3006)  tripplanner-api (:3011)
@@ -41,6 +41,7 @@ Sub-app APIs expose `GET /api/tools` returning their capability manifest. Domain
 | `packages/shell-app` | 4000 | Vite Module Federation host — header, app switcher, app frame |
 | `packages/frame-agent` | 4001 | Meta-orchestrator + LLM gateway for the entire cluster |
 | `packages/agent-core` | — | Shared npm package: BaseAgent, AgentManager, middleware |
+| `@ojfbot/frame-ui-components` | — | Shared component library (Carbon DS tokens, re-exported via shell) |
 
 ## Registered Apps
 
@@ -123,6 +124,12 @@ Ingress routes: `app.jim.software` (shell), `cv.jim.software` (cv-builder), `blo
 - [x] G3 Approval Queue for high-impact cross-app actions
 - [x] Multi-instance UI with session persistence and singleton enforcement
 - [x] Storybook stories + CI build gates
+- [x] FrameBus typed pub/sub (ADR-0013 + BroadcastChannel/CustomEvent fallback)
+- [x] Playwright smoke tests (deep-link, HomeScreen, invalid app)
+- [x] Header decomposition (HeaderInput, ChatHistoryOverlay, DomainBadge)
+- [x] SettingsModal decomposition (SettingsErrorBoundary, SettingsTabBar, sub-components)
+- [x] Cross-repo Storybook composition
+- [x] @ojfbot/frame-ui-components integrated as shared component library
 
 </details>
 

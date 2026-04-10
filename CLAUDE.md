@@ -21,7 +21,7 @@ The K8s topology maps directly to the "browser as OS" metaphor:
 | `packages/shell-app` | 4000 | Vite Module Federation host. Header + AppSwitcher + AppFrame. AppFrame mount divs carry a `data-mf-remote` attribute for MrPlug MF-aware detection. |
 | `packages/frame-agent` | 4001 | Meta-orchestrator + LLM gateway. Single Anthropic API key for all sub-apps. |
 | `packages/agent-core` | — | Shared npm package: BaseAgent, AgentManager, middleware (no port). |
-
+| `packages/frame-ui-components` | — | Shared UI component library (`@ojfbot/frame-ui-components`). Re-exports design tokens and presentational components consumed by shell-app and sub-apps. |
 ## frame-agent architecture
 
 `frame-agent` is the single AI backend for the entire Frame cluster:
@@ -34,7 +34,7 @@ shell-app (UI)
         ├── BlogEngineDomainAgent — posts, drafts, Notion, podcast
         ├── TripPlannerDomainAgent — trips, itineraries, budget, transport
         ├── GastownPilotDomainAgent — gastown-pilot domain routing + agent stub
-        └── (cross-domain fan-out via fanOut() — ADR-0019 isolation: scoped history per domain)
+        └── (cross-domain fan-out via fanOut() — ADR-0013 isolation: scoped history per domain)
 
   ↓ delegates CRUD/data to:
   cv-builder-api (port 3001)  — domain data service
@@ -67,7 +67,7 @@ Multiple instances of the same app type are supported (e.g. lean-canvas), except
 
 ## Theming
 
-Carbon is a style layer. `src/themes/tokens.css` defines CSS custom property overrides for Carbon's token system.
+Carbon is a style layer. Design tokens are now re-exported from `@ojfbot/frame-ui-components` (see `packages/frame-ui-components`) and consumed by shell-app via that package. `src/themes/tokens.css` defines CSS custom property overrides for Carbon's token system.
 
 **Dark / light mode** is controlled by the Redux `themeSlice` (`isDark: boolean`). The `<Theme>` component from `@carbon/react` reads that state and adds `.cds--g100` (dark) or `.cds--white` (light) to its wrapper div. `tokens.css` targets `.cds--g100` to apply the ojfbot dark-purple overrides — same selector specificity, later load order wins.
 
@@ -142,7 +142,7 @@ Ingress routes:
 
 ## Storybook & Visual regression CI
 
-All three sub-apps (cv-builder, BlogEngine, TripPlanner) now have Storybook (`~8.4.0`) with CI build gates that block merge on broken stories. The shell repo itself has stories (including `SettingsModal.stories.tsx`). Visual regression testing (pixelmatch / Playwright) is the next layer — not yet implemented. The correct sequence is: (1) get components into Storybook ✅, (2) enforce that Storybook builds in CI ✅, (3) add visual baselines once the build is stable (not yet started).
+All three sub-apps (cv-builder, BlogEngine, TripPlanner) now have Storybook (`~8.4.0`) with CI build gates that block merge on broken stories. The shell repo itself has stories (including `SettingsModal.stories.tsx`) and cross-repo Storybook composition is configured to aggregate sub-app stories into the shell's Storybook instance. Visual regression testing (pixelmatch / Playwright) is the next layer — not yet implemented. The correct sequence is: (1) get components into Storybook ✅, (2) enforce that Storybook builds in CI ✅, (3) add visual baselines once the build is stable (not yet started).
 
 ADR-0029 formalises the prop-only container/presenter boundary that makes stories trivial to write.
 
