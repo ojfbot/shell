@@ -1,0 +1,80 @@
+version: '3.8'
+
+# CI-specific Docker Compose configuration for Shell
+# Visual regression testing with Playwright in containers
+
+services:
+  # Shell App - React UI (Module Federation HOST)
+  shell-app:
+    build:
+      context: .
+      dockerfile: packages/shell-app/Dockerfile
+      target: production
+      args:
+        NODE_VERSION: '24'
+    container_name: shell-app-ci
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=test
+      - CI=true
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:4000"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 20s
+    networks:
+      - test-network
+
+  # Browser Automation - Playwright testing service
+  browser-automation:
+    build:
+      context: .
+      dockerfile: packages/browser-automation/Dockerfile
+      args:
+        PLAYWRIGHT_VERSION: '1.40.0'
+    container_name: shell-automation-ci
+    ports:
+      - "4002:4002"
+    environment:
+      - NODE_ENV=test
+      - CI=true
+      - PORT=4002
+      - HEADLESS=true
+      - BROWSER_APP_URL=http://shell-app:4000
+      - APP_URL=http://shell-app:4000
+      - SCREENSHOTS_DIR=/app/temp/screenshots
+      - SCREENSHOT_MAX_AGE_DAYS=7
+      - DISABLE_ANIMATIONS=true
+      - PLAYWRIGHT_BROWSER_EXECUTABLE_PATH=/ms-playwright/chromium-*/chrome-linux/chrome
+    volumes:
+      - ./packages/browser-automation/test-baselines:/app/test-baselines:ro
+      - ./temp/screenshots:/app/temp/screenshots
+      - ./temp/test-results:/app/test-results
+    depends_on:
+      shell-app:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:4002/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 15s
+    networks:
+      - test-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+
+networks:
+  test-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.31.0.0/16
