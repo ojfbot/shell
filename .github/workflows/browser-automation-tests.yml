@@ -36,6 +36,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Clone cv-builder (tsconfig dependency)
+        run: git clone --depth 1 https://github.com/ojfbot/cv-builder.git ../cv-builder
+
       - name: Enable Corepack
         run: |
           corepack enable
