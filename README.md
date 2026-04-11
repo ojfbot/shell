@@ -6,8 +6,6 @@ Frame OS treats the browser like an operating system. Each application runs as a
 
 **Why Module Federation:** Each sub-app is a true React remote — shared singletons for Redux and Carbon tokens, independent deployment per app, and the shell provides the window chrome. This is the same compositional pattern that powers Figma plugins, Shopify extensions, and browser-based OS environments. The alternative (iframes) means duplicated runtimes, broken accessibility trees, and no shared state.
 
-## Features
-
 - **Module Federation host** — sub-apps load as true React remotes with shared singletons
 - **frame-agent LLM gateway** — single Anthropic API key powers all domain agents
 - **Natural-language routing** — ShellAgent classifies intent and delegates to the right domain
@@ -15,7 +13,9 @@ Frame OS treats the browser like an operating system. Each application runs as a
 - **Cross-domain coordination** — fan-out queries across domain agents with approval queue for high-impact actions
 - **Dark/light theming** — Carbon Design System tokens with accent skin switcher
 - **K8s-native topology** — each sub-app is an independent pod; the shell is the browser chrome
-
+- **AgentBead bridge** — maps Claude Code lifecycle to Gas Town bead emissions (ADR-0043)
+- **Fleet-wide `/api/beads`** — Dolt-first aggregation with filesystem fallback
+- **Visual regression CI** — browser-automation package with screenshot baselines
 ## Architecture
 
 ```
@@ -41,7 +41,7 @@ Sub-app APIs expose `GET /api/tools` returning their capability manifest. Domain
 | `packages/shell-app` | 4000 | Vite Module Federation host — header, app switcher, app frame |
 | `packages/frame-agent` | 4001 | Meta-orchestrator + LLM gateway for the entire cluster |
 | `packages/agent-core` | — | Shared npm package: BaseAgent, AgentManager, middleware |
-| `@ojfbot/frame-ui-components` | — | Shared component library (Carbon DS tokens, re-exported via shell) |
+| `@ojfbot/frame-ui-components` | — | Shared component library (Carbon DS tokens, published to npm) |
 
 ## Registered Apps
 
@@ -108,7 +108,7 @@ Ingress routes: `app.jim.software` (shell), `cv.jim.software` (cv-builder), `blo
 ## Roadmap
 
 - [ ] Sub-app API migration: remove direct Anthropic calls, delegate to frame-agent
-- [ ] Visual regression baselines (pixelmatch / Playwright)
+- [x] Visual regression baselines (browser-automation + Playwright fleet-wide)
 
 <details>
 <summary>Completed milestones</summary>
@@ -129,7 +129,11 @@ Ingress routes: `app.jim.software` (shell), `cv.jim.software` (cv-builder), `blo
 - [x] Header decomposition (HeaderInput, ChatHistoryOverlay, DomainBadge)
 - [x] SettingsModal decomposition (SettingsErrorBoundary, SettingsTabBar, sub-components)
 - [x] Cross-repo Storybook composition
-- [x] @ojfbot/frame-ui-components integrated as shared component library
+- [x] @ojfbot/frame-ui-components published to npm (fleet-wide migration from file: paths)
+- [x] AgentBead bridge — Claude Code lifecycle → Gas Town bead emissions (ADR-0043)
+- [x] GET /api/beads fleet-wide aggregation (Dolt-first + filesystem fallback)
+- [x] browser-automation visual regression CI (fleet-wide)
+- [x] Container-presenter decomposition (StudyPanel, ChangesTab, TranscriptViewer)
 
 </details>
 

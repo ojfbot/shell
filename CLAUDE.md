@@ -19,9 +19,10 @@ The K8s topology maps directly to the "browser as OS" metaphor:
 | Package | Port | Purpose |
 |---|---|---|
 | `packages/shell-app` | 4000 | Vite Module Federation host. Header + AppSwitcher + AppFrame. AppFrame mount divs carry a `data-mf-remote` attribute for MrPlug MF-aware detection. |
-| `packages/frame-agent` | 4001 | Meta-orchestrator + LLM gateway. Single Anthropic API key for all sub-apps. |
-| `packages/agent-core` | — | Shared npm package: BaseAgent, AgentManager, middleware (no port). |
-| `packages/frame-ui-components` | — | Shared UI component library (`@ojfbot/frame-ui-components`). Re-exports design tokens and presentational components consumed by shell-app and sub-apps. |
+| `packages/frame-agent` | 4001 | Meta-orchestrator + LLM gateway. Single Anthropic API key for all sub-apps. Hosts GET `/api/beads` aggregation endpoint (Dolt-first with filesystem fallback). |
+| `packages/agent-core` | — | Shared npm package: BaseAgent, AgentManager, middleware, bead hooks/skills/session coordination (no port). |
+| `packages/frame-ui-components` | — | Shared UI component library (`@ojfbot/frame-ui-components`). Published to npm; resolved via Vite alias for local source development. Re-exports design tokens and presentational components consumed by shell-app and sub-apps. |
+| `packages/browser-automation` | — | Visual regression testing package (Playwright-based screenshot capture against the composed shell). |
 ## frame-agent architecture
 
 `frame-agent` is the single AI backend for the entire Frame cluster:
@@ -142,7 +143,9 @@ Ingress routes:
 
 ## Storybook & Visual regression CI
 
-All three sub-apps (cv-builder, BlogEngine, TripPlanner) now have Storybook (`~8.4.0`) with CI build gates that block merge on broken stories. The shell repo itself has stories (including `SettingsModal.stories.tsx`) and cross-repo Storybook composition is configured to aggregate sub-app stories into the shell's Storybook instance. Visual regression testing (pixelmatch / Playwright) is the next layer — not yet implemented. The correct sequence is: (1) get components into Storybook ✅, (2) enforce that Storybook builds in CI ✅, (3) add visual baselines once the build is stable (not yet started).
+All three sub-apps (cv-builder, BlogEngine, TripPlanner) now have Storybook (`~8.4.0`) with CI build gates that block merge on broken stories. The shell repo itself has stories (including `SettingsModal.stories.tsx`) and cross-repo Storybook composition is configured to aggregate sub-app stories into the shell's Storybook instance.
+
+Visual regression CI is now active: the `browser-automation` package (Playwright-based) has been deployed fleet-wide. Screenshots capture the composed shell (not standalone apps) and wait for a Frame sentinel element rather than `networkidle` before capture. The correct sequence is: (1) get components into Storybook ✅, (2) enforce that Storybook builds in CI ✅, (3) add visual baselines ✅ (browser-automation landed fleet-wide 2026-04-11).
 
 ADR-0029 formalises the prop-only container/presenter boundary that makes stories trivial to write.
 
@@ -165,7 +168,7 @@ ADR-0029 formalises the prop-only container/presenter boundary that makes storie
 - [x] Multi-instance UI: session persistence, close button on extra instances, singleton enforcement for purefoy/core-reader
 - [ ] Sub-app API migration: remove direct Anthropic calls, delegate to frame-agent — Phase 2
 - [x] Storybook stories + CI build gates: shell, cv-builder, BlogEngine, TripPlanner — ADR-0029 prop-only boundary
-- [ ] Visual regression baselines (pixelmatch / Playwright) on top of Storybook builds
+- [x] Visual regression CI (browser-automation package, Playwright screenshots, fleet-wide) — sentinel-based capture, composed shell screenshots
 - [ ] `@ojfbot/shell` npm publish — Phase 1 gate (unstarted)
 - [ ] Figma MCP integration — Phase 1 gate (unstarted)
 - [ ] TripPlanner GET /api/tools endpoint — Phase 1B
