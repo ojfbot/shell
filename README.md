@@ -54,6 +54,7 @@ Sub-app APIs expose `GET /api/tools` returning their capability manifest. Domain
 | lean-canvas | :3025 | :3026 | Scaffolded |
 | gastown-pilot | :3017 | :3018 | Scaffolded |
 | seh-study | :3030 | :3031 | Scaffolded |
+| asset-foundry | :3035 | — | Registered (pending port-collision resolution) |
 | purefoy | — | — | Singleton (no API) |
 
 ## Tech Stack
@@ -156,6 +157,9 @@ Part of [Frame OS](https://github.com/ojfbot/shell) — an AI-native application
 | [lean-canvas](https://github.com/ojfbot/lean-canvas) | AI-powered lean canvas business model tool |
 | [gastown-pilot](https://github.com/ojfbot/gastown-pilot) | Multi-agent coordination dashboard |
 | [seh-study](https://github.com/ojfbot/seh-study) | NASA SEH spaced repetition study tool |
+| [asset-foundry](https://github.com/ojfbot/asset-foundry) | 3D asset pipeline with dual Blender transports |
+| [beaverGame](https://github.com/ojfbot/beaverGame) | Babylon.js dodge gameplay |
+| [github-actions](https://github.com/ojfbot/github-actions) | Shared composite CI actions (skill-audit, etc.) |
 | [daily-logger](https://github.com/ojfbot/daily-logger) | Automated daily dev blog pipeline |
 | [purefoy](https://github.com/ojfbot/purefoy) | Roger Deakins cinematography knowledge base |
 | [MrPlug](https://github.com/ojfbot/MrPlug) | Chrome extension for AI UI feedback |
