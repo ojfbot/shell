@@ -10,6 +10,7 @@ import {
 import { Asleep, Light, Settings } from '@carbon/icons-react'
 import { AppSwitcherConnected } from './components/AppSwitcherConnected.js'
 import { AppFrame } from './components/AppFrame.js'
+import { FRAME_AGENT_URL } from './api/frame-agent-client.js'
 import { HeaderConnected } from './components/HeaderConnected.js'
 import { SettingsModalConnected } from './components/SettingsModalConnected.js'
 import { ResumptionToastConnected } from './components/ResumptionToastConnected.js'
@@ -32,7 +33,7 @@ export function App() {
   const { activeAppType, activeInstanceId, instances } = useAppSelector(s => s.appRegistry)
   const dispatch = useAppDispatch()
 
-  const frameAgentUrl = import.meta.env.VITE_FRAME_AGENT_URL ?? 'http://localhost:4001'
+  const frameAgentUrl = FRAME_AGENT_URL
 
   // Derive a stable key that changes whenever the active thread changes.
   // Using a combined string avoids two separate useEffect deps.

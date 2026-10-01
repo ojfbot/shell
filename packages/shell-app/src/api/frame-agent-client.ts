@@ -45,7 +45,16 @@ export interface FrameAgentChatResponse {
   }
 }
 
-const BASE_URL = import.meta.env.VITE_FRAME_AGENT_URL ?? 'http://localhost:4001'
+/**
+ * Frame-agent base URL. Loopback only in dev — a production bundle must never
+ * reach for localhost (it triggers the browser's Local Network Access prompt
+ * for every visitor). Empty = same-origin / "Agent offline — demo mode"
+ * (ADR-0013); .env.production sets it empty explicitly.
+ */
+export const FRAME_AGENT_URL: string =
+  import.meta.env.VITE_FRAME_AGENT_URL ?? (import.meta.env.DEV ? 'http://localhost:4001' : '')
+
+const BASE_URL = FRAME_AGENT_URL
 
 export const frameAgentClient = {
   async chat(req: FrameAgentChatRequest): Promise<FrameAgentChatResponse> {

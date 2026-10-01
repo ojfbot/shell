@@ -15,6 +15,7 @@ import { Header } from '@ojfbot/shell'
 import { useAppDispatch, useAppSelector } from '../store/hooks.js'
 import { sendMessage, clearChat } from '../store/slices/chatSlice.js'
 import { APP_CONFIG } from '../store/slices/appRegistrySlice.js'
+import { FRAME_AGENT_URL } from '../api/frame-agent-client.js'
 
 export function HeaderConnected() {
   const dispatch = useAppDispatch()
@@ -24,7 +25,7 @@ export function HeaderConnected() {
   const activeInstance = instances.find(i => i.id === activeInstanceId)
   const activeThreadId = activeInstance?.activeThreadId ?? null
 
-  const frameAgentUrl = import.meta.env.VITE_FRAME_AGENT_URL ?? 'http://localhost:4001'
+  const frameAgentUrl = FRAME_AGENT_URL
   const agentAvailable = Boolean(frameAgentUrl)
 
   const activeAppLabel = activeAppType ? (APP_CONFIG[activeAppType]?.label ?? null) : null
