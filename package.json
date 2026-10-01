@@ -11,6 +11,7 @@
     "dev": "concurrently \"pnpm --filter @ojfbot/shell-app dev\" \"pnpm --filter @ojfbot/frame-agent dev\"",
     "dev:all": "concurrently \"pnpm --filter @ojfbot/shell-app dev\" \"pnpm --filter @ojfbot/frame-agent dev\"",
     "build": "pnpm --recursive --if-present build",
+    "check:no-loopback": "sh scripts/check-no-loopback.sh",
     "type-check": "pnpm --recursive --if-present type-check",
     "test": "pnpm --recursive --if-present test",
     "e2e": "playwright test",

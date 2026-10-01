@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import { FRAME_AGENT_URL } from '../../api/frame-agent-client.js'
 
 interface ApprovalItem {
   id: string
@@ -14,7 +15,7 @@ interface ApprovalQueueState {
 
 const initialState: ApprovalQueueState = { items: [], loading: false, error: null }
 
-const BASE_URL = () => import.meta.env.VITE_FRAME_AGENT_URL ?? 'http://localhost:4001'
+const BASE_URL = () => FRAME_AGENT_URL
 
 export const fetchApprovals = createAsyncThunk('approvalQueue/fetch', async () => {
   const res = await fetch(`${BASE_URL()}/api/approvals`)

@@ -17,19 +17,23 @@ import federation from '@originjs/vite-plugin-federation'
 // Local dev defaults. Production overrides via VITE_REMOTE_* env vars in .env.production.
 // Uses loadEnv so the federation plugin (which runs in Node during build) can read them —
 // process.env does NOT include .env.* files; loadEnv does.
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
+  // Localhost defaults apply to the dev server only. A production bundle must
+  // never point a remote at loopback (it triggers the browser's Local Network
+  // Access prompt for every visitor) — an unset remote is left out instead.
+  const devDefault = (url: string) => (command === 'serve' ? url : undefined)
 
   const remoteBase = {
-    resume_builder: env.VITE_REMOTE_RESUME_BUILDER ?? 'http://localhost:3000',
-    blogengine:   env.VITE_REMOTE_BLOGENGINE   ?? 'http://localhost:3005',
-    tripplanner:  env.VITE_REMOTE_TRIPPLANNER  ?? 'http://localhost:3010',
-    purefoy:      env.VITE_REMOTE_PUREFOY      ?? 'http://localhost:3020',
-    core_reader:  env.VITE_REMOTE_CORE_READER  ?? 'http://localhost:3015',
-    lean_canvas:  env.VITE_REMOTE_LEAN_CANVAS  ?? 'http://localhost:3025',
-    gastown_pilot: env.VITE_REMOTE_GASTOWN_PILOT ?? 'http://localhost:3017',
-    seh_study:     env.VITE_REMOTE_SEH_STUDY     ?? 'http://localhost:3030',
-    asset_foundry: env.VITE_REMOTE_ASSET_FOUNDRY ?? 'http://localhost:3035',
+    resume_builder: env.VITE_REMOTE_RESUME_BUILDER ?? devDefault('http://localhost:3000'),
+    blogengine:   env.VITE_REMOTE_BLOGENGINE   ?? devDefault('http://localhost:3005'),
+    tripplanner:  env.VITE_REMOTE_TRIPPLANNER  ?? devDefault('http://localhost:3010'),
+    purefoy:      env.VITE_REMOTE_PUREFOY      ?? devDefault('http://localhost:3020'),
+    core_reader:  env.VITE_REMOTE_CORE_READER  ?? devDefault('http://localhost:3015'),
+    lean_canvas:  env.VITE_REMOTE_LEAN_CANVAS  ?? devDefault('http://localhost:3025'),
+    gastown_pilot: env.VITE_REMOTE_GASTOWN_PILOT ?? devDefault('http://localhost:3017'),
+    seh_study:     env.VITE_REMOTE_SEH_STUDY     ?? devDefault('http://localhost:3030'),
+    asset_foundry: env.VITE_REMOTE_ASSET_FOUNDRY ?? devDefault('http://localhost:3035'),
   }
 
   return {
@@ -38,10 +42,9 @@ export default defineConfig(({ mode }) => {
     federation({
       name: 'shell',
       remotes: Object.fromEntries(
-        Object.entries(remoteBase).map(([k, base]) => [
-          k,
-          `${base}/assets/remoteEntry.js`,
-        ])
+        Object.entries(remoteBase)
+          .filter((entry): entry is [string, string] => Boolean(entry[1]))
+          .map(([k, base]) => [k, `${base}/assets/remoteEntry.js`])
       ),
       // Shared singletons — one copy in the runtime regardless of which module loaded it.
       // Object form enforces singleton + version constraints matching the remote configs.
