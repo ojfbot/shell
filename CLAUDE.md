@@ -6,7 +6,7 @@
 
 **Architecture: Module Federation (Vite) + K8s pod cluster + frame-agent LLM gateway**
 
-Each sub-app (cv-builder, BlogEngine, TripPlanner, purefoy, core-reader, lean-canvas, gastown-pilot) runs as an independent pod exposing its `Dashboard` component as a Vite Module Federation remote. The shell is the host that loads those remotes dynamically — no iframes, no page reloads, shared React/Redux singleton.
+Each sub-app (cv-builder, BlogEngine, TripPlanner, purefoy, core-reader, lean-canvas, gastown-pilot, asset-foundry) runs as an independent pod exposing its `Dashboard` component as a Vite Module Federation remote. The shell is the host that loads those remotes dynamically — no iframes, no page reloads, shared React/Redux singleton.
 
 The K8s topology maps directly to the "browser as OS" metaphor:
 - Each sub-app pod ≈ a browser process (isolated, independently deployable)
@@ -58,7 +58,7 @@ Each sub-app imports this instead of duplicating the pattern.
 ## Data model
 
 App → Instance → Thread (see `appRegistrySlice.ts`):
-- **App** (type): cv-builder, tripplanner, blogengine, purefoy, core-reader, lean-canvas, gastown-pilot
+- **App** (type): cv-builder, tripplanner, blogengine, purefoy, core-reader, lean-canvas, gastown-pilot, asset-foundry
 - **Instance**: a named running context of an app type ("Tokyo Trip", "Berlin Trip")
 - **Thread**: a named conversation within an instance ("Flights", "Hotels")
 
@@ -95,9 +95,9 @@ pnpm type-check
 Environment variables for frame-agent dev:
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
-export CV_BUILDER_API_URL=http://localhost:3001
-export BLOGENGINE_API_URL=http://localhost:3006
-export TRIPPLANNER_API_URL=http://localhost:3011
+export CV_BUILDER_API_URL=<production-or-preview-URL>   # never localhost
+export BLOGENGINE_API_URL=<production-or-preview-URL>   # never localhost
+export TRIPPLANNER_API_URL=<production-or-preview-URL>  # never localhost
 ```
 
 The `frame-agent` dev script uses `sh -c 'set -a; [ -f .env ] && . ./.env; ...'` (POSIX sh dotenv sourcing) instead of `NODE_OPTIONS=--env-file`. This is intentional: `--env-file` is blocked when `NODE_OPTIONS` is already set by the environment (e.g. in some CI/Docker setups). The POSIX sh form works everywhere.

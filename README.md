@@ -77,9 +77,11 @@ pnpm install
 
 # Set environment variables
 export ANTHROPIC_API_KEY=sk-ant-...
-export CV_BUILDER_API_URL=http://localhost:3001
-export BLOGENGINE_API_URL=http://localhost:3006
-export TRIPPLANNER_API_URL=http://localhost:3011
+# API base URLs are enforced at build time — see build-time env guard.
+# Do NOT use localhost fallbacks; set production URLs in .env or CI.
+export CV_BUILDER_API_URL=https://cv.jim.software/api
+export BLOGENGINE_API_URL=https://blog.jim.software/api
+export TRIPPLANNER_API_URL=https://trips.jim.software/api
 
 # Start shell + frame-agent
 pnpm dev:all
@@ -149,7 +151,7 @@ Part of [Frame OS](https://github.com/ojfbot/shell) — an AI-native application
 | Repo | Description |
 |------|-------------|
 | **shell** | **Module Federation host + frame-agent LLM gateway (this repo)** |
-| [core](https://github.com/ojfbot/core) | Workflow framework — 30+ slash commands + TypeScript engine |
+| [core](https://github.com/ojfbot/core) | Workflow framework + fleet-runner control plane — 30+ slash commands + TypeScript engine (ADR-0108) |
 | [cv-builder](https://github.com/ojfbot/cv-builder) | AI-powered resume builder with LangGraph agents |
 | [blogengine](https://github.com/ojfbot/BlogEngine) | AI blog content creation platform |
 | [TripPlanner](https://github.com/ojfbot/TripPlanner) | AI trip planner with 11-phase pipeline |
